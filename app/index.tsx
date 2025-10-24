@@ -33,23 +33,28 @@ export default function Index() {
     <View style={styles.container}>
       <Image
         source={require("../assets/images/logo.png")}
-        style={{ width: 220, height: 220, tintColor: '#345832ff'  }}
+        style={{ width: 220, height: 220, tintColor: "#345832ff" }}
       />
       <Text style={styles.title}>Reaproveita</Text>
       <Text style={styles.subtitle}>
         Bem-vindo à sua jornada contra o desperdício!{" "}
       </Text>
-      <Pressable style={[styles.primaryBtn, styles.button]}>
+      <Pressable
+        style={[styles.primaryBtn, styles.button]}
+        onPress={() => router.push("/signUp")}
+      >
         <Text style={styles.primaryBtnText}>Criar uma conta</Text>
       </Pressable>
       <View style={styles.loginContainer}>
         <Text style={{ textAlign: "center", fontFamily: "Lato_400Regular" }}>
           Já tem uma conta?{" "}
         </Text>
-        <Text style={styles.underlineText}>Login</Text>
+        <Pressable onPress={() => router.push("/login")}>
+          <Text style={styles.underlineText}>Login</Text>
+        </Pressable>
       </View>
       <View style={{ width: "100%", gap: 4 }}>
-        <Pressable onPress={() => router.push('./main')}>
+        <Pressable onPress={() => router.push("./main")}>
           <Text style={styles.underlineText}>Usar sem uma conta</Text>
         </Pressable>
 
@@ -108,7 +113,7 @@ const styles = StyleSheet.create({
     textDecorationLine: "underline",
     fontFamily: "Lato_400Regular",
     textAlign: "center",
-    fontSize: 16
+    fontSize: 16,
   },
   secondaryBtn: {
     backgroundColor: "transparent",

@@ -30,10 +30,11 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         height: 50,
         borderWidth: 0.4,
-        borderColor: "#000",
-        borderRadius: 50,
+        borderColor: "#1E251E",
+        borderRadius: 10,
         borderCurve: 'continuous',
         paddingHorizontal: 18,
-        gap: 12
+        gap: 12,
+        backgroundColor: "#dbe0dbff"
     }
 })

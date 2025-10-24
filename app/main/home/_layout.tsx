@@ -1,8 +1,16 @@
+import { supabase } from "@/lib/supabase";
 import Feather from "@expo/vector-icons/Feather";
 import { router } from "expo-router";
 import { Drawer } from "expo-router/drawer";
-import { Pressable } from "react-native";
+import { Alert, Pressable } from "react-native";
 export default function Layout() {
+  const onLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      Alert.alert("Logout", error.message);
+    }
+  };
+
   return (
     <Drawer
       screenOptions={{
@@ -24,20 +32,22 @@ export default function Layout() {
           headerTitleContainerStyle: {
             flex: 1,
             alignItems: "center",
-            
           },
           headerLeftContainerStyle: {
             marginRight: 10,
           },
           headerRight: () => (
-            <Pressable onPress={() => router.push("/")} style={{marginRight: 18}}>
-              <Feather name="user" size={24} color="#fff" />
+            <Pressable
+              onPress={() => router.push("/")}
+              style={{ marginRight: 18 }}
+            >
+              <Feather name="user" size={24} color="#fff" onPress={onLogout} />
             </Pressable>
           ),
         }}
       />
       <Drawer.Screen
-        name="settings" 
+        name="settings"
         options={{
           title: "Configurações",
           drawerLabel: "Configurações",

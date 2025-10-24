@@ -33,7 +33,7 @@ export default function Card({ icon, label }: { icon: any; label: string }) {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: "#EFF5EE",
+    backgroundColor: "#ebebebff",
     width: "47%",
     borderRadius: 12,
     alignItems: "center",
