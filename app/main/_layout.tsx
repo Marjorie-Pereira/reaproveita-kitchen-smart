@@ -9,6 +9,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="home"
         options={{
+          title: 'Início',
           headerShown: false,
           tabBarIcon: ({ color }) => <FontAwesome size={28} name="home" color={color} />,
         }}
@@ -17,14 +18,14 @@ export default function TabLayout() {
         name="meals"
         options={{
           title: 'Refeições',
-          tabBarIcon: ({ color }) => <FontAwesome size={28} name="cog" color={color} />,
+          tabBarIcon: ({ color }) => <FontAwesome name="calendar" size={24} color={color} />,
         }}
       />
        <Tabs.Screen
         name="shoppingList"
         options={{
           title: 'Compras',
-          tabBarIcon: ({ color }) => <FontAwesome size={28} name="cog" color={color} />,
+          tabBarIcon: ({ color }) => <FontAwesome name="list" size={24} color={color} />,
         }}
       />
     </Tabs>

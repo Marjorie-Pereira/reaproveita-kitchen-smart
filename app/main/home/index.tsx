@@ -1,7 +1,8 @@
 import Card from "@/components/Card";
-import { FontAwesome6, Fontisto, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { Fontisto, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import React from "react";
 import {
+  ImageBackground,
   ScrollView,
   StyleSheet,
   Text,
@@ -15,15 +16,35 @@ export default function WelcomeScreen() {
       {/* Section: Sua cozinha */}
       <Text style={styles.sectionTitle}>Sua cozinha</Text>
       <View style={styles.grid}>
-        <Card icon={<Ionicons name="calendar-outline" size={24} color="black" />} label="Vencendo" />
-        <Card icon={<Ionicons name="alert-circle-outline" size={24} color="black" />} label="Vencidos" />
-        <Card icon={<Fontisto name="test-bottle" size={24} color="black" />} label="Abertos" />
-        <Card icon={<MaterialCommunityIcons name="food-drumstick-outline" size={24} color="black" />} label="Sobras" />
+        <Card
+          icon={<Ionicons name="calendar-outline" size={44} color="#5C9C59" />}
+          label="Vencendo"
+        />
+        <Card
+          icon={
+            <Ionicons name="alert-circle-outline" size={44} color="#5C9C59" />
+          }
+          label="Vencidos"
+        />
+        <Card
+          icon={<Fontisto name="test-bottle" size={44} color="#5C9C59" />}
+          label="Abertos"
+        />
+        <Card
+          icon={
+            <MaterialCommunityIcons
+              name="food-drumstick-outline"
+              size={44}
+              color="#5C9C59"
+            />
+          }
+          label="Sobras"
+        />
       </View>
 
       {/* Section: Todos os itens */}
       <View style={styles.itemsHeader}>
-        <Text style={styles.sectionTitle}>Todos os itens</Text>
+        <Text style={styles.sectionTitle}>Inventário</Text>
         <TouchableOpacity style={styles.viewAllBtn}>
           <Ionicons name="arrow-forward-sharp" size={18} color="#C95CA5" />
           <Text style={styles.viewAllText}>Ver todos</Text>
@@ -32,8 +53,20 @@ export default function WelcomeScreen() {
 
       <View style={styles.itemsGrid}>
         {[...Array(6)].map((_, i) => (
-          <View key={i} style={styles.itemBox}>
-            <FontAwesome6 name="jar" size={24} color="#5C9C59" />
+          <View key={i} style={{width: '30%', marginBottom: 10}}>
+            <View style={styles.itemBox}>
+              <ImageBackground
+                source={require("@/assets/images/placeholder.png")}
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+                resizeMode="cover"
+              ></ImageBackground>
+              {/* colocar texto aqui */}
+            </View>
           </View>
         ))}
       </View>
@@ -46,11 +79,11 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#FFF",
   },
   scrollContainer: {
     padding: 16,
     paddingBottom: 120,
+    backgroundColor: "#fff",
   },
   sectionTitle: {
     fontSize: 18,
@@ -64,7 +97,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 24,
   },
-  
+
   itemsHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -73,12 +106,12 @@ const styles = StyleSheet.create({
   },
   viewAllBtn: {
     padding: 10,
-    backgroundColor :'#fff',
+    backgroundColor: "#fff",
     borderRadius: 50,
     elevation: 5,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 2
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 2,
   },
   viewAllText: {
     color: "#C95CA5",
@@ -88,16 +121,14 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
-    marginTop: 8
+    marginTop: 8,
   },
   itemBox: {
-    backgroundColor: "#D9EBD8",
-    width: "30%",
-    height: 50,
     aspectRatio: 1,
     borderRadius: 12,
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 12,
+    overflow: "hidden",
+
   },
 });

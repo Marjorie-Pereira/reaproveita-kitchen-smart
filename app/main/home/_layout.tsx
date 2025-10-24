@@ -20,6 +20,7 @@ export default function Layout() {
         name="index" // This is the name of the page and must match the url from root
         options={{
           title: "Reaproveita App",
+          drawerLabel: "Início",
           headerTitleContainerStyle: {
             flex: 1,
             alignItems: "center",
