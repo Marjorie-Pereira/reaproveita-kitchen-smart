@@ -7,9 +7,9 @@ export default function TabLayout() {
         backgroundColor: '#EFF5EE'
     } }}>
       <Tabs.Screen
-        name="index"
+        name="home"
         options={{
-          title: 'Início',
+          headerShown: false,
           tabBarIcon: ({ color }) => <FontAwesome size={28} name="home" color={color} />,
         }}
       />

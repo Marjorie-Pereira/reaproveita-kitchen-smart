@@ -32,8 +32,8 @@ export default function Index() {
   return (
     <View style={styles.container}>
       <Image
-        source={require("../assets/images/app_logo.png")}
-        style={{ width: 220, height: 220 }}
+        source={require("../assets/images/logo.png")}
+        style={{ width: 220, height: 220, tintColor: '#345832ff'  }}
       />
       <Text style={styles.title}>Reaproveita</Text>
       <Text style={styles.subtitle}>
@@ -49,7 +49,7 @@ export default function Index() {
         <Text style={styles.underlineText}>Login</Text>
       </View>
       <View style={{ width: "100%", gap: 4 }}>
-        <Pressable onPress={() => router.push('./home')}>
+        <Pressable onPress={() => router.push('./main')}>
           <Text style={styles.underlineText}>Usar sem uma conta</Text>
         </Pressable>
 
