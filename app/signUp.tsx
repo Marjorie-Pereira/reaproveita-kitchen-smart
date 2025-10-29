@@ -102,7 +102,7 @@ const SignUp = () => {
               secureTextEntry={eyeIcon === "hide" ? true : false}
             />
             <Text style={styles.forgotPassword}>Esqueceu a senha?</Text>
-            <Button title="Login" loading={loading} onPress={onSubmit} />
+            <Button title="Cadastrar" loading={loading} onPress={onSubmit} />
           </View>
           {/* footer */}
           <View style={styles.footer as StyleProp<ViewStyle>}>

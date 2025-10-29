@@ -1,5 +1,11 @@
-import Card from "@/components/Card";
-import { Fontisto, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import Card, { labelTextColor } from "@/components/Card";
+import SearchBar from "@/components/SearchBar";
+import {
+  Feather,
+  FontAwesome5,
+  Ionicons,
+  MaterialCommunityIcons,
+} from "@expo/vector-icons";
 import React from "react";
 import {
   ImageBackground,
@@ -7,7 +13,7 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 
 export default function WelcomeScreen() {
@@ -17,30 +23,52 @@ export default function WelcomeScreen() {
       <Text style={styles.sectionTitle}>Sua cozinha</Text>
       <View style={styles.grid}>
         <Card
-          icon={<Ionicons name="calendar-outline" size={44} color="#5C9C59" />}
+          icon={
+            <Feather
+              name="alert-triangle"
+              size={30}
+              color={labelTextColor.Vencendo}
+            />
+          }
           label="Vencendo"
+          itemsCount={2}
         />
         <Card
           icon={
-            <Ionicons name="alert-circle-outline" size={44} color="#5C9C59" />
+            <Ionicons
+              name="alert-circle-outline"
+              size={34}
+              color={labelTextColor.Vencidos}
+            />
           }
           label="Vencidos"
+          itemsCount={2}
         />
         <Card
-          icon={<Fontisto name="test-bottle" size={44} color="#5C9C59" />}
+          icon={
+            <FontAwesome5
+              name="box-open"
+              size={30}
+              color={labelTextColor.Abertos}
+            />
+          }
           label="Abertos"
+          itemsCount={2}
         />
         <Card
           icon={
             <MaterialCommunityIcons
-              name="food-drumstick-outline"
-              size={44}
-              color="#5C9C59"
+              name="silverware-variant"
+              size={34}
+              color={labelTextColor.Sobras}
             />
           }
           label="Sobras"
+          itemsCount={2}
         />
       </View>
+
+      <SearchBar />
 
       {/* Section: Todos os itens */}
       <View style={styles.itemsHeader}>
@@ -53,7 +81,7 @@ export default function WelcomeScreen() {
 
       <View style={styles.itemsGrid}>
         {[...Array(6)].map((_, i) => (
-          <View key={i} style={{width: '30%', marginBottom: 10}}>
+          <View key={i} style={{ width: "30%", marginBottom: 10 }}>
             <View style={styles.itemBox}>
               <ImageBackground
                 source={require("@/assets/images/placeholder.png")}
@@ -95,14 +123,14 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
-    marginBottom: 24,
+    marginBottom: 20,
   },
 
   itemsHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 8,
+    marginVertical: 20,
   },
   viewAllBtn: {
     padding: 10,
@@ -129,6 +157,5 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     overflow: "hidden",
-
   },
 });

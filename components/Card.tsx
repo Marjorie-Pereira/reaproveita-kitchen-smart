@@ -2,50 +2,96 @@ import { Lato_400Regular, useFonts } from "@expo-google-fonts/lato";
 import { useRouter } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
-import { StyleSheet, Text, TouchableOpacity } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-export default function Card({ icon, label }: { icon: any; label: string }) {
+export default function Card({
+  icon,
+  label,
+  itemsCount,
+}: {
+  icon: any;
+  label: string;
+  itemsCount: number;
+}) {
+  SplashScreen.preventAutoHideAsync();
+  const router = useRouter();
 
-    SplashScreen.preventAutoHideAsync();
-      const router = useRouter();
-    
-      const [loaded, error] = useFonts({
-        Lato_400Regular,
-      });
-    
-      useEffect(() => {
-        if (loaded || error) {
-          SplashScreen.hideAsync();
-        }
-      }, [loaded, error]);
-    
-      if (!loaded && !error) {
-        return null;
-      }
+  const [loaded, error] = useFonts({
+    Lato_400Regular,
+  });
+
+  useEffect(() => {
+    if (loaded || error) {
+      SplashScreen.hideAsync();
+    }
+  }, [loaded, error]);
+
+  if (!loaded && !error) {
+    return null;
+  }
 
   return (
-    <TouchableOpacity style={styles.card}>
-      {icon}
-      <Text style={styles.cardLabel}>{label}</Text>
+    <TouchableOpacity
+      style={[
+        styles.card,
+        { backgroundColor: labelColor[label as keyof labelColorMap] },
+      ]}
+      onPress={() => router.push(`./${label}`)}
+    >
+      <View style={styles.statCardInfo}>
+        {icon}
+        <Text style={[styles.statCardTitle, {color: labelTextColor[label as keyof labelColorMap]}]}>{label}</Text>
+      </View>
+      <Text style={[styles.statCardCount, {color: labelTextColor[label as keyof labelColorMap]}]}>{itemsCount}</Text>
+
     </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: "#ebebebff",
-    width: "47%",
+    width: "100%",
     borderRadius: 12,
     alignItems: "center",
-    paddingVertical: 30,
-    marginBottom: 12,
-    elevation: 2,
+    flexDirection: 'row',
+    justifyContent:"space-between",
+    padding: 20,
+    marginBottom: 15,
+    elevation: 5,
   },
-  cardLabel: {
-    marginTop: 8,
-    fontWeight: "400",
+  statCardInfo: {
+    alignItems: "flex-start",
+    gap: 5
+  },
+  statCardTitle: {
     fontSize: 16,
-    fontFamily: 'Lato_400Regular',
-    color: "#333",
+    fontWeight: "600",
+    
+  },
+  statCardCount: {
+    fontSize: 32,
+    fontWeight: "bold",
+    textAlign: "right",
   },
 });
+
+const labelColor: labelColorMap = {
+  Vencendo: "#FEF9C2",
+  Vencidos: "#FFE3E2",
+  Abertos: "#DBEAFF",
+  Sobras: "#F4E8FF",
+};
+
+export const labelTextColor: labelColorMap = {
+  Vencendo: "#854E00",
+  Vencidos: "#9E2B35",
+  Abertos: "#1E46B5",
+  Sobras: "#752FA1",
+};
+
+type labelColorMap = {
+  Vencendo: string;
+  Vencidos: string;
+  Abertos: string;
+  Sobras: string;
+};
