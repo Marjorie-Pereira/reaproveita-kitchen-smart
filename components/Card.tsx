@@ -1,3 +1,5 @@
+import { labelColor, labelTextColor } from "@/constants/status.colors";
+import { labelColorMap } from "@/types/statusColorMap";
 import { Lato_400Regular, useFonts } from "@expo-google-fonts/lato";
 import { useRouter } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
@@ -40,9 +42,15 @@ export default function Card({
     >
       <View style={styles.statCardInfo}>
         {icon}
-        <Text style={[styles.statCardTitle, {color: labelTextColor[label as keyof labelColorMap]}]}>{label}</Text>
+        <Text style={[styles.statCardTitle, 
+          {color: labelTextColor[label as keyof labelColorMap]}
+        ]
+        }
+          >{label}</Text>
       </View>
-      <Text style={[styles.statCardCount, {color: labelTextColor[label as keyof labelColorMap]}]}>{itemsCount}</Text>
+      <Text style={[styles.statCardCount,
+         {color: labelTextColor[label as keyof labelColorMap]}
+         ]}>{itemsCount}</Text>
 
     </TouchableOpacity>
   );
@@ -75,23 +83,6 @@ const styles = StyleSheet.create({
   },
 });
 
-const labelColor: labelColorMap = {
-  Vencendo: "#FEF9C2",
-  Vencidos: "#FFE3E2",
-  Abertos: "#DBEAFF",
-  Sobras: "#F4E8FF",
-};
 
-export const labelTextColor: labelColorMap = {
-  Vencendo: "#854E00",
-  Vencidos: "#9E2B35",
-  Abertos: "#1E46B5",
-  Sobras: "#752FA1",
-};
 
-type labelColorMap = {
-  Vencendo: string;
-  Vencidos: string;
-  Abertos: string;
-  Sobras: string;
-};
+

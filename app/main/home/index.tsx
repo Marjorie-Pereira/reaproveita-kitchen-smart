@@ -1,5 +1,7 @@
-import Card, { labelTextColor } from "@/components/Card";
+import Card from "@/components/Card";
+import FoodListItem from "@/components/FoodListItem";
 import SearchBar from "@/components/SearchBar";
+import { labelColor, labelTextColor } from "@/constants/status.colors";
 import {
   Feather,
   FontAwesome5,
@@ -8,12 +10,11 @@ import {
 } from "@expo/vector-icons";
 import React from "react";
 import {
-  ImageBackground,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
 
 export default function WelcomeScreen() {
@@ -71,32 +72,53 @@ export default function WelcomeScreen() {
       <SearchBar />
 
       {/* Section: Todos os itens */}
-      <View style={styles.itemsHeader}>
-        <Text style={styles.sectionTitle}>Inventário</Text>
-        <TouchableOpacity style={styles.viewAllBtn}>
-          <Ionicons name="arrow-forward-sharp" size={18} color="#C95CA5" />
-          <Text style={styles.viewAllText}>Ver todos</Text>
-        </TouchableOpacity>
-      </View>
+      <View style={styles.itemsList}>
+        <View style={styles.itemsHeader}>
+          <Text style={styles.sectionTitle}>Todos os itens</Text>
+          <TouchableOpacity style={styles.viewAllBtn}>
+            <Ionicons name="arrow-forward-sharp" size={18} color="#C95CA5" />
+            <Text style={styles.viewAllText}>Ver mais</Text>
+          </TouchableOpacity>
+        </View>
 
-      <View style={styles.itemsGrid}>
-        {[...Array(6)].map((_, i) => (
-          <View key={i} style={{ width: "30%", marginBottom: 10 }}>
-            <View style={styles.itemBox}>
-              <ImageBackground
-                source={require("@/assets/images/placeholder.png")}
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-                resizeMode="cover"
-              ></ImageBackground>
-              {/* colocar texto aqui */}
-            </View>
-          </View>
-        ))}
+        <View>
+          <FoodListItem
+            name="Leite Integral"
+            brand="Piracanjuba"
+            category="Laticínios"
+            volume="1 litro"
+            status="Vencendo"
+            statusColor={labelColor.Vencendo}
+            imageUri="https://wallpapers.com/images/hd/fresh-milk-png-tpj9-1g95ko8e01m5304i.jpg"
+          />
+          <FoodListItem
+            name="Leite Integral"
+            brand="Piracanjuba"
+            category="Laticínios"
+            volume="1 litro"
+            status="Vencendo"
+            statusColor={labelColor.Vencendo}
+            imageUri="https://wallpapers.com/images/hd/fresh-milk-png-tpj9-1g95ko8e01m5304i.jpg"
+          />
+          <FoodListItem
+            name="Leite Integral"
+            brand="Piracanjuba"
+            category="Laticínios"
+            volume="1 litro"
+            status="Vencendo"
+            statusColor={labelColor.Vencendo}
+            imageUri="https://wallpapers.com/images/hd/fresh-milk-png-tpj9-1g95ko8e01m5304i.jpg"
+          />
+          <FoodListItem
+            name="Leite Integral"
+            brand="Piracanjuba"
+            category="Laticínios"
+            volume="1 litro"
+            status="Vencendo"
+            statusColor={labelColor.Vencendo}
+            imageUri="https://wallpapers.com/images/hd/fresh-milk-png-tpj9-1g95ko8e01m5304i.jpg"
+          />
+        </View>
       </View>
     </ScrollView>
   );
@@ -158,4 +180,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     overflow: "hidden",
   },
+  itemsList: {
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    elevation: 5,
+    paddingHorizontal: 16,
+    marginTop: 24
+  }
 });
