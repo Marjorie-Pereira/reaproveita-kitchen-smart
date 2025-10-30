@@ -10,10 +10,12 @@ export default function Card({
   icon,
   label,
   itemsCount,
+  onPress,
 }: {
   icon: any;
   label: string;
   itemsCount: number;
+  onPress: () => void;
 }) {
   SplashScreen.preventAutoHideAsync();
   const router = useRouter();
@@ -38,20 +40,27 @@ export default function Card({
         styles.card,
         { backgroundColor: labelColor[label as keyof labelColorMap] },
       ]}
-      onPress={() => router.push(`./${label}`)}
+      onPress={onPress}
     >
       <View style={styles.statCardInfo}>
         {icon}
-        <Text style={[styles.statCardTitle, 
-          {color: labelTextColor[label as keyof labelColorMap]}
-        ]
-        }
-          >{label}</Text>
+        <Text
+          style={[
+            styles.statCardTitle,
+            { color: labelTextColor[label as keyof labelColorMap] },
+          ]}
+        >
+          {label}
+        </Text>
       </View>
-      <Text style={[styles.statCardCount,
-         {color: labelTextColor[label as keyof labelColorMap]}
-         ]}>{itemsCount}</Text>
-
+      <Text
+        style={[
+          styles.statCardCount,
+          { color: labelTextColor[label as keyof labelColorMap] },
+        ]}
+      >
+        {itemsCount}
+      </Text>
     </TouchableOpacity>
   );
 }
@@ -61,20 +70,19 @@ const styles = StyleSheet.create({
     width: "100%",
     borderRadius: 12,
     alignItems: "center",
-    flexDirection: 'row',
-    justifyContent:"space-between",
+    flexDirection: "row",
+    justifyContent: "space-between",
     padding: 20,
     marginBottom: 15,
     elevation: 5,
   },
   statCardInfo: {
     alignItems: "flex-start",
-    gap: 5
+    gap: 5,
   },
   statCardTitle: {
     fontSize: 16,
     fontWeight: "600",
-    
   },
   statCardCount: {
     fontSize: 32,
@@ -82,7 +90,3 @@ const styles = StyleSheet.create({
     textAlign: "right",
   },
 });
-
-
-
-

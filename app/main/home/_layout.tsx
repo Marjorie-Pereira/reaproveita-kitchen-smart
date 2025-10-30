@@ -58,6 +58,15 @@ export default function Layout() {
           //   ),
         }}
       />
+      <Drawer.Screen
+        name="items"
+        options={{
+          headerShown: false,
+          drawerItemStyle: {
+            display: "none",
+          },
+        }}
+      />
     </Drawer>
   );
 }

@@ -11,6 +11,7 @@ import {
   Ionicons,
   MaterialCommunityIcons,
 } from "@expo/vector-icons";
+import { router } from "expo-router";
 import React from "react";
 import {
   ScrollView,
@@ -26,19 +27,18 @@ export default function WelcomeScreen() {
     {
       label: "Cadastrar",
       icon: <FontAwesome6 name="keyboard" size={20} color="black" />,
-      onPress: () => null
+      onPress: () => null,
     },
     {
       label: "Escanear",
       icon: <Ionicons name="barcode-sharp" size={24} color="black" />,
-      onPress: () => null
+      onPress: () => null,
     },
-  ]
+  ];
   return (
     <SafeAreaView style={styles.container}>
       <FloatingButton actions={FLOATING_BUTTON_ACTIONS} />
       <ScrollView contentContainerStyle={styles.scrollContainer}>
-        
         {/* Section: Sua cozinha */}
         <Text style={styles.sectionTitle}>Sua cozinha</Text>
         <View style={styles.grid}>
@@ -52,6 +52,12 @@ export default function WelcomeScreen() {
             }
             label="Vencendo"
             itemsCount={2}
+            onPress={() =>
+              router.push({
+                pathname: "/main/home/items/[title]",
+                params: { title: "Vencendo" },
+              })
+            }
           />
           <Card
             icon={
@@ -63,6 +69,12 @@ export default function WelcomeScreen() {
             }
             label="Vencidos"
             itemsCount={2}
+            onPress={() =>
+              router.push({
+                pathname: "/main/home/items/[title]",
+                params: { title: "Vencidos" },
+              })
+            }
           />
           <Card
             icon={
@@ -74,6 +86,12 @@ export default function WelcomeScreen() {
             }
             label="Abertos"
             itemsCount={2}
+            onPress={() =>
+              router.push({
+                pathname: "/main/home/items/[title]",
+                params: { title: "Abertos" },
+              })
+            }
           />
           <Card
             icon={
@@ -85,6 +103,12 @@ export default function WelcomeScreen() {
             }
             label="Sobras"
             itemsCount={2}
+            onPress={() =>
+              router.push({
+                pathname: "/main/home/items/[title]",
+                params: { title: "Sobras" },
+              })
+            }
           />
         </View>
 
