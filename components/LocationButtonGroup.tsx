@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 // Certifique-se de ter o expo-vector-icons instalado!
 // npx expo install @expo/vector-icons
@@ -18,68 +18,113 @@ const COLORS = {
 };
 
 const LocationButtonGroup = () => {
+  const [activeBtn, setActiveBtn] = useState("geladeira");
   return (
-    // Etapa 1: O container externo que aplica a SOMBRA.
-    // A sombra não pode estar no mesmo View que 'overflow: hidden'.
     <View style={styles.shadowContainer}>
-      {/* Etapa 2: O container interno que CRIA O FORMATO.
-          Ele usa 'borderRadius' para arredondar o grupo
-          e 'overflow: 'hidden'' para cortar os botões internos. */}
       <View style={styles.buttonGroup}>
-        {/* --- Botão 1: Geladeira (Ativo) --- */}
-        <TouchableOpacity style={[styles.button, styles.buttonActive]}>
+        <TouchableOpacity
+          style={[
+            styles.button,
+            activeBtn === "geladeira"
+              ? styles.buttonActive
+              : styles.buttonInactive,
+          ]}
+          onPress={() => setActiveBtn("geladeira")}
+        >
           <MaterialCommunityIcons
             name="fridge-outline"
             size={20}
-            color={COLORS.activeText}
+            color={
+              activeBtn === "geladeira"
+                ? COLORS.activeText
+                : COLORS.inactiveText
+            }
           />
-          <Text style={[styles.text, styles.textActive]}>Geladeira</Text>
+          <Text
+            style={[
+              styles.text,
+              activeBtn === "geladeira"
+                ? styles.textActive
+                : styles.textInactive,
+            ]}
+          >
+            Geladeira
+          </Text>
         </TouchableOpacity>
 
-        {/* --- Botão 2: Despensa (Inativo) --- */}
-        {/* Note o 'styles.divider' para adicionar a linha da direita */}
         <TouchableOpacity
-          style={[styles.button, styles.buttonInactive, styles.divider]}
+          style={[
+            styles.button,
+            styles.divider,
+            activeBtn === "despensa"
+              ? styles.buttonActive
+              : styles.buttonInactive,
+          ]}
+          onPress={() => setActiveBtn("despensa")}
         >
-          <Feather name="box" size={20} color={COLORS.inactiveText} />
-          <Text style={[styles.text, styles.textInactive]}>Despensa</Text>
+          <Feather
+            name="box"
+            size={20}
+            color={
+              activeBtn === "despensa" ? COLORS.activeText : COLORS.inactiveText
+            }
+          />
+          <Text
+            style={[
+              styles.text,
+              activeBtn === "despensa"
+                ? styles.textActive
+                : styles.textInactive,
+            ]}
+          >
+            Despensa
+          </Text>
         </TouchableOpacity>
 
-        {/* --- Botão 3: Freezer (Inativo) --- */}
-        <TouchableOpacity style={[styles.button, styles.buttonInactive]}>
+        <TouchableOpacity
+          style={[
+            styles.button,
+            activeBtn === "freezer"
+              ? styles.buttonActive
+              : styles.buttonInactive,
+          ]}
+          onPress={() => setActiveBtn("freezer")}
+        >
           <FontAwesome5
             name="snowflake"
             size={20}
-            color={COLORS.inactiveText}
+            color={
+              activeBtn === "freezer" ? COLORS.activeText : COLORS.inactiveText
+            }
           />
-          <Text style={[styles.text, styles.textInactive]}>Freezer</Text>
+          <Text
+            style={[
+              styles.text,
+              activeBtn === "freezer" ? styles.textActive : styles.textInactive,
+            ]}
+          >
+            Freezer
+          </Text>
         </TouchableOpacity>
       </View>
     </View>
   );
 };
 
-// --- ESTILOS ---
-
 const styles = StyleSheet.create({
   shadowContainer: {
-    // Estilos da Sombra
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,
     shadowRadius: 4,
     elevation: 4,
-    // Deve ter o mesmo borderRadius do grupo interno
     borderRadius: 20,
-    // Cor de fundo necessária para a sombra funcionar no iOS
     backgroundColor: "white",
   },
   buttonGroup: {
     flexDirection: "row",
     alignItems: "center",
-    // Arredonda o grupo todo
     borderRadius: 20,
-    // "Corta" os botões para caber no formato arredondado
     overflow: "hidden",
   },
   button: {
@@ -95,7 +140,6 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
 
-  // Estilos de ESTADO (Ativo vs Inativo)
   buttonActive: {
     backgroundColor: COLORS.active,
   },
@@ -109,7 +153,6 @@ const styles = StyleSheet.create({
     color: COLORS.inactiveText,
   },
 
-  // A linha divisória entre os botões inativos
   divider: {
     borderRightWidth: 1,
     borderColor: COLORS.divider,
