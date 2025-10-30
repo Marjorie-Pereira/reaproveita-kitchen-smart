@@ -27,7 +27,7 @@ export default function WelcomeScreen() {
     {
       label: "Cadastrar",
       icon: <FontAwesome6 name="keyboard" size={20} color="black" />,
-      onPress: () => null,
+      onPress: () => router.push("/main/home/items/newFoodItem"),
     },
     {
       label: "Escanear",
@@ -53,7 +53,7 @@ export default function WelcomeScreen() {
             label="Vencendo"
             itemsCount={2}
             onPress={() =>
-              router.push({
+              router.replace({
                 pathname: "/main/home/items/[title]",
                 params: { title: "Vencendo" },
               })
@@ -70,7 +70,7 @@ export default function WelcomeScreen() {
             label="Vencidos"
             itemsCount={2}
             onPress={() =>
-              router.push({
+              router.replace({
                 pathname: "/main/home/items/[title]",
                 params: { title: "Vencidos" },
               })
@@ -87,7 +87,7 @@ export default function WelcomeScreen() {
             label="Abertos"
             itemsCount={2}
             onPress={() =>
-              router.push({
+              router.replace({
                 pathname: "/main/home/items/[title]",
                 params: { title: "Abertos" },
               })
@@ -104,7 +104,7 @@ export default function WelcomeScreen() {
             label="Sobras"
             itemsCount={2}
             onPress={() =>
-              router.push({
+              router.replace({
                 pathname: "/main/home/items/[title]",
                 params: { title: "Sobras" },
               })

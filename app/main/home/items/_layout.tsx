@@ -13,7 +13,12 @@ const Layout = () => {
         },
         headerTintColor: "white",
       }}
-    />
+    >
+      <Stack.Screen
+        name="newFoodItem"
+        options={{ title: "Adicionar item à cozinha" }}
+      />
+    </Stack>
   );
 };
 

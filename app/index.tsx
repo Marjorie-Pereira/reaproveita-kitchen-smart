@@ -54,16 +54,16 @@ export default function Index() {
         </Pressable>
       </View>
       <View style={{ width: "100%", gap: 4 }}>
-        <Pressable onPress={() => router.push("./main")}>
-          <Text style={styles.underlineText}>Usar sem uma conta</Text>
-        </Pressable>
-
         <Text style={{ textAlign: "center", fontFamily: "Lato_400Regular" }}>
           ou
         </Text>
 
         <Pressable style={[styles.button, styles.secondaryBtn]}>
           <Text style={styles.secondaryBtnText}>Login com Google</Text>
+        </Pressable>
+
+        <Pressable onPress={() => router.push("./main")}>
+          <Text style={styles.underlineText}>Usar sem uma conta</Text>
         </Pressable>
       </View>
     </View>

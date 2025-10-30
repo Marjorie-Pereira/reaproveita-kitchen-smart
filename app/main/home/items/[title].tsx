@@ -4,7 +4,7 @@ import LocationButtonGroup from "@/components/LocationButtonGroup";
 import SearchBar from "@/components/SearchBar";
 import { buttonActionsObject } from "@/types/buttonActionsObject";
 import { FontAwesome6, Ionicons } from "@expo/vector-icons";
-import { Stack, useLocalSearchParams } from "expo-router";
+import { router, Stack, useLocalSearchParams } from "expo-router";
 import React from "react";
 import { StyleSheet, View } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
@@ -14,7 +14,7 @@ const ItemsPage = () => {
     {
       label: "Cadastrar",
       icon: <FontAwesome6 name="keyboard" size={20} color="black" />,
-      onPress: () => null,
+      onPress: () => router.push("/main/home/items/newFoodItem"),
     },
     {
       label: "Escanear",
@@ -32,7 +32,9 @@ const ItemsPage = () => {
       />
       <View style={{ flex: 1, paddingHorizontal: 10, paddingTop: 20, gap: 20 }}>
         <SearchBar
-          placeholder={`Pesquisar itens ${String(title).toLowerCase()}...`}
+          placeholder={`Pesquisar ${title != "Sobras" ? "itens " : ""}${String(
+            title
+          ).toLowerCase()}...`}
         />
         <LocationButtonGroup />
         <FloatingButton actions={FLOATING_BUTTON_ACTIONS} />
