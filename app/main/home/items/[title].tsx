@@ -31,7 +31,9 @@ const ItemsPage = () => {
         }}
       />
       <View style={{ flex: 1, paddingHorizontal: 10, paddingTop: 20, gap: 20 }}>
-        <SearchBar placeholder="Pesquisar itens vencendo..." />
+        <SearchBar
+          placeholder={`Pesquisar itens ${String(title).toLowerCase()}...`}
+        />
         <LocationButtonGroup />
         <FloatingButton actions={FLOATING_BUTTON_ACTIONS} />
         <ScrollView>
