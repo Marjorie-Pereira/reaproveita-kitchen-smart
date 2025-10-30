@@ -25,7 +25,7 @@ export default function WelcomeScreen() {
   const FLOATING_BUTTON_ACTIONS: buttonActionsObject[] = [
     {
       label: "Cadastrar",
-      icon: <FontAwesome6 name="keyboard" size={24} color="black" />,
+      icon: <FontAwesome6 name="keyboard" size={20} color="black" />,
       onPress: () => null
     },
     {

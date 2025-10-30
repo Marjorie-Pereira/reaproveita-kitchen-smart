@@ -73,11 +73,13 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
   },
   button: {
-    width: 80,
-    height: 40,
+    width: 100,
+    height: 50,
     padding: 3,
     backgroundColor: "white",
     position: "absolute",
+    bottom: 80,
+    right: 1,
     borderRadius: 100,
     display: "flex",
     justifyContent: "center",
@@ -85,6 +87,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     zIndex: 1,
     flexDirection: "row",
+    gap: 4
   },
 });
 

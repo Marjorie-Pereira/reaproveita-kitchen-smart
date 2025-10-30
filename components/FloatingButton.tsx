@@ -50,6 +50,7 @@ const FloatingButton = ({ actions }: FloatingButtonProps) => {
       </AnimatedPressable>
       {actions.map((a, index) => (
         <FloatingActionButton
+          key={index}
           isExpanded={isExpanded}
           index={index}
           buttonLetter={a.label}
