@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import { Ionicons } from "@expo/vector-icons";
 import Feather from "@expo/vector-icons/Feather";
 import { router } from "expo-router";
 import { Drawer } from "expo-router/drawer";
@@ -59,11 +60,92 @@ export default function Layout() {
         }}
       />
       <Drawer.Screen
-        name="items"
+        name="items/all"
         options={{
-          headerShown: false,
-          drawerItemStyle: {
-            display: "none",
+          headerLeft: () => (
+            <Pressable onPress={() => router.back()}>
+              <Ionicons name="arrow-back" size={24} color="#fff" />
+            </Pressable>
+          ),
+          title: "Todos os itens",
+          headerLeftContainerStyle: {
+            paddingHorizontal: 10,
+            alignItems: "center",
+          },
+        }}
+      />
+      <Drawer.Screen
+        name="items/open"
+        options={{
+          headerLeft: () => (
+            <Pressable onPress={() => router.back()}>
+              <Ionicons name="arrow-back" size={24} color="#fff" />
+            </Pressable>
+          ),
+          title: "Itens abertos",
+          headerLeftContainerStyle: {
+            paddingHorizontal: 10,
+            alignItems: "center",
+          },
+        }}
+      />
+      <Drawer.Screen
+        name="items/expired"
+        options={{
+          headerLeft: () => (
+            <Pressable onPress={() => router.back()}>
+              <Ionicons name="arrow-back" size={24} color="#fff" />
+            </Pressable>
+          ),
+          title: "Itens vencidos",
+          headerLeftContainerStyle: {
+            paddingHorizontal: 10,
+            alignItems: "center",
+          },
+        }}
+      />
+      <Drawer.Screen
+        name="items/expiring"
+        options={{
+          headerLeft: () => (
+            <Pressable onPress={() => router.back()}>
+              <Ionicons name="arrow-back" size={24} color="#fff" />
+            </Pressable>
+          ),
+          title: "Itens vencendo",
+          headerLeftContainerStyle: {
+            paddingHorizontal: 10,
+            alignItems: "center",
+          },
+        }}
+      />
+      <Drawer.Screen
+        name="items/leftover"
+        options={{
+          headerLeft: () => (
+            <Pressable onPress={() => router.back()}>
+              <Ionicons name="arrow-back" size={24} color="#fff" />
+            </Pressable>
+          ),
+          title: "Sobras",
+          headerLeftContainerStyle: {
+            paddingHorizontal: 10,
+            alignItems: "center",
+          },
+        }}
+      />
+      <Drawer.Screen
+        name="forms/newFoodItem"
+        options={{
+          headerLeft: () => (
+            <Pressable onPress={() => router.back()}>
+              <Ionicons name="arrow-back" size={24} color="#fff" />
+            </Pressable>
+          ),
+          title: "Novo item",
+          headerLeftContainerStyle: {
+            paddingHorizontal: 10,
+            alignItems: "center",
           },
         }}
       />

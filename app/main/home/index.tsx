@@ -27,7 +27,7 @@ export default function WelcomeScreen() {
     {
       label: "Cadastrar",
       icon: <FontAwesome6 name="keyboard" size={20} color="black" />,
-      onPress: () => router.push("/main/home/items/newFoodItem"),
+      onPress: () => router.push("/main/home/forms/newFoodItem"),
     },
     {
       label: "Escanear",
@@ -44,37 +44,15 @@ export default function WelcomeScreen() {
         <View style={styles.grid}>
           <Card
             icon={
-              <Feather
-                name="alert-triangle"
-                size={30}
-                color={labelTextColor.Vencendo}
-              />
-            }
-            label="Vencendo"
-            itemsCount={2}
-            onPress={() =>
-              router.replace({
-                pathname: "/main/home/items/[title]",
-                params: { title: "Vencendo" },
-              })
-            }
-          />
-          <Card
-            icon={
-              <Ionicons
-                name="alert-circle-outline"
+              <MaterialCommunityIcons
+                name="silverware-variant"
                 size={34}
-                color={labelTextColor.Vencidos}
+                color={labelTextColor.Sobras}
               />
             }
-            label="Vencidos"
+            label="Sobras"
             itemsCount={2}
-            onPress={() =>
-              router.replace({
-                pathname: "/main/home/items/[title]",
-                params: { title: "Vencidos" },
-              })
-            }
+            onPress={() => router.push("/main/home/items/leftover")}
           />
           <Card
             icon={
@@ -86,29 +64,31 @@ export default function WelcomeScreen() {
             }
             label="Abertos"
             itemsCount={2}
-            onPress={() =>
-              router.replace({
-                pathname: "/main/home/items/[title]",
-                params: { title: "Abertos" },
-              })
-            }
+            onPress={() => router.push("/main/home/items/open")}
           />
           <Card
             icon={
-              <MaterialCommunityIcons
-                name="silverware-variant"
-                size={34}
-                color={labelTextColor.Sobras}
+              <Feather
+                name="alert-triangle"
+                size={30}
+                color={labelTextColor.Vencendo}
               />
             }
-            label="Sobras"
+            label="Vencendo"
             itemsCount={2}
-            onPress={() =>
-              router.replace({
-                pathname: "/main/home/items/[title]",
-                params: { title: "Sobras" },
-              })
+            onPress={() => router.push("/main/home/items/expiring")}
+          />
+          <Card
+            icon={
+              <Ionicons
+                name="alert-circle-outline"
+                size={34}
+                color={labelTextColor.Vencidos}
+              />
             }
+            label="Vencidos"
+            itemsCount={2}
+            onPress={() => router.push("/main/home/items/expired")}
           />
         </View>
 
@@ -118,7 +98,10 @@ export default function WelcomeScreen() {
         <View style={styles.itemsList}>
           <View style={styles.itemsHeader}>
             <Text style={styles.sectionTitle}>Todos os itens</Text>
-            <TouchableOpacity style={styles.viewAllBtn}>
+            <TouchableOpacity
+              style={styles.viewAllBtn}
+              onPress={() => router.push("/main/home/items/all")}
+            >
               <Ionicons name="arrow-forward-sharp" size={18} color="#C95CA5" />
               <Text style={styles.viewAllText}>Ver mais</Text>
             </TouchableOpacity>

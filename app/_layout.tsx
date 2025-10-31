@@ -22,24 +22,26 @@ const RootLayout = () => {
 
       if (session) {
         setAuth(session.user);
-        router.replace("/main/home"); // impede histórico
-      } else {
-        setAuth(null);
-        router.replace("/"); // login
-      }
-    };
-
-    checkSession();
-
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session) {
-        setAuth(session.user);
         router.replace("/main/home");
       } else {
         setAuth(null);
         router.replace("/");
       }
-    });
+    };
+
+    checkSession();
+
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        if (session) {
+          setAuth(session.user);
+          router.replace("/main/home");
+        } else {
+          setAuth(null);
+          router.replace("/");
+        }
+      }
+    );
 
     return () => {
       listener.subscription.unsubscribe();
@@ -60,7 +62,7 @@ const RootLayout = () => {
       }}
     >
       <Stack.Screen name="index" options={{ headerShown: false }} />
-      
+
       <Stack.Screen
         name="login"
         options={{

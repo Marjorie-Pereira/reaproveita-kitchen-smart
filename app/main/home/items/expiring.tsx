@@ -4,17 +4,16 @@ import LocationButtonGroup from "@/components/LocationButtonGroup";
 import SearchBar from "@/components/SearchBar";
 import { buttonActionsObject } from "@/types/buttonActionsObject";
 import { FontAwesome6, Ionicons } from "@expo/vector-icons";
-import { router, Stack, useLocalSearchParams } from "expo-router";
+import { router } from "expo-router";
 import React from "react";
-import { StyleSheet, View } from "react-native";
-import { ScrollView } from "react-native-gesture-handler";
+import { ScrollView, StyleSheet, View } from "react-native";
 
-const ItemsPage = () => {
+const ExpiringItems = () => {
   const FLOATING_BUTTON_ACTIONS: buttonActionsObject[] = [
     {
       label: "Cadastrar",
       icon: <FontAwesome6 name="keyboard" size={20} color="black" />,
-      onPress: () => router.push("/main/home/items/newFoodItem"),
+      onPress: () => router.push("/main/home/forms/newFoodItem"),
     },
     {
       label: "Escanear",
@@ -22,20 +21,10 @@ const ItemsPage = () => {
       onPress: () => null,
     },
   ];
-  const { title } = useLocalSearchParams();
   return (
     <>
-      <Stack.Screen
-        options={{
-          title: title != "Sobras" ? `Itens ${title}` : `${title}`,
-        }}
-      />
       <View style={{ flex: 1, paddingHorizontal: 10, paddingTop: 20, gap: 20 }}>
-        <SearchBar
-          placeholder={`Pesquisar ${title != "Sobras" ? "itens " : ""}${String(
-            title
-          ).toLowerCase()}...`}
-        />
+        <SearchBar placeholder="Pesquisar itens vencendo..." />
         <LocationButtonGroup />
         <FloatingButton actions={FLOATING_BUTTON_ACTIONS} />
         <ScrollView>
@@ -109,4 +98,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ItemsPage;
+export default ExpiringItems;
