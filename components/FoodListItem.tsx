@@ -9,7 +9,7 @@ const FoodListItem = ({
   category,
   volume,
   status,
-  statusColor = "#FFFADD", // Cor padrão para o status, se não for fornecida
+  statusColor = "#FFFADD",
 }: FoodListItemProps) => {
   return (
     <View style={styles.container}>
@@ -17,10 +17,9 @@ const FoodListItem = ({
       <Image
         source={{ uri: imageUri }}
         style={styles.productImage}
-        resizeMode="contain" 
+        resizeMode="contain"
       />
 
-      {/* Detalhes do Produto (Nome, Marca, Categoria, Volume) */}
       <View style={styles.detailsContainer}>
         <Text style={styles.productName}>{name}</Text>
         <Text style={styles.productBrand}>{brand}</Text>
@@ -28,8 +27,7 @@ const FoodListItem = ({
         <Text style={styles.productVolume}>{volume}</Text>
       </View>
 
-      {/* Status (Vencendo) - Condicionalmente renderizado */}
-      {status && ( 
+      {status && (
         <View style={[styles.statusBadge, { backgroundColor: statusColor }]}>
           <Text style={styles.statusText}>{status}</Text>
         </View>
@@ -40,8 +38,8 @@ const FoodListItem = ({
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: "row", 
-    alignItems: "center", 
+    flexDirection: "row",
+    alignItems: "center",
     backgroundColor: "#fff",
     borderRadius: 8,
     padding: 15,
@@ -57,15 +55,15 @@ const styles = StyleSheet.create({
         elevation: 3,
       },
     }),
-    width: '100%'
+    width: "100%",
   },
   productImage: {
-    width: 60, 
-    height: 80, 
-    marginRight: 15, 
+    width: 60,
+    height: 80,
+    marginRight: 15,
   },
   detailsContainer: {
-    flex: 1, 
+    flex: 1,
   },
   productName: {
     fontSize: 18,
@@ -83,13 +81,13 @@ const styles = StyleSheet.create({
   productVolume: {
     fontSize: 12,
     color: "#888",
-    marginTop: 5, 
+    marginTop: 5,
   },
   statusBadge: {
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 5,
-    marginLeft: 10, 
+    marginLeft: 10,
   },
   statusText: {
     fontSize: 12,

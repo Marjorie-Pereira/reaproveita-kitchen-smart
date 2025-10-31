@@ -1,14 +1,12 @@
 import React, { useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-// Certifique-se de ter o expo-vector-icons instalado!
-// npx expo install @expo/vector-icons
+
 import {
   Feather,
   FontAwesome5,
   MaterialCommunityIcons,
 } from "@expo/vector-icons";
 
-// Definição das cores da imagem para fácil manutenção
 const COLORS = {
   active: "#b53f84",
   inactive: "#f5e4ef",

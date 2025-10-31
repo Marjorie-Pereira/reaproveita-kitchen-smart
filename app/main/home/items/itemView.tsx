@@ -1,3 +1,7 @@
+import { supabase } from "@/lib/supabase";
+import { foodItem } from "@/types/FoodListItemProps";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { router, useLocalSearchParams } from "expo-router";
 import React, { useState } from "react";
 import {
   Alert,
@@ -8,14 +12,8 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-// Importando os ícones
-import { supabase } from "@/lib/supabase";
-import { foodItem } from "@/types/FoodListItemProps";
-import { Ionicons, MaterialIcons } from "@expo/vector-icons";
-import { router, useLocalSearchParams } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-// Um componente reutilizável para as linhas de informação
 const InfoRow = ({ iconName, label, value }: any) => (
   <View style={styles.infoRow}>
     <MaterialIcons
@@ -172,15 +170,14 @@ const TelaAlimento = () => {
   );
 };
 
-// --- Estilos ---
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#FBF9FA", // Fundo levemente rosado da imagem
+    backgroundColor: "#FBF9FA",
   },
   scrollContainer: {
     padding: 20,
-    paddingBottom: 40, // Espaço extra no final
+    paddingBottom: 40,
   },
   headerRow: {
     flexDirection: "row",
@@ -192,7 +189,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "bold",
     color: "#333",
-    flex: 1, // Permite que o texto quebre a linha se for longo
+    flex: 1,
   },
   badgeContainer: {
     backgroundColor: "#FFF8D6",
@@ -231,7 +228,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     fontSize: 15,
     marginLeft: 10,
-    flex: 1, // Para quebrar a linha se necessário
+    flex: 1,
   },
   infoContainer: {
     flexDirection: "row",
@@ -239,16 +236,16 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   infoColumn: {
-    flex: 1, // Cada coluna ocupa metade do espaço
+    flex: 1,
   },
   infoRow: {
     flexDirection: "row",
-    alignItems: "flex-start", // Alinha pelo topo para caber o texto
+    alignItems: "flex-start",
     marginBottom: 20,
   },
   infoIcon: {
     marginRight: 12,
-    marginTop: 2, // Alinha melhor com o texto
+    marginTop: 2,
   },
   infoTextContainer: {
     flex: 1,
@@ -266,21 +263,21 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: 16, // Margem acima dos botões
+    marginTop: 16,
   },
   button: {
-    borderRadius: 50, // Bem arredondado
+    borderRadius: 50,
     paddingVertical: 14,
     alignItems: "center",
-    flex: 1, // Faz os botões dividirem o espaço
+    flex: 1,
   },
   editButton: {
     backgroundColor: "#6DA361",
-    marginRight: 10, // Espaço entre os botões
+    marginRight: 10,
   },
   deleteButton: {
     backgroundColor: "#E65353",
-    marginLeft: 10, // Espaço entre os botões
+    marginLeft: 10,
   },
   buttonText: {
     color: "#FFFFFF",

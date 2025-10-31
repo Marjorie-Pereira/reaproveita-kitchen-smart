@@ -72,33 +72,30 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 12,
   },
-  // 1. ESTILO DE IMAGEM CORRIGIDO
   foodImage: {
-    width: "100%", // Ocupa 100% da largura do container (com padding)
-    aspectRatio: 1, // Mantém a proporção (1:1 = quadrado)
-    borderRadius: 8, // Arredonda os cantos da imagem
-    marginBottom: 10, // Aumenta o espaço abaixo da imagem
+    width: "100%",
+    aspectRatio: 1,
+    borderRadius: 8,
+    marginBottom: 10,
   },
   foodInfo: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 8, // Espaçamento consistente
-    minHeight: 24, // Garante altura mínima para alinhamento
+    marginBottom: 8,
+    minHeight: 24,
   },
-  // 2. WRAPPER PARA O TEXTO DA ESQUERDA
   textWrapper: {
-    flex: 1, // Permite que esta View cresça e ocupe o espaço
-    marginRight: 8, // Adiciona um espaço antes do texto da direita
+    flex: 1,
+    marginRight: 8,
   },
-  // 3. ESTILO PARA O TEXTO DA DIREITA
   textRight: {
-    flexShrink: 1, // Permite que o texto da direita encolha se necessário
+    flexShrink: 1,
   },
   foodTitle: {
     fontWeight: "bold",
-    fontSize: 16, // Aumenta um pouco para dar hierarquia
-    color: "#333", // Um pouco mais escuro para o título
+    fontSize: 16,
+    color: "#333",
   },
   foodText: {
     color: "#49454F",
@@ -106,9 +103,9 @@ const styles = StyleSheet.create({
   },
   expiresIn: {
     flexDirection: "row",
-    alignItems: "center", // Alinha o ícone ao texto
+    alignItems: "center",
     gap: 4,
-    marginTop: 5, // Adiciona um espaço acima da data
+    marginTop: 5,
   },
 });
 

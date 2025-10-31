@@ -26,7 +26,7 @@ export default function Layout() {
       }}
     >
       <Drawer.Screen
-        name="index" // This is the name of the page and must match the url from root
+        name="index"
         options={{
           title: "Reaproveita App",
           drawerLabel: "Início",

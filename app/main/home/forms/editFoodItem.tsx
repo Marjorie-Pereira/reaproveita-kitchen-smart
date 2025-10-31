@@ -82,7 +82,6 @@ export default function AddFoodScreen() {
   }
 
   const pickImage = async () => {
-    // No permissions request is necessary for launching the image library
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ["images", "videos"],
       allowsEditing: true,
@@ -99,21 +98,19 @@ export default function AddFoodScreen() {
 
   useEffect(() => {
     async function getFoodItem() {
-      // 1. GUARDA: Só execute se params.id JÁ CHEGOU.
       if (!params.id) {
-        return; // Sai mais cedo se o ID não estiver pronto
+        return;
       }
 
       const { data, error } = await supabase
         .from("Alimentos")
         .select("*")
-        .eq("id", params.id); // Agora 'params.id' tem um valor
+        .eq("id", params.id);
 
       if (error) {
         Alert.alert(error.message);
       }
 
-      // 2. CORREÇÃO: Verifique se 'data' existe E NÃO ESTÁ VAZIO
       if (data && data.length > 0) {
         const item = data[0] as foodItem;
         setName(item.nome);
@@ -126,13 +123,11 @@ export default function AddFoodScreen() {
         setStatus(item.status);
         setUnit(item.unidade_medida);
       } else {
-        // É uma boa ideia avisar se o item não foi encontrado
-        // Alert.alert("Erro", "Item não encontrado.");
       }
     }
 
     getFoodItem();
-  }, [params.id]); // 3. DEPENDÊNCIA: O 'params.id' PRECISA estar aqui!
+  }, [params.id]);
 
   return (
     <>
