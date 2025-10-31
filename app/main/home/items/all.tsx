@@ -42,7 +42,6 @@ const AllItems = () => {
 
   async function fetchItemsFromLocation() {
     const { id } = await getLocationId(location);
-    console.log(id);
     const { data, error } = await supabase
       .from("Alimentos")
       .select("*")
