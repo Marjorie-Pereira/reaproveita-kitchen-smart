@@ -1,4 +1,5 @@
 import DatePickerInput from "@/components/DatePicker";
+import { supabase } from "@/lib/supabase";
 import { Ionicons } from "@expo/vector-icons";
 import { Picker } from "@react-native-picker/picker";
 import React, { useState } from "react";
@@ -35,6 +36,34 @@ export default function AddFoodScreen() {
   const [unit, setUnit] = useState("Kg");
   const [status, setStatus] = useState("Aberto");
   const [location, setLocation] = useState("Geladeira");
+
+  async function getLocationId(location: string) {
+    const { data, error } = await supabase
+      .from("Ambientes")
+      .select("id")
+      .eq("nome", location);
+
+    if (error) {
+      throw Error(error.message);
+    }
+
+    return data[0];
+  }
+
+  async function handleAddItem() {
+    const { id } = await getLocationId(location);
+    const { data, error } = await supabase.from("Alimentos").insert({
+      nome: name,
+      marca: brand,
+      data_validade: expirationDate,
+      categoria: category,
+      preco: price,
+      quantidade: quantity,
+      unidade_medida: unit,
+      status,
+      ambiente_id: id,
+    });
+  }
 
   return (
     <>

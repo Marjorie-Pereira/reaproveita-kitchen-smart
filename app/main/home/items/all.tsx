@@ -2,10 +2,12 @@ import FloatingButton from "@/components/FloatingButton";
 import FoodCard from "@/components/FoodCard";
 import LocationButtonGroup from "@/components/LocationButtonGroup";
 import SearchBar from "@/components/SearchBar";
+import { supabase } from "@/lib/supabase";
 import { buttonActionsObject } from "@/types/buttonActionsObject";
+import { foodItem } from "@/types/FoodListItemProps";
 import { FontAwesome6, Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 
 const AllItems = () => {
@@ -21,68 +23,67 @@ const AllItems = () => {
       onPress: () => null,
     },
   ];
+
+  const [location, setLocation] = useState("Geladeira");
+  const [foodItems, setFoodItems] = useState<any[]>([]);
+
+  async function getLocationId(location: string) {
+    const { data, error } = await supabase
+      .from("Ambientes")
+      .select("id")
+      .eq("nome", location);
+
+    if (error) {
+      throw Error(error.message);
+    }
+
+    return data[0];
+  }
+
+  useEffect(() => {
+    async function fetchItemsFromLocation() {
+      const { id } = await getLocationId(location);
+      console.log(id);
+      const { data, error } = await supabase
+        .from("Alimentos")
+        .select("*")
+        .eq("id_ambiente", id);
+
+      if (error) {
+        throw Error(error.message);
+      }
+
+      setFoodItems(data);
+    }
+    fetchItemsFromLocation();
+  }, [location]);
+
+  console.log(foodItems);
+
+  console.log(foodItems);
+
   return (
     <>
       <View style={{ flex: 1, paddingHorizontal: 10, paddingTop: 20, gap: 20 }}>
         <SearchBar placeholder="Pesquisar itens..." />
-        <LocationButtonGroup />
+        <LocationButtonGroup onSelect={(val) => setLocation(val)} />
         <FloatingButton actions={FLOATING_BUTTON_ACTIONS} />
         <ScrollView>
           <View style={styles.foodItemsGrid}>
-            <FoodCard
-              image={require("@/assets/images/milk.png")}
-              title="Leite"
-              brand="Piracanjuba"
-              quantity={1}
-              measureUnit="Litro"
-              expirationDate={new Date()}
-              category="Laticínios"
-            />
-            <FoodCard
-              image={require("@/assets/images/milk.png")}
-              title="Leite"
-              brand="Piracanjuba"
-              quantity={1}
-              measureUnit="Litro"
-              expirationDate={new Date()}
-              category="Laticínios"
-            />
-            <FoodCard
-              image={require("@/assets/images/milk.png")}
-              title="Leite"
-              brand="Piracanjuba"
-              quantity={1}
-              measureUnit="Litro"
-              expirationDate={new Date()}
-              category="Laticínios"
-            />
-            <FoodCard
-              image={require("@/assets/images/milk.png")}
-              title="Leite"
-              brand="Piracanjuba"
-              quantity={1}
-              measureUnit="Litro"
-              expirationDate={new Date()}
-              category="Laticínios"
-            />
-            <FoodCard
-              image={require("@/assets/images/milk.png")}
-              title="Leite"
-              brand="Piracanjuba"
-              quantity={1}
-              measureUnit="Litro"
-              expirationDate={new Date()}
-              category="Laticínios"
-            />
-            <FoodCard
-              image={require("@/assets/images/milk.png")}
-              title="Leite"
-              brand="Piracanjuba"
-              quantity={1}
-              measureUnit="Litro"
-              expirationDate={new Date()}
-              category="Laticínios"
-            />
+            {foodItems.map((item: foodItem) => {
+              return (
+                <FoodCard
+                  image={item.imagem}
+                  title={item.nome}
+                  brand={item.marca}
+                  quantity={item.quantidade}
+                  measureUnit={item.unidade_medida}
+                  expirationDate={new Date(item.data_validade)}
+                  category={item.categoria}
+                  key={item.id}
+                />
+              );
+            })}
           </View>
         </ScrollView>
       </View>

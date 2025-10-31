@@ -17,7 +17,11 @@ const COLORS = {
   divider: "#dcb8d0",
 };
 
-const LocationButtonGroup = () => {
+const LocationButtonGroup = ({
+  onSelect,
+}: {
+  onSelect: (val: string) => void;
+}) => {
   const [activeBtn, setActiveBtn] = useState("geladeira");
   return (
     <View style={styles.shadowContainer}>
@@ -29,7 +33,10 @@ const LocationButtonGroup = () => {
               ? styles.buttonActive
               : styles.buttonInactive,
           ]}
-          onPress={() => setActiveBtn("geladeira")}
+          onPress={() => {
+            setActiveBtn("geladeira");
+            onSelect("Geladeira");
+          }}
         >
           <MaterialCommunityIcons
             name="fridge-outline"
@@ -60,7 +67,10 @@ const LocationButtonGroup = () => {
               ? styles.buttonActive
               : styles.buttonInactive,
           ]}
-          onPress={() => setActiveBtn("despensa")}
+          onPress={() => {
+            setActiveBtn("despensa");
+            onSelect("Despensa");
+          }}
         >
           <Feather
             name="box"
@@ -88,7 +98,10 @@ const LocationButtonGroup = () => {
               ? styles.buttonActive
               : styles.buttonInactive,
           ]}
-          onPress={() => setActiveBtn("freezer")}
+          onPress={() => {
+            setActiveBtn("freezer");
+            onSelect("Freezer");
+          }}
         >
           <FontAwesome5
             name="snowflake"

@@ -1,19 +1,13 @@
 import { buttonActionsObject } from "@/types/buttonActionsObject";
 import React from "react";
-import {
-    Pressable,
-    StyleSheet,
-    View
-} from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 import Animated, {
-    interpolate,
-    useAnimatedStyle,
-    useSharedValue,
-    withTiming,
+  interpolate,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
 } from "react-native-reanimated";
 import FloatingActionButton from "./FloatingActionButton";
-
-
 
 type FloatingButtonProps = {
   actions: buttonActionsObject[];

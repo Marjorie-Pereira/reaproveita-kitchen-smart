@@ -24,15 +24,33 @@ const FoodCard = (props: FoodCardProps) => {
   } = props;
   return (
     <View style={styles.foodContainer}>
-      <Image source={image} style={{ alignSelf: "center", marginBottom: 8 }} />
+      <Image
+        source={{
+          uri: image,
+        }}
+        style={{
+          alignSelf: "center",
+          marginBottom: 8,
+          width: "100%",
+          height: "100%",
+        }}
+      />
       <View style={styles.foodInfo}>
-        <Text style={styles.foodTitle}>{title}</Text>
-        <Text style={styles.foodText}>{brand}</Text>
+        <View style={styles.textWrapper}>
+          <Text style={styles.foodTitle} numberOfLines={1} ellipsizeMode="tail">
+            {title}
+          </Text>
+        </View>
+        <Text style={[styles.foodText, styles.textRight]}>{brand}</Text>
       </View>
 
       <View style={styles.foodInfo}>
-        <Text style={styles.foodText}>{category}</Text>
-        <Text style={styles.foodText}>
+        <View style={styles.textWrapper}>
+          <Text style={styles.foodText} numberOfLines={1} ellipsizeMode="tail">
+            {category}
+          </Text>
+        </View>
+        <Text style={[styles.foodText, styles.textRight]}>
           {quantity} {measureUnit}
         </Text>
       </View>
@@ -54,23 +72,43 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 12,
   },
+  // 1. ESTILO DE IMAGEM CORRIGIDO
+  foodImage: {
+    width: "100%", // Ocupa 100% da largura do container (com padding)
+    aspectRatio: 1, // Mantém a proporção (1:1 = quadrado)
+    borderRadius: 8, // Arredonda os cantos da imagem
+    marginBottom: 10, // Aumenta o espaço abaixo da imagem
+  },
   foodInfo: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 5,
+    marginBottom: 8, // Espaçamento consistente
+    minHeight: 24, // Garante altura mínima para alinhamento
+  },
+  // 2. WRAPPER PARA O TEXTO DA ESQUERDA
+  textWrapper: {
+    flex: 1, // Permite que esta View cresça e ocupe o espaço
+    marginRight: 8, // Adiciona um espaço antes do texto da direita
+  },
+  // 3. ESTILO PARA O TEXTO DA DIREITA
+  textRight: {
+    flexShrink: 1, // Permite que o texto da direita encolha se necessário
   },
   foodTitle: {
     fontWeight: "bold",
-    textAlign: "left",
-    marginTop: 5,
+    fontSize: 16, // Aumenta um pouco para dar hierarquia
+    color: "#333", // Um pouco mais escuro para o título
   },
   foodText: {
     color: "#49454F",
+    fontSize: 14,
   },
   expiresIn: {
     flexDirection: "row",
+    alignItems: "center", // Alinha o ícone ao texto
     gap: 4,
+    marginTop: 5, // Adiciona um espaço acima da data
   },
 });
 
