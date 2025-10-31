@@ -1,9 +1,11 @@
 import DatePickerInput from "@/components/DatePicker";
 import { supabase } from "@/lib/supabase";
-import { Ionicons } from "@expo/vector-icons";
+import { FontAwesome, Ionicons } from "@expo/vector-icons";
 import { Picker } from "@react-native-picker/picker";
+import * as ImagePicker from "expo-image-picker";
 import React, { useState } from "react";
 import {
+  Image,
   ScrollView,
   StyleSheet,
   Text,
@@ -64,6 +66,24 @@ export default function AddFoodScreen() {
       ambiente_id: id,
     });
   }
+
+  const [image, setImage] = useState<string | null>(null);
+
+  const pickImage = async () => {
+    // No permissions request is necessary for launching the image library
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ["images", "videos"],
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    console.log(result);
+
+    if (!result.canceled) {
+      setImage(result.assets[0].uri);
+    }
+  };
 
   return (
     <>
@@ -160,7 +180,7 @@ export default function AddFoodScreen() {
           </View>
         </View>
 
-        <Text style={styles.label}>Uniaded de medida</Text>
+        <Text style={styles.label}>Unidade de medida</Text>
         <View style={[styles.pickerWrapper]}>
           <Picker
             selectedValue={unit}
@@ -197,6 +217,25 @@ export default function AddFoodScreen() {
             <Picker.Item label="Freezer" value="Freezer" />
             <Picker.Item label="Despensa" value="Despensa" />
           </Picker>
+        </View>
+
+        <Text style={styles.label}>Imagem</Text>
+        <View style={styles.inputWrapper}>
+          <TouchableOpacity
+            style={{
+              flexDirection: "row",
+              width: "100%",
+              justifyContent: "space-between",
+              padding: 10,
+            }}
+            onPress={pickImage}
+          >
+            <Text>Escolher imagem...</Text>
+            <FontAwesome name="camera" size={24} color={COLORS.label} />
+          </TouchableOpacity>
+        </View>
+        <View style={styles.imageContainer}>
+          {image && <Image source={{ uri: image }} style={styles.image} />}
         </View>
       </ScrollView>
 
@@ -299,5 +338,14 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     marginLeft: 10,
+  },
+  imageContainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  image: {
+    width: 200,
+    height: 200,
   },
 });
