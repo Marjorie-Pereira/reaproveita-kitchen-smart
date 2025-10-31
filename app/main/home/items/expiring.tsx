@@ -1,5 +1,4 @@
 import FloatingButton from "@/components/FloatingButton";
-import FoodCard from "@/components/FoodCard";
 import LocationButtonGroup from "@/components/LocationButtonGroup";
 import SearchBar from "@/components/SearchBar";
 import { buttonActionsObject } from "@/types/buttonActionsObject";
@@ -25,65 +24,10 @@ const ExpiringItems = () => {
     <>
       <View style={{ flex: 1, paddingHorizontal: 10, paddingTop: 20, gap: 20 }}>
         <SearchBar placeholder="Pesquisar itens vencendo..." />
-        <LocationButtonGroup />
+        <LocationButtonGroup onSelect={() => null} />
         <FloatingButton actions={FLOATING_BUTTON_ACTIONS} />
         <ScrollView>
-          <View style={styles.foodItemsGrid}>
-            <FoodCard
-              image={require("@/assets/images/milk.png")}
-              title="Leite"
-              brand="Piracanjuba"
-              quantity={1}
-              measureUnit="Litro"
-              expirationDate={new Date()}
-              category="Laticínios"
-            />
-            <FoodCard
-              image={require("@/assets/images/milk.png")}
-              title="Leite"
-              brand="Piracanjuba"
-              quantity={1}
-              measureUnit="Litro"
-              expirationDate={new Date()}
-              category="Laticínios"
-            />
-            <FoodCard
-              image={require("@/assets/images/milk.png")}
-              title="Leite"
-              brand="Piracanjuba"
-              quantity={1}
-              measureUnit="Litro"
-              expirationDate={new Date()}
-              category="Laticínios"
-            />
-            <FoodCard
-              image={require("@/assets/images/milk.png")}
-              title="Leite"
-              brand="Piracanjuba"
-              quantity={1}
-              measureUnit="Litro"
-              expirationDate={new Date()}
-              category="Laticínios"
-            />
-            <FoodCard
-              image={require("@/assets/images/milk.png")}
-              title="Leite"
-              brand="Piracanjuba"
-              quantity={1}
-              measureUnit="Litro"
-              expirationDate={new Date()}
-              category="Laticínios"
-            />
-            <FoodCard
-              image={require("@/assets/images/milk.png")}
-              title="Leite"
-              brand="Piracanjuba"
-              quantity={1}
-              measureUnit="Litro"
-              expirationDate={new Date()}
-              category="Laticínios"
-            />
-          </View>
+          <View style={styles.foodItemsGrid}></View>
         </ScrollView>
       </View>
     </>

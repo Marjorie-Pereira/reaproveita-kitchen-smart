@@ -6,9 +6,9 @@ import { supabase } from "@/lib/supabase";
 import { buttonActionsObject } from "@/types/buttonActionsObject";
 import { foodItem } from "@/types/FoodListItemProps";
 import { FontAwesome6, Ionicons } from "@expo/vector-icons";
-import { router } from "expo-router";
-import React, { useEffect, useState } from "react";
-import { ScrollView, StyleSheet, View } from "react-native";
+import { router, useFocusEffect } from "expo-router";
+import React, { useCallback, useState } from "react";
+import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
 
 const AllItems = () => {
   const FLOATING_BUTTON_ACTIONS: buttonActionsObject[] = [
@@ -40,27 +40,26 @@ const AllItems = () => {
     return data[0];
   }
 
-  useEffect(() => {
-    async function fetchItemsFromLocation() {
-      const { id } = await getLocationId(location);
-      console.log(id);
-      const { data, error } = await supabase
-        .from("Alimentos")
-        .select("*")
-        .eq("id_ambiente", id);
+  async function fetchItemsFromLocation() {
+    const { id } = await getLocationId(location);
+    console.log(id);
+    const { data, error } = await supabase
+      .from("Alimentos")
+      .select("*")
+      .eq("id_ambiente", id);
 
-      if (error) {
-        throw Error(error.message);
-      }
-
-      setFoodItems(data);
+    if (error) {
+      throw Error(error.message);
     }
-    fetchItemsFromLocation();
-  }, [location]);
 
-  console.log(foodItems);
+    setFoodItems(data);
+  }
 
-  console.log(foodItems);
+  useFocusEffect(
+    useCallback(() => {
+      fetchItemsFromLocation();
+    }, [location])
+  );
 
   return (
     <>
@@ -72,16 +71,26 @@ const AllItems = () => {
           <View style={styles.foodItemsGrid}>
             {foodItems.map((item: foodItem) => {
               return (
-                <FoodCard
-                  image={item.imagem}
-                  title={item.nome}
-                  brand={item.marca}
-                  quantity={item.quantidade}
-                  measureUnit={item.unidade_medida}
-                  expirationDate={new Date(item.data_validade)}
-                  category={item.categoria}
+                <TouchableOpacity
                   key={item.id}
-                />
+                  style={{ width: "48%" }}
+                  onPress={() =>
+                    router.push({
+                      pathname: "/main/home/items/itemView",
+                      params: { ...item },
+                    })
+                  }
+                >
+                  <FoodCard
+                    image={item.imagem}
+                    title={item.nome}
+                    brand={item.marca}
+                    quantity={item.quantidade}
+                    measureUnit={item.unidade_medida}
+                    expirationDate={new Date(item.data_validade)}
+                    category={item.categoria}
+                  />
+                </TouchableOpacity>
               );
             })}
           </View>
@@ -94,8 +103,8 @@ const AllItems = () => {
 const styles = StyleSheet.create({
   foodItemsGrid: {
     flexDirection: "row",
-    gap: 15,
     flexWrap: "wrap",
+    gap: 15,
   },
 });
 

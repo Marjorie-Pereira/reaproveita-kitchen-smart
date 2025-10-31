@@ -67,7 +67,7 @@ const FoodCard = (props: FoodCardProps) => {
 
 const styles = StyleSheet.create({
   foodContainer: {
-    width: "47%",
+    width: "100%",
     backgroundColor: "#EAEAEA",
     padding: 15,
     borderRadius: 12,

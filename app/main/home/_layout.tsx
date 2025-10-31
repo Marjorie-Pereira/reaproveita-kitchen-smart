@@ -59,7 +59,7 @@ export default function Layout() {
           //   ),
         }}
       />
-      <Drawer.Screen
+      {/* <Drawer.Screen
         name="items/all"
         options={{
           headerLeft: () => (
@@ -133,7 +133,7 @@ export default function Layout() {
             alignItems: "center",
           },
         }}
-      />
+      /> */}
       <Drawer.Screen
         name="forms/newFoodItem"
         options={{
