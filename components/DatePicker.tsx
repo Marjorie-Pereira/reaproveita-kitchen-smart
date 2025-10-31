@@ -10,7 +10,6 @@ import {
   View,
 } from "react-native";
 
-// Reutilizando as cores que definimos na tela do formulário
 const COLORS = {
   label: "#6b4f6b",
   border: "#d3c8d3",
@@ -19,35 +18,23 @@ const COLORS = {
   placeholder: "#888",
 };
 
-// Nosso novo componente
 const DatePickerInput = ({ label, value, onChange }: any) => {
-  // Estado para controlar a visibilidade do seletor
   const [showPicker, setShowPicker] = useState(false);
 
-  // Função chamada quando a data é alterada no seletor
   const onDateChange = (event: any, selectedDate: any) => {
-    // Escondemos o seletor (no Android, isso é necessário após a seleção)
     setShowPicker(Platform.OS === "ios");
 
-    // Se o usuário pressionar "Cancelar" no Android, selectedDate será undefined
     if (selectedDate) {
-      onChange(selectedDate); // Passa a nova data para o componente pai
+      onChange(selectedDate);
     }
-    // No iOS, o usuário precisa de um botão "Confirmar",
-    // mas para simplificar, vamos aceitar a data "ao vivo".
-    // Para uma UI mais robusta no iOS, você colocaria
-    // o Picker dentro de um Modal com um botão "Confirmar".
-    // Mas para este caso, o `onChange` direto é mais simples.
 
-    // Para Android, escondemos imediatamente após a seleção
     if (Platform.OS === "android") {
       setShowPicker(false);
     }
   };
 
-  // Formata a data para "dd/MM/yyyy"
   const formatDate = (date: Date) => {
-    if (!date) return "Input"; // O placeholder original
+    if (!date) return "Selecione";
 
     return date.toLocaleDateString("pt-BR", {
       day: "2-digit",
@@ -71,24 +58,21 @@ const DatePickerInput = ({ label, value, onChange }: any) => {
         <Ionicons name="calendar-outline" size={22} color={COLORS.label} />
       </TouchableOpacity>
 
-      {/* O Componente DatePicker (só é exibido quando showPicker = true) */}
       {showPicker && (
         <DateTimePicker
           testID="dateTimePicker"
-          value={value || new Date()} // Deve ser um objeto Date. Usa data atual se 'value' for null
+          value={value || new Date()}
           mode="date"
           is24Hour={true}
-          display="default" // 'default' usa o melhor modo para a plataforma/versão
+          display="default"
           onChange={onDateChange}
-          locale="pt-BR" // Para garantir o idioma
+          locale="pt-BR"
         />
       )}
     </View>
   );
 };
 
-// --- ESTILOS ---
-// (Estes são os mesmos estilos do seu formulário para consistência)
 const styles = StyleSheet.create({
   inputGroup: {
     marginBottom: 20,

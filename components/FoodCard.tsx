@@ -32,7 +32,7 @@ const FoodCard = (props: FoodCardProps) => {
           alignSelf: "center",
           marginBottom: 8,
           width: "100%",
-          height: "100%",
+          height: 180,
         }}
       />
       <View style={styles.foodInfo}>

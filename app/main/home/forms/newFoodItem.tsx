@@ -3,8 +3,10 @@ import { supabase } from "@/lib/supabase";
 import { FontAwesome, Ionicons } from "@expo/vector-icons";
 import { Picker } from "@react-native-picker/picker";
 import * as ImagePicker from "expo-image-picker";
+import { router } from "expo-router";
 import React, { useState } from "react";
 import {
+  Alert,
   Image,
   ScrollView,
   StyleSheet,
@@ -38,6 +40,7 @@ export default function AddFoodScreen() {
   const [unit, setUnit] = useState("Kg");
   const [status, setStatus] = useState("Aberto");
   const [location, setLocation] = useState("Geladeira");
+  const [image, setImage] = useState<string | null>(null);
 
   async function getLocationId(location: string) {
     const { data, error } = await supabase
@@ -63,11 +66,24 @@ export default function AddFoodScreen() {
       quantidade: quantity,
       unidade_medida: unit,
       status,
-      ambiente_id: id,
+      id_ambiente: id,
+      imagem: image,
     });
-  }
 
-  const [image, setImage] = useState<string | null>(null);
+    if (error) {
+      Alert.alert("Erro", "Por favor, preencha todos os campos");
+    } else {
+      Alert.alert("Alimento Adicionado");
+      setName("");
+      setBrand("");
+      setExpirationDate(null);
+      setPrice("");
+      setQuantity("");
+      setImage(null);
+
+      router.back();
+    }
+  }
 
   const pickImage = async () => {
     // No permissions request is necessary for launching the image library
@@ -240,7 +256,7 @@ export default function AddFoodScreen() {
       </ScrollView>
 
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.addButton}>
+        <TouchableOpacity style={styles.addButton} onPress={handleAddItem}>
           <Ionicons name="add" size={24} color={COLORS.white} />
           <Text style={styles.addButtonText}>Adicionar</Text>
         </TouchableOpacity>
