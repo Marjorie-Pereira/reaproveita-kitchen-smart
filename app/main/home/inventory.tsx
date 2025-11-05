@@ -10,7 +10,7 @@ import { router, useFocusEffect } from "expo-router";
 import React, { useCallback, useState } from "react";
 import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
 
-const AllItems = () => {
+const Inventory = () => {
   const FLOATING_BUTTON_ACTIONS: buttonActionsObject[] = [
     {
       label: "Cadastrar",
@@ -75,7 +75,7 @@ const AllItems = () => {
                   style={{ width: "48%" }}
                   onPress={() =>
                     router.push({
-                      pathname: "/main/home/items/itemView",
+                      pathname: "/main/home/itemView",
                       params: { ...item },
                     })
                   }
@@ -107,4 +107,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AllItems;
+export default Inventory;

@@ -59,8 +59,8 @@ export default function Layout() {
           //   ),
         }}
       />
-      {/* <Drawer.Screen
-        name="items/all"
+      <Drawer.Screen
+        name="inventory"
         options={{
           headerLeft: () => (
             <Pressable onPress={() => router.back()}>
@@ -72,68 +72,31 @@ export default function Layout() {
             paddingHorizontal: 10,
             alignItems: "center",
           },
+          drawerItemStyle: {
+            display: "none",
+          },
         }}
       />
+
       <Drawer.Screen
-        name="items/open"
+        name="itemView"
         options={{
           headerLeft: () => (
-            <Pressable onPress={() => router.back()}>
+            <Pressable onPress={() => router.navigate("/main/home/inventory")}>
               <Ionicons name="arrow-back" size={24} color="#fff" />
             </Pressable>
           ),
-          title: "Itens abertos",
+          title: "Detalhes do item",
           headerLeftContainerStyle: {
             paddingHorizontal: 10,
             alignItems: "center",
           },
-        }}
-      />
-      <Drawer.Screen
-        name="items/expired"
-        options={{
-          headerLeft: () => (
-            <Pressable onPress={() => router.back()}>
-              <Ionicons name="arrow-back" size={24} color="#fff" />
-            </Pressable>
-          ),
-          title: "Itens vencidos",
-          headerLeftContainerStyle: {
-            paddingHorizontal: 10,
-            alignItems: "center",
+          drawerItemStyle: {
+            display: "none",
           },
         }}
       />
-      <Drawer.Screen
-        name="items/expiring"
-        options={{
-          headerLeft: () => (
-            <Pressable onPress={() => router.back()}>
-              <Ionicons name="arrow-back" size={24} color="#fff" />
-            </Pressable>
-          ),
-          title: "Itens vencendo",
-          headerLeftContainerStyle: {
-            paddingHorizontal: 10,
-            alignItems: "center",
-          },
-        }}
-      />
-      <Drawer.Screen
-        name="items/leftover"
-        options={{
-          headerLeft: () => (
-            <Pressable onPress={() => router.back()}>
-              <Ionicons name="arrow-back" size={24} color="#fff" />
-            </Pressable>
-          ),
-          title: "Sobras",
-          headerLeftContainerStyle: {
-            paddingHorizontal: 10,
-            alignItems: "center",
-          },
-        }}
-      /> */}
+
       <Drawer.Screen
         name="forms/newFoodItem"
         options={{
@@ -142,10 +105,38 @@ export default function Layout() {
               <Ionicons name="arrow-back" size={24} color="#fff" />
             </Pressable>
           ),
-          title: "Novo item",
+          title: "Novo do item",
           headerLeftContainerStyle: {
             paddingHorizontal: 10,
             alignItems: "center",
+          },
+          drawerItemStyle: {
+            display: "none",
+          },
+        }}
+      />
+
+      <Drawer.Screen
+        name="forms/editFoodItem"
+        options={{
+          headerLeft: () => {
+            return (
+              <Pressable
+                onPress={() => {
+                  router.back();
+                }}
+              >
+                <Ionicons name="arrow-back" size={24} color="#fff" />
+              </Pressable>
+            );
+          },
+          title: "Editar item",
+          headerLeftContainerStyle: {
+            paddingHorizontal: 10,
+            alignItems: "center",
+          },
+          drawerItemStyle: {
+            display: "none",
           },
         }}
       />

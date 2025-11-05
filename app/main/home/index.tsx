@@ -52,7 +52,7 @@ export default function WelcomeScreen() {
             }
             label="Sobras"
             itemsCount={2}
-            onPress={() => router.push("/main/home/items/leftover")}
+            onPress={() => router.push("/main/home/inventory")}
           />
           <Card
             icon={
@@ -64,7 +64,7 @@ export default function WelcomeScreen() {
             }
             label="Abertos"
             itemsCount={2}
-            onPress={() => router.push("/main/home/items/open")}
+            onPress={() => router.push("/main/home/inventory")}
           />
           <Card
             icon={
@@ -76,7 +76,7 @@ export default function WelcomeScreen() {
             }
             label="Vencendo"
             itemsCount={2}
-            onPress={() => router.push("/main/home/items/expiring")}
+            onPress={() => router.push("/main/home/inventory")}
           />
           <Card
             icon={
@@ -88,7 +88,7 @@ export default function WelcomeScreen() {
             }
             label="Vencidos"
             itemsCount={2}
-            onPress={() => router.push("/main/home/items/expired")}
+            onPress={() => router.push("/main/home/inventory")}
           />
         </View>
 
@@ -100,7 +100,7 @@ export default function WelcomeScreen() {
             <Text style={styles.sectionTitle}>Todos os itens</Text>
             <TouchableOpacity
               style={styles.viewAllBtn}
-              onPress={() => router.push("/main/home/items/all")}
+              onPress={() => router.push("/main/home/inventory")}
             >
               <Ionicons name="arrow-forward-sharp" size={18} color="#C95CA5" />
               <Text style={styles.viewAllText}>Ver mais</Text>

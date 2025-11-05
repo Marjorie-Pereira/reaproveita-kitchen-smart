@@ -75,7 +75,7 @@ const TelaAlimento = () => {
               Alert.alert(error.message);
             } else {
               Alert.alert("Deletado com sucesso!");
-              router.back();
+              router.navigate('./inventory');
             }
           },
           style: "destructive",
@@ -89,84 +89,87 @@ const TelaAlimento = () => {
   }
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        {/* Header da Seção (Item e Badge) */}
-        <View style={styles.headerRow}>
-          <Text style={styles.title}>{params.nome}</Text>
-          <View style={styles.badgeContainer}>
-            <Text style={styles.badgeText}>Vencendo</Text>
+    <>
+      
+      <SafeAreaView style={styles.safeArea}>
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
+          {/* Header da Seção (Item e Badge) */}
+          <View style={styles.headerRow}>
+            <Text style={styles.title}>{params.nome}</Text>
+            <View style={styles.badgeContainer}>
+              <Text style={styles.badgeText}>Vencendo</Text>
+            </View>
           </View>
-        </View>
 
-        {/* Imagem do Produto */}
-        <Image
-          source={{
-            uri: params.imagem,
-          }}
-          style={styles.image}
-        />
+          {/* Imagem do Produto */}
+          <Image
+            source={{
+              uri: params.imagem,
+            }}
+            style={styles.image}
+          />
 
-        {/* Banner de Aviso */}
-        <View style={styles.warningBanner}>
-          <Ionicons name="warning-outline" size={24} color="#B7950B" />
-          <Text style={styles.warningText}>
-            Vence em 2 dias - use em breve!
-          </Text>
-        </View>
-
-        {/* Seção de Informações */}
-        <View style={styles.infoContainer}>
-          {/* Coluna da Esquerda */}
-          <View style={styles.infoColumn}>
-            <InfoRow
-              iconName="category"
-              label="Categoria"
-              value={params.categoria}
-            />
-            <InfoRow
-              iconName="bookmark-border"
-              label="Marca"
-              value={params.marca}
-            />
-            <InfoRow
-              iconName="location-on"
-              label="Localização"
-              value={location}
-            />
+          {/* Banner de Aviso */}
+          <View style={styles.warningBanner}>
+            <Ionicons name="warning-outline" size={24} color="#B7950B" />
+            <Text style={styles.warningText}>
+              Vence em 2 dias - use em breve!
+            </Text>
           </View>
-          {/* Coluna da Direita */}
-          <View style={styles.infoColumn}>
-            <InfoRow
-              iconName="inventory-2"
-              label="Quantidade"
-              value={`${params.quantidade} ${params.unidade_medida}`}
-            />
-            <InfoRow
-              iconName="calendar-today"
-              label="Validade"
-              value={new Date(params.data_validade).toLocaleDateString()}
-            />
-          </View>
-        </View>
 
-        {/* Botões de Ação */}
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity
-            style={[styles.button, styles.editButton]}
-            onPress={handleEdit}
-          >
-            <Text style={styles.buttonText}>Editar</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.button, styles.deleteButton]}
-            onPress={handleDelete}
-          >
-            <Text style={styles.buttonText}>Excluir</Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+          {/* Seção de Informações */}
+          <View style={styles.infoContainer}>
+            {/* Coluna da Esquerda */}
+            <View style={styles.infoColumn}>
+              <InfoRow
+                iconName="category"
+                label="Categoria"
+                value={params.categoria}
+              />
+              <InfoRow
+                iconName="bookmark-border"
+                label="Marca"
+                value={params.marca}
+              />
+              <InfoRow
+                iconName="location-on"
+                label="Localização"
+                value={location}
+              />
+            </View>
+            {/* Coluna da Direita */}
+            <View style={styles.infoColumn}>
+              <InfoRow
+                iconName="inventory-2"
+                label="Quantidade"
+                value={`${params.quantidade} ${params.unidade_medida}`}
+              />
+              <InfoRow
+                iconName="calendar-today"
+                label="Validade"
+                value={new Date(params.data_validade).toLocaleDateString()}
+              />
+            </View>
+          </View>
+
+          {/* Botões de Ação */}
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity
+              style={[styles.button, styles.editButton]}
+              onPress={handleEdit}
+            >
+              <Text style={styles.buttonText}>Editar</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.button, styles.deleteButton]}
+              onPress={handleDelete}
+            >
+              <Text style={styles.buttonText}>Excluir</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    </>
   );
 };
 

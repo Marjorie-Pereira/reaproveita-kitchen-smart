@@ -13,7 +13,7 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 
 const COLORS = {
@@ -100,6 +100,7 @@ export default function AddFoodScreen() {
 
   return (
     <>
+      
       <ScrollView
         style={styles.container}
         contentContainerStyle={styles.scrollContainer}
