@@ -83,6 +83,13 @@ const RootLayout = () => {
           headerShown: false,
         }}
       />
+
+      <Stack.Screen
+        name="cameraTest"
+        options={{
+          title: "Tirar foto"
+        }}
+      />
     </Stack>
   );
 };

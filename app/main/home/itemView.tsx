@@ -1,5 +1,4 @@
 import { supabase } from "@/lib/supabase";
-import { foodItem } from "@/types/FoodListItemProps";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useState } from "react";
@@ -30,7 +29,7 @@ const InfoRow = ({ iconName, label, value }: any) => (
 );
 
 const TelaAlimento = () => {
-  const params = useLocalSearchParams() as unknown as foodItem;
+  const params = useLocalSearchParams();
   const [location, setLocation] = useState("");
   async function getLocationById(id: string) {
     const { data, error } = await supabase
@@ -45,10 +44,10 @@ const TelaAlimento = () => {
     setLocation(data[0].nome);
   }
 
-  getLocationById(params.id_ambiente);
+  getLocationById(params.id_ambiente as string);
 
   async function handleEdit() {
-    router.push({ pathname: "/main/home/forms/editFoodItem", params });
+    router.push({ pathname: "/main/home/forms/editFoodItem", params: {...params} });
   }
 
   function handleDelete() {
@@ -104,7 +103,7 @@ const TelaAlimento = () => {
           {/* Imagem do Produto */}
           <Image
             source={{
-              uri: params.imagem,
+              uri: params.imagem as string,
             }}
             style={styles.image}
           />
@@ -147,7 +146,7 @@ const TelaAlimento = () => {
               <InfoRow
                 iconName="calendar-today"
                 label="Validade"
-                value={new Date(params.data_validade).toLocaleDateString()}
+                value={new Date(params.data_validade as string).toLocaleDateString()}
               />
             </View>
           </View>

@@ -1,21 +1,19 @@
 import DatePickerInput from "@/components/DatePicker";
 import { supabase } from "@/lib/supabase";
-import { foodItem } from "@/types/FoodListItemProps";
 import { getLocationById, getLocationId } from "@/utils/locationUtils";
 import { FontAwesome, Ionicons } from "@expo/vector-icons";
 import { Picker } from "@react-native-picker/picker";
-import * as ImagePicker from "expo-image-picker";
-import { router, useLocalSearchParams } from "expo-router";
-import React, { useEffect, useState } from "react";
+import { Image } from "expo-image";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
+import React, { useCallback, useState } from "react";
 import {
   Alert,
-  Image,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
 
 const COLORS = {
@@ -33,22 +31,43 @@ const OPCOES_UNIDADE = ["Kg", "g", "L", "ml", "Unidade(s)"];
 const OPCOES_STATUS = ["Aberto", "Fechado"];
 
 export default function AddFoodScreen() {
-  const params = useLocalSearchParams() as unknown as foodItem;
+  const params = useLocalSearchParams();
+  const [name, setName] = useState(params.nome);
+  const [brand, setBrand] = useState(params.marca);
+  const [expirationDate, setExpirationDate] = useState<null | Date>(
+    new Date(params.data_validade as string)
+  );
+  const [category, setCategory] = useState(params.categoria ?? "Grãos");
+  const [price, setPrice] = useState(params.preco ?? 0);
+  const [quantity, setQuantity] = useState(params.quantidade ?? 0);
+  const [unit, setUnit] = useState(params.unidade_medida ?? OPCOES_UNIDADE[0]);
+  const [status, setStatus] = useState(params.status ?? OPCOES_STATUS[0]);
+  const [location, setLocation] = useState(params.local ?? "Geladeira");
+  const { uri } = useLocalSearchParams();
 
-  const [name, setName] = useState<string>();
-  const [brand, setBrand] = useState<string>();
-  const [expirationDate, setExpirationDate] = useState<null | Date>();
-  const [category, setCategory] = useState<string>();
-  const [price, setPrice] = useState<number | null>();
-  const [quantity, setQuantity] = useState<number | null>();
-  const [unit, setUnit] = useState<string>();
-  const [status, setStatus] = useState<string>();
-  const [image, setImage] = useState<string | null>();
+  useFocusEffect(
+      useCallback( () => {
+        console.log("params form", params);
+        if(!params.local) getLocationById(params.id_ambiente as string).then((data) => setLocation(data))
+        console.log("Local: ", location);
+      }, [])
+    );
 
-  const [location, setLocation] = useState("Geladeira");
+  const itemParams = {
+    id: params.id,
+    nome: name,
+    marca: brand,
+    data_validade: expirationDate?.toUTCString(),
+    categoria: category,
+    preco: price,
+    quantidade: quantity,
+    unidade_medida: unit,
+    status,
+    local: location,
+  };
 
   async function handleEditItem() {
-    const { id } = await getLocationId(location);
+    const { id } = await getLocationId(location as string);
     const { data, error } = await supabase
       .from("Alimentos")
       .update({
@@ -61,7 +80,7 @@ export default function AddFoodScreen() {
         unidade_medida: unit,
         status,
         id_ambiente: id,
-        imagem: image,
+        imagem: uri,
       })
       .eq("id", params.id);
 
@@ -72,60 +91,26 @@ export default function AddFoodScreen() {
       setName("");
       setBrand("");
       setExpirationDate(null);
-      setPrice(null);
-      setQuantity(null);
-      setImage(null);
+      setPrice("");
+      setQuantity("");
       setCategory("Grãos");
 
       router.back();
+      router.setParams({});
     }
   }
-
-  const pickImage = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ["images", "videos"],
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
-    });
-
-    if (!result.canceled) {
-      setImage(result.assets[0].uri);
-    }
+  
+  const renderPicture = (uri: string) => {
+    return (
+      <View>
+        <Image
+          source={{ uri }}
+          contentFit="contain"
+          style={{ width: 300, aspectRatio: 1 }}
+        />
+      </View>
+    );
   };
-
-  useEffect(() => {
-    async function getFoodItem() {
-      if (!params.id) {
-        return;
-      }
-
-      const { data, error } = await supabase
-        .from("Alimentos")
-        .select("*")
-        .eq("id", params.id);
-
-      if (error) {
-        Alert.alert(error.message);
-      }
-
-      if (data && data.length > 0) {
-        const item = data[0] as foodItem;
-        setName(item.nome);
-        setBrand(item.marca);
-        setCategory(item.categoria);
-        setExpirationDate(new Date(item.data_validade));
-        setImage(item.imagem);
-        setLocation(await getLocationById(item.id_ambiente));
-        setQuantity(item.quantidade);
-        setStatus(item.status);
-        setUnit(item.unidade_medida);
-      } else {
-      }
-    }
-
-    getFoodItem();
-  }, [params.id]);
 
   return (
     <>
@@ -139,7 +124,7 @@ export default function AddFoodScreen() {
           <View style={styles.inputWrapper}>
             <TextInput
               style={styles.textInput}
-              value={name}
+              value={name as string}
               onChangeText={setName}
               placeholder="Ex: Tomate"
             />
@@ -161,7 +146,7 @@ export default function AddFoodScreen() {
           <View style={styles.inputWrapper}>
             <TextInput
               style={styles.textInput}
-              value={brand}
+              value={brand as string}
               onChangeText={setBrand}
               placeholder="Ex: Heinz"
             />
@@ -170,7 +155,11 @@ export default function AddFoodScreen() {
 
         <DatePickerInput
           label="Data de validade"
-          value={expirationDate}
+          value={
+            expirationDate?.toString() === "Invalid Date"
+              ? null
+              : expirationDate
+          }
           onChange={(newDate: Date) => setExpirationDate(newDate)}
         />
 
@@ -200,7 +189,7 @@ export default function AddFoodScreen() {
               <TextInput
                 style={[styles.textInput, { paddingLeft: 5 }]}
                 value={String(price ? price : "")}
-                onChangeText={(val) => setPrice(Number(val))}
+                onChangeText={setPrice}
                 placeholder="0,00"
                 keyboardType="numeric"
               />
@@ -214,9 +203,7 @@ export default function AddFoodScreen() {
               <TextInput
                 style={styles.textInput}
                 value={String(quantity ? quantity : "")}
-                onChangeText={(val) => {
-                  setQuantity(Number(val));
-                }}
+                onChangeText={setQuantity}
                 placeholder="1"
                 keyboardType="numeric"
               />
@@ -272,14 +259,19 @@ export default function AddFoodScreen() {
               justifyContent: "space-between",
               padding: 10,
             }}
-            onPress={pickImage}
+            onPress={() => {
+              router.push({
+                pathname: "/cameraTest",
+                params: { ...itemParams, path: "edit" },
+              });
+            }}
           >
             <Text>Escolher imagem...</Text>
             <FontAwesome name="camera" size={24} color={COLORS.label} />
           </TouchableOpacity>
         </View>
         <View style={styles.imageContainer}>
-          {image && <Image source={{ uri: image }} style={styles.image} />}
+          {uri && renderPicture(uri as string)}
         </View>
       </ScrollView>
 

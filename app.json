@@ -39,6 +39,12 @@
         {
           "photosPermission": "The app accesses your photos to let you share them with your friends."
         }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow Reaproveita to access your camera"
+        }
       ]
     ],
     "experiments": {

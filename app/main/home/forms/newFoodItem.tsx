@@ -2,18 +2,17 @@ import DatePickerInput from "@/components/DatePicker";
 import { supabase } from "@/lib/supabase";
 import { FontAwesome, Ionicons } from "@expo/vector-icons";
 import { Picker } from "@react-native-picker/picker";
-import * as ImagePicker from "expo-image-picker";
-import { router } from "expo-router";
-import React, { useState } from "react";
+import { Image } from "expo-image";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
+import React, { useCallback, useState } from "react";
 import {
   Alert,
-  Image,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
 
 const COLORS = {
@@ -31,16 +30,37 @@ const OPCOES_UNIDADE = ["Kg", "g", "L", "ml", "Unidade(s)"];
 const OPCOES_STATUS = ["Aberto", "Fechado"];
 
 export default function AddFoodScreen() {
-  const [name, setName] = useState("Ketchup");
-  const [brand, setBrand] = useState("");
-  const [expirationDate, setExpirationDate] = useState<null | Date>(null);
-  const [category, setCategory] = useState("Grãos");
-  const [price, setPrice] = useState("");
-  const [quantity, setQuantity] = useState("");
-  const [unit, setUnit] = useState("Kg");
-  const [status, setStatus] = useState("Aberto");
-  const [location, setLocation] = useState("Geladeira");
-  const [image, setImage] = useState<string | null>(null);
+  const params = useLocalSearchParams();
+  const [name, setName] = useState(params.name);
+  const [brand, setBrand] = useState(params.brand);
+  const [expirationDate, setExpirationDate] = useState<null | Date>(
+    new Date(params.expirationDate as string)
+  );
+  const [category, setCategory] = useState(params.category ?? "Grãos");
+  const [price, setPrice] = useState(params.price ?? 0);
+  const [quantity, setQuantity] = useState(params.quantity ?? 0);
+  const [unit, setUnit] = useState(params.unit ?? OPCOES_UNIDADE[0]);
+  const [status, setStatus] = useState(params.status ?? OPCOES_STATUS[0]);
+  const [location, setLocation] = useState(params.location ?? "Geladeira");
+  const { uri } = useLocalSearchParams();
+
+  const itemParams = {
+    name,
+    brand,
+    expirationDate: expirationDate?.toUTCString(),
+    category,
+    price,
+    quantity,
+    unit,
+    status,
+    location,
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      console.log("params form", params);
+    }, [])
+  );
 
   async function getLocationId(location: string) {
     const { data, error } = await supabase
@@ -56,7 +76,7 @@ export default function AddFoodScreen() {
   }
 
   async function handleAddItem() {
-    const { id } = await getLocationId(location);
+    const { id } = await getLocationId(location as string);
     const { data, error } = await supabase.from("Alimentos").insert({
       nome: name,
       marca: brand,
@@ -67,7 +87,7 @@ export default function AddFoodScreen() {
       unidade_medida: unit,
       status,
       id_ambiente: id,
-      imagem: image,
+      imagem: uri,
     });
 
     if (error) {
@@ -79,28 +99,25 @@ export default function AddFoodScreen() {
       setExpirationDate(null);
       setPrice("");
       setQuantity("");
-      setImage(null);
-
       router.back();
+      router.setParams({});
     }
   }
 
-  const pickImage = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ["images", "videos"],
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
-    });
-
-    if (!result.canceled) {
-      setImage(result.assets[0].uri);
-    }
+  const renderPicture = (uri: string) => {
+    return (
+      <View>
+        <Image
+          source={{ uri }}
+          contentFit="contain"
+          style={{ width: 300, aspectRatio: 1 }}
+        />
+      </View>
+    );
   };
 
   return (
     <>
-      
       <ScrollView
         style={styles.container}
         contentContainerStyle={styles.scrollContainer}
@@ -111,11 +128,11 @@ export default function AddFoodScreen() {
           <View style={styles.inputWrapper}>
             <TextInput
               style={styles.textInput}
-              value={name}
+              value={name as string}
               onChangeText={setName}
               placeholder="Ex: Tomate"
             />
-            {name.length > 0 && (
+            {name?.length > 0 && (
               <TouchableOpacity onPress={() => setName("")}>
                 <Ionicons
                   name="close-circle"
@@ -133,7 +150,7 @@ export default function AddFoodScreen() {
           <View style={styles.inputWrapper}>
             <TextInput
               style={styles.textInput}
-              value={brand}
+              value={brand as string}
               onChangeText={setBrand}
               placeholder="Ex: Heinz"
             />
@@ -142,7 +159,11 @@ export default function AddFoodScreen() {
 
         <DatePickerInput
           label="Data de validade"
-          value={expirationDate}
+          value={
+            expirationDate?.toString() === "Invalid Date"
+              ? null
+              : expirationDate
+          }
           onChange={(newDate: Date) => setExpirationDate(newDate)}
         />
 
@@ -171,7 +192,7 @@ export default function AddFoodScreen() {
               <Text style={styles.prefix}>R$</Text>
               <TextInput
                 style={[styles.textInput, { paddingLeft: 5 }]}
-                value={price}
+                value={price as string}
                 onChangeText={setPrice}
                 placeholder="0,00"
                 keyboardType="numeric"
@@ -185,7 +206,7 @@ export default function AddFoodScreen() {
             <View style={styles.inputWrapper}>
               <TextInput
                 style={styles.textInput}
-                value={quantity}
+                value={quantity as string}
                 onChangeText={setQuantity}
                 placeholder="1"
                 keyboardType="numeric"
@@ -242,14 +263,19 @@ export default function AddFoodScreen() {
               justifyContent: "space-between",
               padding: 10,
             }}
-            onPress={pickImage}
+            onPress={() => {
+              router.push({
+                pathname: "/cameraTest",
+                params: { ...itemParams, path: "new" },
+              });
+            }}
           >
             <Text>Escolher imagem...</Text>
             <FontAwesome name="camera" size={24} color={COLORS.label} />
           </TouchableOpacity>
         </View>
         <View style={styles.imageContainer}>
-          {image && <Image source={{ uri: image }} style={styles.image} />}
+          {uri && renderPicture(uri as string)}
         </View>
       </ScrollView>
 
