@@ -35,6 +35,7 @@ export default function WelcomeScreen() {
       onPress: () => null,
     },
   ];
+
   return (
     <SafeAreaView style={styles.container}>
       <FloatingButton actions={FLOATING_BUTTON_ACTIONS} />
@@ -52,7 +53,9 @@ export default function WelcomeScreen() {
             }
             label="Sobras"
             itemsCount={2}
-            onPress={() => router.push("/main/home/inventory")}
+            onPress={() =>
+              router.push("/main/home/items/leftovers")
+            }
           />
           <Card
             icon={
@@ -64,7 +67,9 @@ export default function WelcomeScreen() {
             }
             label="Abertos"
             itemsCount={2}
-            onPress={() => router.push("/main/home/inventory")}
+            onPress={() =>
+              router.push("/main/home/items/open")
+            }
           />
           <Card
             icon={
@@ -76,7 +81,9 @@ export default function WelcomeScreen() {
             }
             label="Vencendo"
             itemsCount={2}
-            onPress={() => router.push("/main/home/inventory")}
+            onPress={() =>
+              router.push("/main/home/items/expiring")
+            }
           />
           <Card
             icon={
@@ -88,7 +95,9 @@ export default function WelcomeScreen() {
             }
             label="Vencidos"
             itemsCount={2}
-            onPress={() => router.push("/main/home/inventory")}
+            onPress={() =>
+              router.push("/main/home/items/expired")
+            }
           />
         </View>
 
@@ -100,7 +109,7 @@ export default function WelcomeScreen() {
             <Text style={styles.sectionTitle}>Todos os itens</Text>
             <TouchableOpacity
               style={styles.viewAllBtn}
-              onPress={() => router.push("/main/home/inventory")}
+              onPress={() => router.push("/main/home/items/all")}
             >
               <Ionicons name="arrow-forward-sharp" size={18} color="#C95CA5" />
               <Text style={styles.viewAllText}>Ver mais</Text>

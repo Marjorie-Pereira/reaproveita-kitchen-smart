@@ -59,30 +59,20 @@ export default function Layout() {
           //   ),
         }}
       />
-      <Drawer.Screen
-        name="inventory"
+      {/* <Drawer.Screen
+        name="items/[group]"
         options={{
-          headerLeft: () => (
-            <Pressable onPress={() => router.back()}>
-              <Ionicons name="arrow-back" size={24} color="#fff" />
-            </Pressable>
-          ),
-          title: "Todos os itens",
-          headerLeftContainerStyle: {
-            paddingHorizontal: 10,
-            alignItems: "center",
-          },
           drawerItemStyle: {
             display: "none",
           },
         }}
-      />
+      /> */}
 
       <Drawer.Screen
         name="itemView"
         options={{
           headerLeft: () => (
-            <Pressable onPress={() => router.navigate("/main/home/inventory")}>
+            <Pressable onPress={() => router.back()}>
               <Ionicons name="arrow-back" size={24} color="#fff" />
             </Pressable>
           ),
@@ -105,7 +95,7 @@ export default function Layout() {
               <Ionicons name="arrow-back" size={24} color="#fff" />
             </Pressable>
           ),
-          title: "Novo do item",
+          title: "Novo item",
           headerLeftContainerStyle: {
             paddingHorizontal: 10,
             alignItems: "center",
