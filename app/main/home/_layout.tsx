@@ -130,6 +130,30 @@ export default function Layout() {
           },
         }}
       />
+      <Drawer.Screen
+        name="forms/barCodeScanner"
+        options={{
+          headerLeft: () => {
+            return (
+              <Pressable
+                onPress={() => {
+                  router.back();
+                }}
+              >
+                <Ionicons name="arrow-back" size={24} color="#fff" />
+              </Pressable>
+            );
+          },
+          title: "Escanear código de barras",
+          headerLeftContainerStyle: {
+            paddingHorizontal: 10,
+            alignItems: "center",
+          },
+          drawerItemStyle: {
+            display: "none",
+          },
+        }}
+      />
     </Drawer>
   );
 }

@@ -32,7 +32,7 @@ export default function WelcomeScreen() {
     {
       label: "Escanear",
       icon: <Ionicons name="barcode-sharp" size={24} color="black" />,
-      onPress: () => null,
+      onPress: () => router.push("/main/home/forms/barCodeScanner"),
     },
   ];
 
@@ -53,9 +53,7 @@ export default function WelcomeScreen() {
             }
             label="Sobras"
             itemsCount={2}
-            onPress={() =>
-              router.push("/main/home/items/leftovers")
-            }
+            onPress={() => router.push("/main/home/items/leftovers")}
           />
           <Card
             icon={
@@ -67,9 +65,7 @@ export default function WelcomeScreen() {
             }
             label="Abertos"
             itemsCount={2}
-            onPress={() =>
-              router.push("/main/home/items/open")
-            }
+            onPress={() => router.push("/main/home/items/open")}
           />
           <Card
             icon={
@@ -81,9 +77,7 @@ export default function WelcomeScreen() {
             }
             label="Vencendo"
             itemsCount={2}
-            onPress={() =>
-              router.push("/main/home/items/expiring")
-            }
+            onPress={() => router.push("/main/home/items/expiring")}
           />
           <Card
             icon={
@@ -95,9 +89,7 @@ export default function WelcomeScreen() {
             }
             label="Vencidos"
             itemsCount={2}
-            onPress={() =>
-              router.push("/main/home/items/expired")
-            }
+            onPress={() => router.push("/main/home/items/expired")}
           />
         </View>
 
