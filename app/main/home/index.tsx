@@ -3,7 +3,13 @@ import FloatingButton from "@/components/FloatingButton";
 import FoodListItem from "@/components/FoodListItem";
 import SearchBar from "@/components/SearchBar";
 import { labelColor, labelTextColor } from "@/constants/status.colors";
+import { supabase } from "@/lib/supabase";
 import { buttonActionsObject } from "@/types/buttonActionsObject";
+import {
+  getExpiredItems,
+  getExpiringItems,
+  getOpenItems,
+} from "@/utils/getFoodItemsByGroup";
 import {
   Feather,
   FontAwesome5,
@@ -11,8 +17,8 @@ import {
   Ionicons,
   MaterialCommunityIcons,
 } from "@expo/vector-icons";
-import { router } from "expo-router";
-import React from "react";
+import { router, useFocusEffect } from "expo-router";
+import React, { useCallback, useState } from "react";
 import {
   ScrollView,
   StyleSheet,
@@ -36,6 +42,41 @@ export default function WelcomeScreen() {
     },
   ];
 
+  const [leftoversCount, setLeftoversCount] = useState(0);
+  const [openedCount, setOpenedCount] = useState(0);
+  const [expiringCount, setExpiringCount] = useState(0);
+  const [expiredCount, setExpiredCount] = useState(0);
+
+  async function getItemsCount() {
+    const { data, error } = await supabase.from("Alimentos").select("*");
+
+    if (error) {
+      throw Error(error.message);
+    } else {
+      const openItems = getOpenItems(data || []);
+      setOpenedCount(openItems.length);
+
+      const expiringItems = getExpiringItems(data || []);
+      setExpiringCount(expiringItems.length);
+
+      const expiredItems = getExpiredItems(data || []);
+      setExpiredCount(expiredItems.length);
+
+      // Leftovers logic to be implemented
+    }
+  }
+
+  useFocusEffect(
+    useCallback(() => {
+      getItemsCount();
+
+      return () => {
+        // Do something when the screen is unfocused/unmount
+        // Useful for cleanup functions
+      };
+    }, [])
+  );
+
   return (
     <SafeAreaView style={styles.container}>
       <FloatingButton actions={FLOATING_BUTTON_ACTIONS} />
@@ -52,7 +93,7 @@ export default function WelcomeScreen() {
               />
             }
             label="Sobras"
-            itemsCount={2}
+            itemsCount={leftoversCount}
             onPress={() => router.push("/main/home/items/leftovers")}
           />
           <Card
@@ -64,7 +105,7 @@ export default function WelcomeScreen() {
               />
             }
             label="Abertos"
-            itemsCount={2}
+            itemsCount={openedCount}
             onPress={() => router.push("/main/home/items/open")}
           />
           <Card
@@ -76,7 +117,7 @@ export default function WelcomeScreen() {
               />
             }
             label="Vencendo"
-            itemsCount={2}
+            itemsCount={expiringCount}
             onPress={() => router.push("/main/home/items/expiring")}
           />
           <Card
@@ -88,7 +129,7 @@ export default function WelcomeScreen() {
               />
             }
             label="Vencidos"
-            itemsCount={2}
+            itemsCount={expiredCount}
             onPress={() => router.push("/main/home/items/expired")}
           />
         </View>
