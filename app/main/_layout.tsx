@@ -9,6 +9,14 @@ export default function TabLayout() {
         tabBarStyle: {
           backgroundColor: "#EFF5EE",
         },
+        headerStyle: {
+          backgroundColor: "#5C9C59",
+        },
+        headerTitleStyle: {
+          fontWeight: "regular",
+          color: "white",
+        },
+        headerTintColor: "white",
       }}
     >
       <Tabs.Screen
