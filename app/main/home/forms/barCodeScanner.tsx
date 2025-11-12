@@ -62,7 +62,7 @@ export default function BarCodeScanner() {
         <CameraView
           onBarcodeScanned={scanned ? undefined : handleBarcodeScanned}
           barcodeScannerSettings={{
-            barcodeTypes: ["qr", "ean13", "ean8"],
+            barcodeTypes: ["ean13", "ean8"],
           }}
           style={StyleSheet.absoluteFillObject}
         />
