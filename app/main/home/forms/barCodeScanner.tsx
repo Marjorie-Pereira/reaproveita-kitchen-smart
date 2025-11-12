@@ -3,7 +3,7 @@ import { baseUrl, queryFields } from "@/constants/openFoodFactsApi";
 import { userAgent } from "@/constants/userAgent";
 import { responseType } from "@/types/openFoodApiResponse";
 import { Camera, CameraView } from "expo-camera";
-import { useFocusEffect } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 
@@ -35,13 +35,18 @@ export default function BarCodeScanner() {
       headers: headers,
     });
     const result: responseType = await response.json();
+
     if (result.status === 0) {
       alert(`Produto com código ${data} não encontrado.`);
     } else {
-      console.log(result.product);
+      console.log("fetch", result);
+      router.push({
+        pathname: "/main/home/forms/newFoodItem",
+        params: {
+          scannedProduct: JSON.stringify(result.product),
+        },
+      });
     }
-
-    console.log(headers);
   };
 
   if (hasPermission === null) {
