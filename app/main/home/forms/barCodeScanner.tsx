@@ -1,10 +1,13 @@
 import Button from "@/components/Button";
+import { baseUrl, queryFields } from "@/constants/openFoodFactsApi";
+import { userAgent } from "@/constants/userAgent";
+import { responseType } from "@/types/openFoodApiResponse";
 import { Camera, CameraView } from "expo-camera";
 import { useFocusEffect } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 
-export default function App() {
+export default function BarCodeScanner() {
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [scanned, setScanned] = useState(false);
 
@@ -23,9 +26,22 @@ export default function App() {
     }, [])
   );
 
-  const handleBarcodeScanned = ({ type, data }: any) => {
+  const handleBarcodeScanned = async ({ type, data }: any) => {
     setScanned(true);
-    alert(`Bar code with type ${type} and data ${data} has been scanned!`);
+    const headers = new Headers();
+    headers.append("User-Agent", userAgent);
+    const response = await fetch(baseUrl + data + `?fields=${queryFields}`, {
+      method: "GET",
+      headers: headers,
+    });
+    const result: responseType = await response.json();
+    if (result.status === 0) {
+      alert(`Produto com código ${data} não encontrado.`);
+    } else {
+      console.log(result.product);
+    }
+
+    console.log(headers);
   };
 
   if (hasPermission === null) {
