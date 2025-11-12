@@ -42,7 +42,10 @@ const Inventory = () => {
     return items.filter((item) => {
       const expirationDate = new Date(item.data_validade);
 
-      return expirationDate.getTime() < new Date().getTime() && item.id_ambiente === id;
+      return (
+        expirationDate.getTime() < new Date().getTime() &&
+        item.id_ambiente === id
+      );
     });
   };
 
@@ -51,7 +54,11 @@ const Inventory = () => {
       const expirationDate = new Date(item.data_validade);
       const notExpired = expirationDate.getDate() >= new Date().getDate();
 
-      return notExpired && expirationDate.getDate() - new Date().getDate() <= 7 && item.id_ambiente === id;
+      return (
+        notExpired &&
+        expirationDate.getDate() - new Date().getDate() <= 7 &&
+        item.id_ambiente === id
+      );
     });
   };
 
@@ -71,8 +78,7 @@ const Inventory = () => {
     field: string = "",
     value: string = ""
   ) {
-
-    console.log("Buscando itens de", location)
+    console.log("Buscando itens de", location);
     const { id } = await getLocationId(location);
     const { data, error } = await supabase
       .from("Alimentos")
@@ -85,31 +91,29 @@ const Inventory = () => {
     }
 
     switch (group) {
-        case "open":
-          const openItems = getOpenItems(data, id);
-          setFoodList(openItems);
-          setHeaderTitle("Itens Abertos");
-          break;
-        case "expiring":
-          const expiringItems = getExpiringItems(data, id);
-          setFoodList(expiringItems);
-          setHeaderTitle("Itens Vencendo");
-          break;
-        case "expired":
-          const expiredItems = getExpiredItems(data, id);
-          setFoodList(expiredItems);
-          setHeaderTitle("Itens Vencidos");
-          break;
-        case "leftovers":
-          setHeaderTitle("Sobras");
-          break;
-        default:
-          setFoodList(data);
-          setHeaderTitle("Todos os itens");
-          break;
-      }
-
-    
+      case "open":
+        const openItems = getOpenItems(data, id);
+        setFoodList(openItems);
+        setHeaderTitle("Itens Abertos");
+        break;
+      case "expiring":
+        const expiringItems = getExpiringItems(data, id);
+        setFoodList(expiringItems);
+        setHeaderTitle("Itens Vencendo");
+        break;
+      case "expired":
+        const expiredItems = getExpiredItems(data, id);
+        setFoodList(expiredItems);
+        setHeaderTitle("Itens Vencidos");
+        break;
+      case "leftovers":
+        setHeaderTitle("Sobras");
+        break;
+      default:
+        setFoodList(data);
+        setHeaderTitle("Todos os itens");
+        break;
+    }
   }
 
   useEffect(() => {
@@ -126,7 +130,7 @@ const Inventory = () => {
             <Pressable
               onPress={() => {
                 router.setParams({});
-                router.replace("/main/home")
+                router.replace("/main/home");
               }}
             >
               <Ionicons name="arrow-back" size={24} color="#fff" />
@@ -183,7 +187,7 @@ const styles = StyleSheet.create({
   foodItemsGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 15,
+    gap: 10,
   },
 });
 

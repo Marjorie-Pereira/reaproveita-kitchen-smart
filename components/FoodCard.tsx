@@ -25,15 +25,11 @@ const FoodCard = (props: FoodCardProps) => {
   return (
     <View style={styles.foodContainer}>
       <Image
+        resizeMode="contain"
         source={{
           uri: image,
         }}
-        style={{
-          alignSelf: "center",
-          marginBottom: 8,
-          width: "100%",
-          height: 180,
-        }}
+        style={styles.foodImage}
       />
       <View style={styles.foodInfo}>
         <View style={styles.textWrapper}>
