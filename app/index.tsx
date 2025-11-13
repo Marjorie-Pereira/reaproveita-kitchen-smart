@@ -13,7 +13,7 @@ export default function Index() {
   SplashScreen.preventAutoHideAsync();
   const router = useRouter();
 
-  const [loaded, error] = useFonts({
+  const [loaded, fontError] = useFonts({
     Lato_400Regular,
     Lato_300Light,
     Lato_700Bold,
@@ -21,12 +21,12 @@ export default function Index() {
   });
 
   useEffect(() => {
-    if (loaded || error) {
+    if (loaded || fontError) {
       SplashScreen.hideAsync();
     }
-  }, [loaded, error]);
+  }, [loaded, fontError]);
 
-  if (!loaded && !error) {
+  if (!loaded && !fontError) {
     return null;
   }
   return (

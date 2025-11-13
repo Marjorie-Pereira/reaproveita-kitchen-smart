@@ -2,7 +2,7 @@
 # Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
 
 pds-reaproveita-firebase-adminsdk-fbsvc-3f404826cd.json
-google-services.json
+
 # dependencies
 node_modules/
 

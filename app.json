@@ -4,17 +4,24 @@
     "slug": "reaproveita-kitchen-smart-pds",
     "version": "1.0.0",
     "orientation": "portrait",
-
     "scheme": "reaproveitakitchensmartpds",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.anonymous.reaproveitakitchensmartpds",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "edgeToEdgeEnabled": true,
-      "permissions": ["android.permission.CAMERA", "android.permission.CAMERA"],
-      "package": "com.anonymous.reaproveitakitchensmartpds"
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ],
+      "package": "com.anonymous.reaproveitakitchensmartpds",
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "output": "static"
@@ -45,11 +52,19 @@
         {
           "cameraPermission": "Allow Reaproveita to access your camera"
         }
-      ]
+      ],
+      "expo-notifications"
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "26d2302d-9be0-4344-9650-e9f946c045da"
+      }
+    },
+    "owner": "marjorie_pereira"
   }
 }

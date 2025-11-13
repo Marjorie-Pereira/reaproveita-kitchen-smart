@@ -1,13 +1,27 @@
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { NotificationProvider } from "@/contexts/NotificationContext";
 import { supabase } from "@/lib/supabase";
+import * as Notifications from "expo-notifications";
 import { Stack, useRouter } from "expo-router";
 import { useEffect } from "react";
 
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: true,
+    shouldShowBanner: false,
+    shouldShowList: false,
+  }),
+});
+
 export default function _layout() {
   return (
-    <AuthProvider>
-      <RootLayout />
-    </AuthProvider>
+    <NotificationProvider>
+      <AuthProvider>
+        <RootLayout />
+      </AuthProvider>
+    </NotificationProvider>
   );
 }
 
@@ -87,7 +101,7 @@ const RootLayout = () => {
       <Stack.Screen
         name="cameraTest"
         options={{
-          title: "Tirar foto"
+          title: "Tirar foto",
         }}
       />
     </Stack>
