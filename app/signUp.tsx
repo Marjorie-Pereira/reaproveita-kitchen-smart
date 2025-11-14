@@ -43,7 +43,9 @@ const SignUp = () => {
       password,
       options: {
         data: {
-          name,
+          first_name: name,
+          username: email.split("@")[0],
+          email,
         },
       },
     });

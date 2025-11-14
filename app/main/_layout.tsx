@@ -1,7 +1,9 @@
+import { usePush } from "@/hooks/usePush";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { Tabs } from "expo-router";
 
 export default function TabLayout() {
+  usePush();
   return (
     <Tabs
       screenOptions={{

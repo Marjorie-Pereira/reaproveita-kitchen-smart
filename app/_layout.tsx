@@ -1,5 +1,5 @@
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
-import { NotificationProvider } from "@/contexts/NotificationContext";
+import { SupabaseProvider } from "@/contexts/SupabaseContext";
 import { supabase } from "@/lib/supabase";
 import * as Notifications from "expo-notifications";
 import { Stack, useRouter } from "expo-router";
@@ -17,11 +17,11 @@ Notifications.setNotificationHandler({
 
 export default function _layout() {
   return (
-    <NotificationProvider>
-      <AuthProvider>
+    <AuthProvider>
+      <SupabaseProvider>
         <RootLayout />
-      </AuthProvider>
-    </NotificationProvider>
+      </SupabaseProvider>
+    </AuthProvider>
   );
 }
 
