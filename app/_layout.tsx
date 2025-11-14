@@ -1,19 +1,18 @@
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { SupabaseProvider } from "@/contexts/SupabaseContext";
 import { supabase } from "@/lib/supabase";
-import * as Notifications from "expo-notifications";
 import { Stack, useRouter } from "expo-router";
 import { useEffect } from "react";
 
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: true,
-    shouldShowBanner: false,
-    shouldShowList: false,
-  }),
-});
+// Notifications.setNotificationHandler({
+//   handleNotification: async () => ({
+//     shouldShowAlert: true,
+//     shouldPlaySound: true,
+//     shouldSetBadge: true,
+//     shouldShowBanner: false,
+//     shouldShowList: false,
+//   }),
+// });
 
 export default function _layout() {
   return (

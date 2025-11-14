@@ -3,6 +3,13 @@
 
 pds-reaproveita-firebase-adminsdk-fbsvc-3f404826cd.json
 google-services.json
+*.code-workspace
+.branches
+.temp
+**/.env
+**/.npmrc
+get-user
+test-function
 # dependencies
 node_modules/
 
