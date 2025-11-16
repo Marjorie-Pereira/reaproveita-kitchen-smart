@@ -2,7 +2,7 @@ import { Feather } from "@expo/vector-icons";
 import { Image, StyleSheet, Text, View } from "react-native";
 
 export interface Recipe {
-  id: string;
+  id: number;
   name: string;
   time: string;
   imageUri?: string;

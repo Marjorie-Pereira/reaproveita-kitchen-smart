@@ -1,7 +1,8 @@
-import { Recipe, RecipeCard } from "@/components/RecipeCard";
+import { RecipeCard } from "@/components/RecipeCard";
 import RecipeFilter from "@/components/RecipeFilter";
+import { recipe } from "@/types/recipeType";
 import { MaterialIcons } from "@expo/vector-icons";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ScrollView,
   StyleSheet,
@@ -11,20 +12,26 @@ import {
   View,
 } from "react-native";
 
-const MOCK_RECIPES: Recipe[] = Array.from({ length: 9 }, (_, i) => ({
-  id: `recipe-${i}`,
-  name: "Pizza",
-  time: "3h",
-}));
-
 const ExploreRecipesScreen = () => {
   const [selectedTab, setSelectedTab] = useState<"Salvas" | "Explorar">(
     "Explorar"
   );
+  const [recipes, setRecipes] = useState<any[]>();
 
-  const [selectedFilters, setSelectedFilters] = useState<
-    { id: string; isSelected: boolean }[]
-  >([]);
+  async function fetchRecipes() {
+    const res = await fetch(
+      "https://api-receitas-pi.vercel.app/receitas/todas"
+    );
+    const result = await res.json();
+
+    setRecipes(result.items);
+
+    console.log("receitas", recipes);
+  }
+
+  useEffect(() => {
+    fetchRecipes();
+  }, []);
 
   return (
     <>
@@ -100,9 +107,16 @@ const ExploreRecipesScreen = () => {
           {/* 7. Lista de Receitas (FlatList) */}
           {/* 7. Lista de Receitas (Substituída por View e map) */}
           <View style={styles.recipeGrid}>
-            {MOCK_RECIPES.map((recipe) => (
-              <RecipeCard key={recipe.id} {...recipe} />
-            ))}
+            {recipes &&
+              recipes.map((recipe: recipe) => (
+                <RecipeCard
+                  key={recipe.id}
+                  name={recipe.receita}
+                  time="0"
+                  id={recipe.id}
+                  imageUri={recipe.link_imagem}
+                />
+              ))}
           </View>
         </View>
       </ScrollView>
