@@ -36,6 +36,7 @@ Deno.serve(async (req) => {
   const push_token = data[0]?.push_token;
   console.log("🚀 ~ Deno.serve ~ push_token:", push_token);
 
+  // EXPO PUSH
   const res = await fetch("https://exp.host/--/api/v2/push/send", {
     method: "POST",
     headers: {

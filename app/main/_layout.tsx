@@ -58,6 +58,16 @@ export default function TabLayout() {
           headerShown: false,
         }}
       />
+
+      <Tabs.Screen
+        name="recipes"
+        options={{
+          // tabBarItemStyle: {
+          //   display: "none",
+          // },
+          headerShown: false,
+        }}
+      />
     </Tabs>
   );
 }
