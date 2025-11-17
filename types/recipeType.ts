@@ -3,6 +3,8 @@ export type recipe = {
   receita: string;
   ingredientes: string;
   modo_preparo: string;
-  ingredientesBase: any[];
+  IngredientesBase: any[];
   link_imagem: string;
+  tempo_preparo: string;
+  categoria: string;
 };

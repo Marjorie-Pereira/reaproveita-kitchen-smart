@@ -1,42 +1,69 @@
 import { Feather } from "@expo/vector-icons";
-import { Image, StyleSheet, Text, View } from "react-native";
+import { router } from "expo-router";
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export interface Recipe {
   id: number;
-  name: string;
+  title: string;
   time: string;
   imageUri?: string;
+  instructions: string;
+  ingredients: string[];
 }
 
-export const RecipeCard: React.FC<Recipe> = ({ name, time, imageUri }) => (
-  <View style={styles.recipeCardContainer}>
-    <Image
-      resizeMode="cover"
-      source={{
-        uri:
-          imageUri ??
-          "https://swiftbr.vteximg.com.br/arquivos/ids/208740/618283-pizza-artesanal-calabresa_inn.jpg?v=638870725352100000",
-      }}
-      style={{
-        width: "100%",
-        aspectRatio: 1,
-        marginBottom: 10,
-      }}
-    />
-    <Text style={styles.recipeCardName}>{name}</Text>
-    <View style={styles.timeInfoContainer}>
-      <Feather
-        name="clock"
-        size={14}
-        color="black"
-        style={{
-          margin: 0,
-        }}
-      />
-      <Text style={styles.recipeCardTime}>{time}</Text>
-    </View>
-  </View>
-);
+export const RecipeCard: React.FC<Recipe> = ({
+  title,
+  time,
+  imageUri,
+  id,
+  instructions,
+  ingredients,
+}) => {
+  const recipeIngredients = ingredients.map((ing, index) => {
+    const item = { id: index, ingredient: ing, checked: false };
+    return item;
+  });
+  const recipe = { id, title, time, imageUri, instructions, recipeIngredients };
+  return (
+    <TouchableOpacity
+      style={styles.recipeCardContainer}
+      onPress={() =>
+        router.navigate({
+          pathname: `/main/recipes/[recipe]`,
+          params: { recipe: JSON.stringify(recipe) },
+        })
+      }
+    >
+      <View>
+        <Image
+          resizeMode="cover"
+          source={{
+            uri:
+              imageUri ??
+              "https://swiftbr.vteximg.com.br/arquivos/ids/208740/618283-pizza-artesanal-calabresa_inn.jpg?v=638870725352100000",
+          }}
+          style={{
+            width: "100%",
+            aspectRatio: 1,
+            marginBottom: 10,
+          }}
+        />
+        <Text style={styles.recipeCardName}>{title}</Text>
+        <View style={styles.timeInfoContainer}>
+          <Feather
+            name="clock"
+            size={14}
+            color="black"
+            style={{
+              margin: 0,
+            }}
+          />
+          <Text style={styles.recipeCardTime}>{time}</Text>
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
+};
 
 const styles = StyleSheet.create({
   recipeCardContainer: {

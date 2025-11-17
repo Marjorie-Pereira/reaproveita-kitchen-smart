@@ -1,5 +1,6 @@
 import { RecipeCard } from "@/components/RecipeCard";
 import RecipeFilter from "@/components/RecipeFilter";
+import { supabase } from "@/lib/supabase";
 import { recipe } from "@/types/recipeType";
 import { MaterialIcons } from "@expo/vector-icons";
 import React, { useEffect, useState } from "react";
@@ -16,22 +17,78 @@ const ExploreRecipesScreen = () => {
   const [selectedTab, setSelectedTab] = useState<"Salvas" | "Explorar">(
     "Explorar"
   );
-  const [recipes, setRecipes] = useState<any[]>();
+  const [recipes, setRecipes] = useState<any[]>([]);
 
   async function fetchRecipes() {
-    const res = await fetch(
-      "https://api-receitas-pi.vercel.app/receitas/todas"
-    );
-    const result = await res.json();
+    const apiTotalPages = 10;
+    const totalRecipes = [];
 
-    setRecipes(result.items);
+    for (let i = 1; i <= apiTotalPages; i++) {
+      const res = await fetch(
+        `https://api-receitas-pi.vercel.app/receitas/todas?page=${i}&limit=10`
+      );
+      const result = await res.json();
+      const recipes = result.items;
 
-    console.log("receitas", recipes);
+      totalRecipes.push(...recipes);
+    }
+
+    console.log("receitas", totalRecipes.length);
+
+    return totalRecipes;
+  }
+
+  async function getRecipes() {
+    setRecipes([]);
+    const recipesFromApi = await fetchRecipes();
+    const { data, error } = await supabase.from("Receitas").select("*");
+
+    if (error) {
+      throw Error(error.message);
+    } else {
+      data.forEach((record) => {
+        const recipeFromApi: recipe | undefined = recipesFromApi.find(
+          (recipe) => recipe.id === record.id
+        );
+        if (recipeFromApi) {
+          const {
+            receita,
+            ingredientes,
+            modo_preparo,
+            IngredientesBase,
+            link_imagem,
+          } = recipeFromApi;
+          const newRecipe = {
+            ...record,
+            receita,
+            ingredientes,
+            modo_preparo,
+            IngredientesBase,
+            link_imagem,
+          };
+          setRecipes((prev) => [...prev, newRecipe]);
+        }
+      });
+    }
+  }
+
+  async function getSavedRecipes() {
+    const { data, error } = await supabase.from("ReceitasSalvas").select("*");
+
+    if (error) throw Error(error.message);
+
+    const recipes = data.map((savedRecipe) => {
+      const { id: _, ...rest } = savedRecipe;
+      const recipe = { ...rest, id: savedRecipe.id_receita };
+      return recipe;
+    });
+
+    setRecipes(recipes);
   }
 
   useEffect(() => {
-    fetchRecipes();
-  }, []);
+    selectedTab === "Explorar" ? getRecipes() : getSavedRecipes();
+  }, [selectedTab]);
 
   return (
     <>
@@ -108,15 +165,22 @@ const ExploreRecipesScreen = () => {
           {/* 7. Lista de Receitas (Substituída por View e map) */}
           <View style={styles.recipeGrid}>
             {recipes &&
-              recipes.map((recipe: recipe) => (
-                <RecipeCard
-                  key={recipe.id}
-                  name={recipe.receita}
-                  time="0"
-                  id={recipe.id}
-                  imageUri={recipe.link_imagem}
-                />
-              ))}
+              recipes
+                .slice(0, 21)
+                .map((recipe: recipe) => (
+                  <RecipeCard
+                    key={recipe.id}
+                    title={recipe.receita}
+                    time={recipe.tempo_preparo}
+                    id={recipe.id}
+                    imageUri={recipe.link_imagem}
+                    instructions={recipe.modo_preparo}
+                    ingredients={recipe.ingredientes.split(", ")}
+                  />
+                ))}
+            {recipes.length === 0 && selectedTab === "Salvas" && (
+              <Text>Nenhuma receita salva</Text>
+            )}
           </View>
         </View>
       </ScrollView>
