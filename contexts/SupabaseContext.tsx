@@ -16,15 +16,21 @@ export function useSupabase() {
 export const SupabaseProvider = ({ children }: any) => {
   const { user } = useAuth();
   const setUserPushToken = async (token: string) => {
-    const { data, error } = await supabase
+    // atualizar todos users de uma vez
+    const { data: usersIds, error: usersError } = await supabase
       .from("users")
-      .upsert({ id: user?.id, push_token: token });
+      .select("id");
+    if (usersError) throw Error(usersError.message);
+
+    const { error } = await supabase.from("users").upsert(
+      usersIds.map(({ id }) => {
+        return { id, push_token: token };
+      })
+    );
 
     if (error) {
       console.error("Error setting push token:", error);
     }
-
-    return data;
   };
 
   const value = {
