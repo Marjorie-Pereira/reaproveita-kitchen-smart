@@ -17,77 +17,47 @@ const ExploreRecipesScreen = () => {
   const [selectedTab, setSelectedTab] = useState<"Salvas" | "Explorar">(
     "Explorar"
   );
-  const [recipes, setRecipes] = useState<any[]>([]);
+  const [recipes, setRecipes] = useState<recipe[]>([]);
 
-  async function fetchRecipes() {
-    const apiTotalPages = 10;
-    const totalRecipes = [];
+  // async function filterRecipesWithImage(data: any[]) {
+  //   // 1. Mapeia o array de receitas para um array de Promessas
+  //   // Cada Promessa resolve para um booleano (true/false)
+  //   const results = await Promise.all(
+  //     data.map(async (recipe) => {
+  //       try {
+  //         const res = await fetch(recipe.link_imagem);
+  //         return res.status === 200;
+  //       } catch (error) {
+  //         return false;
+  //       }
+  //     })
+  //   );
 
-    for (let i = 1; i <= apiTotalPages; i++) {
-      const res = await fetch(
-        `https://api-receitas-pi.vercel.app/receitas/todas?page=${i}&limit=10`
-      );
-      const result = await res.json();
-      const recipes = result.items;
+  //   // 2. Filtra o array de dados original usando o array booleano 'results'
+  //   const recipesWithImage = data.filter((_recipe, index) => {
+  //     return results[index];
+  //   });
 
-      totalRecipes.push(...recipes);
-    }
+  //   return recipesWithImage;
+  // }
 
-    console.log("receitas", totalRecipes.length);
-
-    return totalRecipes;
-  }
-
-  async function getRecipes() {
-    setRecipes([]);
-    const recipesFromApi = await fetchRecipes();
-    const { data, error } = await supabase.from("Receitas").select("*");
-
-    if (error) {
-      throw Error(error.message);
-    } else {
-      data.forEach((record) => {
-        const recipeFromApi: recipe | undefined = recipesFromApi.find(
-          (recipe) => recipe.id === record.id
-        );
-        if (recipeFromApi) {
-          const {
-            receita,
-            ingredientes,
-            modo_preparo,
-            IngredientesBase,
-            link_imagem,
-          } = recipeFromApi;
-          const newRecipe = {
-            ...record,
-            receita,
-            ingredientes,
-            modo_preparo,
-            IngredientesBase,
-            link_imagem,
-          };
-          setRecipes((prev) => [...prev, newRecipe]);
-        }
-      });
-    }
-  }
-
-  async function getSavedRecipes() {
-    const { data, error } = await supabase.from("ReceitasSalvas").select("*");
+  async function getRecipes(limit: number) {
+    const tableToQueryFrom =
+      selectedTab === "Explorar" ? "ReceitasCompletas" : "ReceitasSalvas";
+    const { data, error } = await supabase
+      .from(tableToQueryFrom)
+      .select("*")
+      .limit(limit);
 
     if (error) throw Error(error.message);
 
-    const recipes = data.map((savedRecipe) => {
-      const { id: _, ...rest } = savedRecipe;
-      const recipe = { ...rest, id: savedRecipe.id_receita };
-      return recipe;
-    });
+    // const recipesWithImage = await filterRecipesWithImage(data);
 
-    setRecipes(recipes);
+    setRecipes(data);
   }
 
   useEffect(() => {
-    selectedTab === "Explorar" ? getRecipes() : getSavedRecipes();
+    getRecipes(50);
   }, [selectedTab]);
 
   return (
@@ -165,19 +135,17 @@ const ExploreRecipesScreen = () => {
           {/* 7. Lista de Receitas (Substituída por View e map) */}
           <View style={styles.recipeGrid}>
             {recipes &&
-              recipes
-                .slice(0, 21)
-                .map((recipe: recipe) => (
-                  <RecipeCard
-                    key={recipe.id}
-                    title={recipe.receita}
-                    time={recipe.tempo_preparo}
-                    id={recipe.id}
-                    imageUri={recipe.link_imagem}
-                    instructions={recipe.modo_preparo}
-                    ingredients={recipe.ingredientes.split(", ")}
-                  />
-                ))}
+              recipes.map((recipe: recipe) => (
+                <RecipeCard
+                  key={recipe.id}
+                  title={recipe.receita}
+                  time={recipe.tempo_preparo}
+                  id={recipe.id}
+                  imageUri={recipe.link_imagem}
+                  instructions={recipe.modo_preparo}
+                  ingredients={recipe.ingredientes.split("| ")}
+                />
+              ))}
             {recipes.length === 0 && selectedTab === "Salvas" && (
               <Text>Nenhuma receita salva</Text>
             )}
