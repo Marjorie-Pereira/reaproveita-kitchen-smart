@@ -1,6 +1,14 @@
 import { Feather } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  Image,
+  StyleProp,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  ViewStyle,
+} from "react-native";
 
 export interface Recipe {
   id: number;
@@ -9,6 +17,7 @@ export interface Recipe {
   imageUri?: string;
   instructions: string;
   ingredients: string[];
+  style?: StyleProp<ViewStyle>;
 }
 
 export const RecipeCard: React.FC<Recipe> = ({
@@ -18,6 +27,7 @@ export const RecipeCard: React.FC<Recipe> = ({
   id,
   instructions,
   ingredients,
+  style,
 }) => {
   const recipeIngredients = ingredients.map((ing, index) => {
     const item = { id: index, ingredient: ing, checked: false };
@@ -26,7 +36,7 @@ export const RecipeCard: React.FC<Recipe> = ({
   const recipe = { id, title, time, imageUri, instructions, recipeIngredients };
   return (
     <TouchableOpacity
-      style={styles.recipeCardContainer}
+      style={[styles.recipeCardContainer, style]}
       onPress={() =>
         router.navigate({
           pathname: `/main/recipes/[recipe]`,
