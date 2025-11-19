@@ -103,6 +103,13 @@ const RootLayout = () => {
           title: "Tirar foto",
         }}
       />
+
+      <Stack.Screen
+        name="recipes"
+        options={{
+          title: "Recipess",
+        }}
+      />
     </Stack>
   );
 };

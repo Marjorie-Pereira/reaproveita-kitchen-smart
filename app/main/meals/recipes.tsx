@@ -1,9 +1,11 @@
 import { RecipeCard } from "@/components/RecipeCard";
 import RecipeFilter from "@/components/RecipeFilter";
 import { supabase } from "@/lib/supabase";
+import { mealType } from "@/types/mealTypeEnum";
 import { recipe } from "@/types/recipeType";
 import { MaterialIcons } from "@expo/vector-icons";
-import React, { useEffect, useState } from "react";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   ScrollView,
   StyleSheet,
@@ -18,28 +20,8 @@ const ExploreRecipesScreen = () => {
     "Explorar"
   );
   const [recipes, setRecipes] = useState<recipe[]>([]);
-
-  // async function filterRecipesWithImage(data: any[]) {
-  //   // 1. Mapeia o array de receitas para um array de Promessas
-  //   // Cada Promessa resolve para um booleano (true/false)
-  //   const results = await Promise.all(
-  //     data.map(async (recipe) => {
-  //       try {
-  //         const res = await fetch(recipe.link_imagem);
-  //         return res.status === 200;
-  //       } catch (error) {
-  //         return false;
-  //       }
-  //     })
-  //   );
-
-  //   // 2. Filtra o array de dados original usando o array booleano 'results'
-  //   const recipesWithImage = data.filter((_recipe, index) => {
-  //     return results[index];
-  //   });
-
-  //   return recipesWithImage;
-  // }
+  const params = useLocalSearchParams();
+  const [category, setCategory] = useState(params.category);
 
   async function getRecipes(limit: number) {
     const tableToQueryFrom =
@@ -59,6 +41,19 @@ const ExploreRecipesScreen = () => {
   useEffect(() => {
     getRecipes(50);
   }, [selectedTab]);
+
+  useFocusEffect(
+    useCallback(() => {
+      // Do something when the screen is focused
+      console.log(params);
+      setCategory(params.category);
+      console.log(category);
+      return () => {
+        // Do something when the screen is unfocused
+        router.setParams({ category: null }); // reset parametr that you need
+      };
+    }, [])
+  );
 
   return (
     <>
@@ -127,9 +122,12 @@ const ExploreRecipesScreen = () => {
             <RecipeFilter text="Todos" />
 
             {/* Outras Tags */}
-            <RecipeFilter text="Café da Manhã" />
-            <RecipeFilter text="Almoço" />
-            <RecipeFilter text="Jantar" />
+            <RecipeFilter
+              text="Café da Manhã"
+              isActive={category == "Café da Manhã"}
+            />
+            <RecipeFilter text="Almoço" isActive={category == "Almoço"} />
+            <RecipeFilter text="Jantar" isActive={category == "Janta"} />
           </View>
           {/* 7. Lista de Receitas (FlatList) */}
           {/* 7. Lista de Receitas (Substituída por View e map) */}
@@ -144,6 +142,8 @@ const ExploreRecipesScreen = () => {
                   imageUri={recipe.link_imagem}
                   instructions={recipe.modo_preparo}
                   ingredients={recipe.ingredientes.split("| ")}
+                  mealType={category as mealType}
+                  isSaved={selectedTab === "Salvas"}
                 />
               ))}
             {recipes.length === 0 && selectedTab === "Salvas" && (

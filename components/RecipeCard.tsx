@@ -1,5 +1,7 @@
+import { mealType } from "@/types/mealTypeEnum";
 import { Feather } from "@expo/vector-icons";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
+import { useCallback } from "react";
 import {
   Image,
   StyleProp,
@@ -18,6 +20,8 @@ export interface Recipe {
   instructions: string;
   ingredients: string[];
   style?: StyleProp<ViewStyle>;
+  mealType?: mealType;
+  isSaved?: boolean;
 }
 
 export const RecipeCard: React.FC<Recipe> = ({
@@ -28,19 +32,39 @@ export const RecipeCard: React.FC<Recipe> = ({
   instructions,
   ingredients,
   style,
+  mealType,
+  isSaved = false,
 }) => {
   const recipeIngredients = ingredients.map((ing, index) => {
     const item = { id: index, ingredient: ing, checked: false };
     return item;
   });
   const recipe = { id, title, time, imageUri, instructions, recipeIngredients };
+
+  useFocusEffect(
+    useCallback(() => {
+      // Do something when the screen is focused
+      console.log("params mealType", mealType);
+      console.log("is saved", isSaved);
+      console.log("is saved string", String(isSaved));
+
+      return () => {
+        router.setParams({});
+      };
+    }, [])
+  );
+
   return (
     <TouchableOpacity
       style={[styles.recipeCardContainer, style]}
       onPress={() =>
         router.navigate({
-          pathname: `/main/recipes/[recipe]`,
-          params: { recipe: JSON.stringify(recipe) },
+          pathname: `/main/meals/[recipe]`,
+          params: {
+            recipe: JSON.stringify(recipe),
+            mealType,
+            isSaved: String(isSaved),
+          },
         })
       }
     >

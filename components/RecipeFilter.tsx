@@ -1,13 +1,20 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, TouchableOpacity } from "react-native";
 
 interface RecipeFilterProps {
   text: string;
+  isActive?: boolean;
 }
 const RecipeFilter = (props: RecipeFilterProps) => {
-  const { text } = props;
-  const [isSelected, setIsSelected] = useState(false);
+  const { text, isActive } = props;
+
+  const [isSelected, setIsSelected] = useState(isActive);
+
+  useEffect(() => {
+    console.log(`is ${text}`, isActive);
+    setIsSelected(isActive ?? false);
+  }, []);
 
   return (
     <TouchableOpacity

@@ -15,7 +15,8 @@ const Layout = () => {
         headerTintColor: "white",
       }}
     >
-      <Stack.Screen name="index" options={{ title: "Planejar Refeições" }} />
+      <Stack.Screen name="index" options={{ title: "Refeições" }} />
+      <Stack.Screen name="recipes" options={{ title: "Receitas" }} />
       <Stack.Screen
         name="[recipe]"
         options={{ title: "Informações da Receita" }}

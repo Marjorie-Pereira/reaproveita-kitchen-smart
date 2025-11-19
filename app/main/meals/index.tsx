@@ -1,8 +1,8 @@
 import FloatingButton from "@/components/FloatingButton";
 import { RecipeCard } from "@/components/RecipeCard";
 import { recipe } from "@/types/recipeType";
-import { router } from "expo-router";
-import React from "react";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
+import React, { useCallback } from "react";
 import {
   ScrollView,
   StyleSheet,
@@ -58,6 +58,36 @@ const daysOfWeek = [
   { label: "Dom", isSelected: false },
 ];
 
+const actionButtons = [
+  {
+    icon: "",
+    label: "Jantar",
+    onPress: () =>
+      router.navigate({
+        pathname: "/main/meals/recipes",
+        params: { category: "Janta" },
+      }),
+  },
+  {
+    icon: "",
+    label: "Almoço",
+    onPress: () =>
+      router.navigate({
+        pathname: "/main/meals/recipes",
+        params: { category: "Almoço" },
+      }),
+  },
+  {
+    icon: "",
+    label: "Café da Manhã",
+    onPress: () =>
+      router.navigate({
+        pathname: "/main/meals/recipes",
+        params: { category: "Café da Manhã" },
+      }),
+  },
+];
+
 const MealPlannerItem = ({ item }: { item: recipe }) => (
   <RecipeCard
     id={item.id}
@@ -70,27 +100,20 @@ const MealPlannerItem = ({ item }: { item: recipe }) => (
   />
 );
 
-/**
- * Componente principal da tela de Planejar Semana (ignorando header e footer).
- */
 const PlanWeeklyMeals = () => {
-  const actionButtons = [
-    {
-      icon: "",
-      label: "Jantar",
-      onPress: () => router.navigate("/main/recipes"),
-    },
-    {
-      icon: "",
-      label: "Almoço",
-      onPress: () => router.navigate("/main/recipes"),
-    },
-    {
-      icon: "",
-      label: "Café da Manhã",
-      onPress: () => router.navigate("/main/recipes"),
-    },
-  ];
+  const params = useLocalSearchParams();
+
+  useFocusEffect(
+    useCallback(() => {
+      // Do something when the screen is focused
+      console.log("params de meals", params);
+
+      return () => {
+        router.setParams({});
+      };
+    }, [])
+  );
+
   return (
     <View style={styles.container}>
       <FloatingButton actions={actionButtons} />

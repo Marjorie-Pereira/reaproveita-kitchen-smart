@@ -1,8 +1,10 @@
+import Button from "@/components/Button";
+import { COLORS } from "@/constants/theme";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
 import { MaterialIcons } from "@expo/vector-icons";
-import { router, useLocalSearchParams } from "expo-router";
-import React, { useState } from "react";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
+import React, { useCallback, useState } from "react";
 import {
   Alert,
   Image,
@@ -36,9 +38,22 @@ const IngredientItem = ({ name, checked, onPress }: any) => (
 );
 
 const RecipeView = () => {
-  const params = useLocalSearchParams();
+  const { mealType, isSaved, recipe: recipeParam } = useLocalSearchParams();
   const { user } = useAuth();
-  const recipe: recipeType = JSON.parse(params.recipe as string);
+
+  useFocusEffect(
+    useCallback(() => {
+      // Do something when the screen is focused
+      console.log("recipe mealType", mealType);
+
+      return () => {
+        router.setParams({});
+      };
+    }, [])
+  );
+
+  const recipe: recipeType = JSON.parse(recipeParam as string);
+  const isSavedBool = isSaved === "true";
 
   const [ingredients, setIngredients] = useState(recipe.recipeIngredients);
 
@@ -71,6 +86,19 @@ const RecipeView = () => {
     }
   }
 
+  //   remove from saved
+
+  async function handleAddMeal() {
+    console.log(recipe);
+    const { error } = await supabase
+      .from("Refeicoes")
+      .insert({ id_receita: recipe.id, tipo: mealType });
+    if (error) throw Error(error.message);
+    else {
+      Alert.alert("Refeição Cadastrada!");
+    }
+  }
+
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -90,12 +118,20 @@ const RecipeView = () => {
           <View style={styles.recipeInfo}>
             <Text style={styles.titleText}>{recipe.title}</Text>
             <Text style={styles.infoText}>Tempo de preparo: {recipe.time}</Text>
-            <TouchableOpacity
-              style={styles.saveButton}
+            <Button
+              title={isSaved === "true" ? "Remover de salvas" : "Salvar"}
+              buttonStyle={[styles.saveButton, isSaved && { padding: 10 }]}
               onPress={handleSaveRecipe}
-            >
-              <Text style={styles.buttonText}>Salvar</Text>
-            </TouchableOpacity>
+            />
+            <Button
+              title="Adicionar à semana"
+              buttonStyle={{
+                ...styles.saveButton,
+                backgroundColor: COLORS.seconday,
+                padding: 10,
+              }}
+              onPress={handleAddMeal}
+            />
           </View>
         </View>
 
@@ -177,13 +213,12 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   saveButton: {
-    backgroundColor: GREEN_BUTTON,
-    paddingVertical: 8,
-    paddingHorizontal: 15,
+    backgroundColor: COLORS.primary,
     borderRadius: 20,
     alignSelf: "flex-start",
     minWidth: 100,
     alignItems: "center",
+    marginBottom: 5,
   },
   buttonText: {
     color: BACKGROUND_COLOR,

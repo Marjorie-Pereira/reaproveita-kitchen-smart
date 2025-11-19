@@ -34,7 +34,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="meals"
         options={{
-          title: "Refeições",
+          headerShown: false,
           tabBarIcon: ({ color }) => (
             <FontAwesome name="calendar" size={24} color={color} />
           ),
@@ -60,7 +60,7 @@ export default function TabLayout() {
       />
 
       <Tabs.Screen
-        name="recipes"
+        name="inventory"
         options={{
           // tabBarItemStyle: {
           //   display: "none",
