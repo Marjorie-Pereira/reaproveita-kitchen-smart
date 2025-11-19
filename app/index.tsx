@@ -4,13 +4,15 @@ import {
   Lato_700Bold,
   useFonts,
 } from "@expo-google-fonts/lato";
-import { useRouter } from "expo-router";
+import { useRootNavigationState, useRouter } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 
 export default function Index() {
   SplashScreen.preventAutoHideAsync();
+  const rootNavigationState = useRootNavigationState();
+  if (!rootNavigationState.key) return null;
   const router = useRouter();
 
   const [loaded, fontError] = useFonts({

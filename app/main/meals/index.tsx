@@ -1,8 +1,10 @@
 import FloatingButton from "@/components/FloatingButton";
-import { RecipeCard } from "@/components/RecipeCard";
+import { MealCard } from "@/components/MealCard";
+import { supabase } from "@/lib/supabase";
+import { mealType } from "@/types/mealTypeEnum";
 import { recipe } from "@/types/recipeType";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import {
   ScrollView,
   StyleSheet,
@@ -88,31 +90,62 @@ const actionButtons = [
   },
 ];
 
-const MealPlannerItem = ({ item }: { item: recipe }) => (
-  <RecipeCard
-    id={item.id}
-    ingredients={item.ingredientes.split("| ")}
-    title={item.receita}
-    time={item.tempo_preparo}
-    instructions={item.modo_preparo}
-    imageUri={item.link_imagem}
-    style={{ marginRight: 10, width: "30%" }}
-  />
-);
+const MealPlannerItem = ({
+  mealId,
+  recipeId,
+  type,
+}: {
+  mealId: number;
+  recipeId: number;
+  type: mealType;
+}) => <MealCard id={mealId} recipeId={recipeId} type={type} />;
 
 const PlanWeeklyMeals = () => {
   const params = useLocalSearchParams();
+  const [breakfast, setBreakFast] = useState<any[]>([]);
+  const [lunch, setLunch] = useState<any[]>([]);
+  const [dinner, setDinner] = useState<any[]>([]);
+
+  async function fetchMeals() {
+    const { data, error } = await supabase
+      .from("Refeicoes")
+      .select("id, tipo, ReceitasCompletas(id)");
+    if (error) throw Error(error.message);
+
+    return data;
+  }
+
+  async function setMeals() {
+    const meals = await fetchMeals();
+    const breakfastMeals = meals.filter((d) => d.tipo === "Café da Manhã");
+    const lunchMeals = meals.filter((d) => d.tipo === "Almoço");
+    const dinnerMeals = meals.filter((d) => d.tipo === "Janta");
+
+    setBreakFast(breakfastMeals);
+    setDinner(dinnerMeals);
+    setLunch(lunchMeals);
+    console.log(breakfast, lunch, dinner);
+  }
 
   useFocusEffect(
     useCallback(() => {
       // Do something when the screen is focused
       console.log("params de meals", params);
+      setMeals();
 
       return () => {
         router.setParams({});
       };
     }, [])
   );
+
+  type mealRecipeType = {
+    id: number;
+    tipo: mealType;
+    ReceitasCompletas: {
+      id: number;
+    };
+  };
 
   return (
     <View style={styles.container}>
@@ -141,24 +174,49 @@ const PlanWeeklyMeals = () => {
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <Text style={styles.mealTypeText}>Café da Manhã</Text>
-        <ScrollView horizontal={true} style={styles.mealTypeContainer}>
-          {mealSchedule.map((item) => (
-            <MealPlannerItem key={item.id} item={item} />
-          ))}
+        <ScrollView horizontal={true} style={[styles.mealTypeContainer]}>
+          {breakfast?.map((item: mealRecipeType) => {
+            const { ReceitasCompletas: recipe, id, tipo } = item;
+
+            return (
+              <MealPlannerItem
+                recipeId={recipe.id}
+                key={id}
+                mealId={id}
+                type={tipo}
+              />
+            );
+          })}
         </ScrollView>
 
         <Text style={styles.mealTypeText}>Almoço</Text>
         <ScrollView horizontal={true} style={styles.mealTypeContainer}>
-          {mealSchedule.map((item) => (
-            <MealPlannerItem key={item.id} item={item} />
-          ))}
+          {lunch?.map((item: mealRecipeType) => {
+            const { ReceitasCompletas: recipe, id, tipo } = item;
+            return (
+              <MealPlannerItem
+                recipeId={recipe.id}
+                key={id}
+                mealId={id}
+                type={tipo}
+              />
+            );
+          })}
         </ScrollView>
 
         <Text style={styles.mealTypeText}>Jantar</Text>
         <ScrollView horizontal={true} style={styles.mealTypeContainer}>
-          {mealSchedule.map((item) => (
-            <MealPlannerItem key={item.id} item={item} />
-          ))}
+          {dinner?.map((item: mealRecipeType) => {
+            const { ReceitasCompletas: recipe, id, tipo } = item;
+            return (
+              <MealPlannerItem
+                recipeId={recipe.id}
+                key={id}
+                mealId={id}
+                type={tipo}
+              />
+            );
+          })}
         </ScrollView>
       </ScrollView>
     </View>
@@ -210,6 +268,7 @@ const styles = StyleSheet.create({
   mealTypeContainer: {
     marginBottom: 25,
     flexDirection: "row",
+    height: 270,
     width: "100%",
   },
   mealTypeText: {
@@ -220,44 +279,6 @@ const styles = StyleSheet.create({
   },
 
   // Estilos do Card de Refeição
-  mealCardContainer: {
-    backgroundColor: "#FFF",
-    borderRadius: 10,
-    overflow: "hidden", // Para que a imagem respeite o borderRadius
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 10,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 1.41,
-    elevation: 2,
-    width: "50%", // Define a largura para replicar o layout de meia tela
-  },
-  mealImage: {
-    width: 60,
-    height: 60,
-    borderRadius: 8,
-    marginRight: 10,
-  },
-  mealDetails: {
-    justifyContent: "center",
-    flex: 1,
-  },
-  mealName: {
-    fontSize: 14,
-    fontWeight: "bold",
-    color: "#333",
-  },
-  timeContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginTop: 4,
-  },
-  mealTime: {
-    fontSize: 12,
-    color: "#666",
-  },
 });
 
 export default PlanWeeklyMeals;

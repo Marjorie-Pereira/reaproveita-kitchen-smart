@@ -1,7 +1,7 @@
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { SupabaseProvider } from "@/contexts/SupabaseContext";
 import { supabase } from "@/lib/supabase";
-import { Stack, useRouter } from "expo-router";
+import { Stack, useRootNavigationState, useRouter } from "expo-router";
 import { useEffect } from "react";
 
 // Notifications.setNotificationHandler({
@@ -25,6 +25,9 @@ export default function _layout() {
 }
 
 const RootLayout = () => {
+  const rootNavigationState = useRootNavigationState();
+
+  if (!rootNavigationState?.key) return null;
   const { setAuth } = useAuth();
   const router = useRouter();
 

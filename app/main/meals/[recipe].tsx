@@ -44,7 +44,7 @@ const RecipeView = () => {
   useFocusEffect(
     useCallback(() => {
       // Do something when the screen is focused
-      console.log("recipe mealType", mealType);
+      console.log("recipe json", JSON.parse(recipeParam as string));
 
       return () => {
         router.setParams({});
@@ -55,18 +55,19 @@ const RecipeView = () => {
   const recipe: recipeType = JSON.parse(recipeParam as string);
   const isSavedBool = isSaved === "true";
 
-  const [ingredients, setIngredients] = useState(recipe.recipeIngredients);
+  const [ingredients, setIngredients] = useState(recipe?.recipeIngredients);
 
   const toggleCheck = (id: number) => {
     setIngredients((prevIngredients) =>
-      prevIngredients.map((item) =>
+      prevIngredients?.map((item) =>
         item.id === id ? { ...item, checked: !item.checked } : item
       )
     );
   };
 
   async function handleSaveRecipe() {
-    const ingredientsString = recipe.recipeIngredients
+    if (!recipe) return;
+    const ingredientsString = recipe?.recipeIngredients
       .map((item) => item.ingredient)
       .join(", ");
     const { error } = await supabase.from("ReceitasSalvas").insert({
@@ -148,7 +149,7 @@ const RecipeView = () => {
           Ingredientes
         </Text>
         <View style={styles.ingredientsList}>
-          {ingredients.map((item) => (
+          {ingredients?.map((item) => (
             <IngredientItem
               key={item.id}
               name={item.ingredient}
