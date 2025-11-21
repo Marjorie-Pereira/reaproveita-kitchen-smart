@@ -1,9 +1,12 @@
+import { COLORS } from "@/constants/theme";
 import { supabase } from "@/lib/supabase";
+import { recipeParamType } from "@/types/params";
 import { recipe } from "@/types/recipeType";
 import { Feather } from "@expo/vector-icons";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
+  Alert,
   Image,
   ScrollView,
   StyleSheet,
@@ -200,6 +203,30 @@ export default function MealViewScreen({
   const { meal: mealId, recipe: recipeId } = useLocalSearchParams();
   const [meal, setMeal] = useState<any>();
   const [recipe, setRecipe] = useState<recipe>();
+  const router = useRouter();
+
+  function seeRecipe() {
+    if (recipe) {
+      const ingredients = recipe.ingredientes.split("| ");
+      const recipeIngredients = ingredients.map((ing, index) => {
+        const item = { id: index, ingredient: ing, checked: false };
+        return item;
+      });
+      const recipeParam: recipeParamType = {
+        id: recipe.id,
+        title: recipe.receita,
+        time: recipe.tempo_preparo,
+        imageUri: recipe.link_imagem,
+        instructions: recipe.modo_preparo,
+        recipeIngredients,
+      };
+
+      router.navigate({
+        pathname: "/main/meals/[recipe]",
+        params: { recipe: JSON.stringify(recipeParam) },
+      });
+    }
+  }
 
   async function fetchMeal() {
     const { data, error } = await supabase
@@ -223,6 +250,16 @@ export default function MealViewScreen({
     fetchMeal();
     fetchRecipe();
   }, []);
+
+  async function onDeleteMeal() {
+    const { error } = await supabase
+      .from("ReceitasCompletas")
+      .delete()
+      .eq("id", recipeId);
+    if (error) throw new Error(error.message);
+    Alert.alert("Refeição Deletada!");
+    router.back();
+  }
 
   return (
     <ScrollView>
@@ -252,7 +289,7 @@ export default function MealViewScreen({
 
               <View style={styles.calendarContainer}>
                 <Icon name="calendar" size={16} color="#4B5563" />
-                <Text style={styles.calendarText}>{meal?.dia_programado}</Text>
+                <Text style={styles.calendarText}>{meal?.dia_da_semana}</Text>
               </View>
             </View>
           </View>
@@ -298,7 +335,7 @@ export default function MealViewScreen({
           {/* Actions */}
           <View style={styles.cardSectionActions}>
             <RNButton
-              onPress={onViewRecipe}
+              onPress={seeRecipe}
               style={styles.actionButton}
               variant="primary"
             >
@@ -307,7 +344,20 @@ export default function MealViewScreen({
             </RNButton>
 
             <RNButton
-              onPress={onRemoveMeal}
+              onPress={() => {
+                Alert.alert(
+                  "Cuidado",
+                  "Tem certeza que deseja remover esta refeição da semana?",
+                  [
+                    {
+                      text: "Cancelar",
+                      onPress: () => null,
+                      style: "cancel",
+                    },
+                    { text: "Sim", onPress: onDeleteMeal },
+                  ]
+                );
+              }}
               style={styles.actionButton}
               variant="destructive"
             >
@@ -461,10 +511,10 @@ const styles = StyleSheet.create({
     minHeight: 50,
   },
   buttonPrimary: {
-    backgroundColor: "#4F46E5", // Indigo-600
+    backgroundColor: COLORS.primary, // Indigo-600
   },
   buttonDestructive: {
-    backgroundColor: "#DC2626", // Red-600
+    backgroundColor: COLORS.danger, // Red-600
   },
   buttonText: {
     color: "#FFFFFF",

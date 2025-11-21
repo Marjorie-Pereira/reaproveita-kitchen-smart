@@ -7,4 +7,5 @@ export const COLORS = {
   text: "#333",
   white: "#fff",
   placeholder: "#888",
+  danger: "#d25353ff",
 };
