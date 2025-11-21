@@ -81,7 +81,8 @@ const PlanWeeklyMeals = () => {
   async function fetchMeals() {
     const { data, error } = await supabase
       .from("Refeicoes")
-      .select("id, tipo, ReceitasCompletas(id)");
+      .select("id, tipo, ReceitasCompletas(id)")
+      .eq("dia_da_semana", weekDaysMap[weekDay]);
     if (error) throw Error(error.message);
 
     return data;
@@ -118,7 +119,7 @@ const PlanWeeklyMeals = () => {
       return () => {
         router.setParams({});
       };
-    }, [])
+    }, [weekDay])
   );
 
   type mealRecipeType = {
