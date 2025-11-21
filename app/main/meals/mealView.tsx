@@ -1,19 +1,21 @@
+import Button from "@/components/Button";
+import Input from "@/components/Input";
 import { COLORS } from "@/constants/theme";
 import { supabase } from "@/lib/supabase";
 import { recipeParamType } from "@/types/params";
 import { recipe } from "@/types/recipeType";
 import { Feather } from "@expo/vector-icons";
+import { useHeaderHeight } from "@react-navigation/elements";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   Alert,
   Image,
+  KeyboardAvoidingView,
   ScrollView,
   StyleSheet,
   Switch,
   Text,
-  TextInput,
-  TouchableOpacity,
   View,
 } from "react-native";
 // Replaced lucide-react with react-native-vector-icons/Feather (a standard RN icon library)
@@ -64,113 +66,28 @@ const mealTypeColors = {
   }, // Green equivalent
 };
 
-// --- Helper Functions (Mantidas) ---
-
-const formatDate = (dateString: string) => {
-  const date = new Date(dateString);
-  const today = new Date();
-  const tomorrow = new Date(today);
-  tomorrow.setDate(tomorrow.getDate() + 1);
-
-  // Reset time part for comparison
-  today.setHours(0, 0, 0, 0);
-  tomorrow.setHours(0, 0, 0, 0);
-  const compareDate = new Date(date);
-  compareDate.setHours(0, 0, 0, 0);
-
-  if (compareDate.getTime() === today.getTime()) {
-    return "Today";
-  } else if (compareDate.getTime() === tomorrow.getTime()) {
-    return "Tomorrow";
-  } else {
-    // RN's toLocaleDateString might behave differently, using manual formatting for consistency
-    return date.toLocaleDateString("en-US", {
-      weekday: "long",
-      month: "short",
-      day: "numeric",
-    });
-  }
-};
-
-// --- Simplified React Native Components (Mocking Shadcn/Radix UI) ---
-
-// Componente para ícones (usando Feather)
-interface IconProps {
-  name: string;
-  size: number;
-  color: string;
-}
-const Icon = ({ name, size, color }: IconProps) => (
-  <Feather
-    name={name as keyof typeof Feather.getImageSource}
-    size={size}
-    color={color}
-  />
-);
-
-// Componente RNButton (TouchableOpacity para cliques)
-interface RNButtonProps {
-  children: React.ReactNode;
-  onPress: () => void;
-  style?: any;
-  variant?: "primary" | "destructive";
-}
-const RNButton = ({
-  children,
-  onPress,
-  style,
-  variant = "primary",
-}: RNButtonProps) => {
-  const baseStyle =
-    variant === "destructive" ? styles.buttonDestructive : styles.buttonPrimary;
-  return (
-    <TouchableOpacity
-      style={[baseStyle, styles.buttonBase, style]}
-      onPress={onPress}
-      activeOpacity={0.8}
-    >
-      {children}
-    </TouchableOpacity>
-  );
-};
-
-// Componente RNInput (TextInput)
-interface RNInputProps {
-  value: string;
-  onChangeText: (text: string) => void;
-  placeholder?: string;
-  keyboardType?: "default" | "numeric" | "email-address";
-  style?: any;
-}
-const RNInput = ({ value, onChangeText, style, ...props }: RNInputProps) => (
-  <TextInput
-    style={[style]}
-    value={value}
-    onChangeText={onChangeText}
-    placeholderTextColor="#9CA3AF" // gray-400
-    {...props}
-  />
-);
-
 // Componente RNCheckbox (usando Switch para simular o comportamento de toggle)
-interface RNCheckboxProps {
+interface SwitchBtnProps {
   id: string;
   checked?: boolean;
   onCheckedChange: (checked: boolean) => void;
   label: string;
+  disabled: boolean;
 }
-const RNCheckbox = ({
+const SwitchBtn = ({
   checked = false,
   onCheckedChange,
   label,
-}: RNCheckboxProps) => (
+  disabled,
+}: SwitchBtnProps) => (
   <View style={styles.checkboxContainer}>
     <Switch
       value={checked}
       onValueChange={onCheckedChange}
-      trackColor={{ false: "#E5E7EB", true: "#4F46E5" }} // gray-200 and indigo-600
+      trackColor={{ false: "#E5E7EB", true: COLORS.seconday }} // gray-200 and indigo-600
       thumbColor={checked ? "#FFFFFF" : "#F3F4F6"} // white and gray-100
       style={styles.switchStyle}
+      disabled={disabled}
     />
     <Text style={styles.checkboxLabel}>{label}</Text>
   </View>
@@ -193,17 +110,16 @@ const RNBadge = ({ mealType = "breakfast" }: RNBadgeProps) => {
 
 // --- Main Component ---
 
-export default function MealViewScreen({
-  onConsumedChange,
-  onLeftoversChange,
-  onTimeChange,
-  onViewRecipe,
-  onRemoveMeal,
-}: MealViewScreenProps) {
+export default function MealViewScreen() {
   const { meal: mealId, recipe: recipeId } = useLocalSearchParams();
   const [meal, setMeal] = useState<any>();
   const [recipe, setRecipe] = useState<recipe>();
+  const [isConsumed, setIsConsumed] = useState(false);
+  const [hasLeftovers, setHasLeftovers] = useState(false);
+  const [keyboardAvoid, setKeyboardAvoid] = useState(false);
+  const [leftoverPortions, setLeftoverPortions] = useState<number | null>(null);
   const router = useRouter();
+  const height = useHeaderHeight();
 
   function seeRecipe() {
     if (recipe) {
@@ -235,6 +151,9 @@ export default function MealViewScreen({
       .eq("id", mealId);
     if (error) throw new Error(error.message);
     setMeal(data[0]);
+
+    setHasLeftovers(data[0].tem_sobras);
+    setIsConsumed(data[0].foi_consumida);
   }
 
   async function fetchRecipe() {
@@ -246,10 +165,36 @@ export default function MealViewScreen({
     setRecipe(data[0]);
   }
 
+  async function updateMealState(
+    newConsumedValue: boolean | undefined,
+    newLeftoversValue: boolean | undefined
+  ) {
+    const { error } = await supabase
+      .from("Refeicoes")
+      .update({ tem_sobras: newLeftoversValue })
+      .eq("id", mealId);
+    const { error: secondError } = await supabase
+      .from("Refeicoes")
+      .update({ foi_consumida: newConsumedValue })
+      .eq("id", mealId);
+
+    if (error || secondError)
+      throw new Error(error ? error.message : secondError?.message);
+  }
+
+  async function updateLeftoverPortions() {
+    const { error } = await supabase
+      .from("Refeicoes")
+      .update({ porcoes: leftoverPortions })
+      .eq("id", mealId);
+    if (error) throw new Error(error.message);
+    Alert.alert("Alterações salvas!");
+  }
+
   useEffect(() => {
     fetchMeal();
     fetchRecipe();
-  }, []);
+  }, [mealId]);
 
   async function onDeleteMeal() {
     const { error } = await supabase
@@ -262,112 +207,178 @@ export default function MealViewScreen({
   }
 
   return (
-    <ScrollView>
-      <View style={styles.container}>
-        {/* Main Card */}
-        <View style={styles.card}>
-          <Image
-            resizeMode="cover"
-            source={{
-              uri:
-                recipe?.link_imagem ??
-                "https://gnesjjmiiharouctxukk.supabase.co/storage/v1/object/public/app_bucket_public/placeholder.png",
-            }}
-            style={{
-              width: "80%",
-              aspectRatio: 1,
-              marginBottom: 10,
-              alignSelf: "center",
-            }}
-          />
-          {/* Recipe Name */}
-          <View style={styles.cardSection}>
-            <Text style={styles.h2}>{recipe?.receita}</Text>
+    <KeyboardAvoidingView
+      keyboardVerticalOffset={height - 165}
+      behavior="padding"
+      style={[styles.container]}
+      enabled={keyboardAvoid}
+    >
+      <ScrollView>
+        <View>
+          {/* Main Card */}
+          <View style={styles.card}>
+            <Image
+              resizeMode="cover"
+              source={{
+                uri:
+                  recipe?.link_imagem ??
+                  "https://gnesjjmiiharouctxukk.supabase.co/storage/v1/object/public/app_bucket_public/placeholder.png",
+              }}
+              style={{
+                width: "80%",
+                aspectRatio: 1,
+                marginBottom: 10,
+                alignSelf: "center",
+              }}
+            />
+            {/* Recipe Name */}
+            <View style={styles.cardSection}>
+              <Text style={styles.h2}>{recipe?.receita}</Text>
 
-            <View style={styles.detailsRow}>
-              <RNBadge mealType={meal?.tipo} />
+              <View style={styles.detailsRow}>
+                <RNBadge mealType={meal?.tipo} />
 
-              <View style={styles.calendarContainer}>
-                <Icon name="calendar" size={16} color="#4B5563" />
-                <Text style={styles.calendarText}>{meal?.dia_da_semana}</Text>
+                <View style={styles.calendarContainer}>
+                  <Feather name="calendar" size={16} color="#4B5563" />
+                  <Text style={styles.calendarText}>{meal?.dia_da_semana}</Text>
+                </View>
               </View>
             </View>
-          </View>
 
-          {/* Options */}
-          <View style={styles.cardSectionOptions}>
-            {/* Consumed Checkbox */}
-            <RNCheckbox
-              id="consumed"
-              // checked={meal?.consumed}
-              onCheckedChange={onConsumedChange}
-              label="Marcar como consumido"
-            />
+            {/* Options */}
 
-            {
-              //   meal?.consumed && (
-              //     <View style={styles.timeInputContainer}>
-              //       <View style={styles.timeLabelContainer}>
-              //         <Icon name="clock" size={14} color="#4B5563" />
-              //         <Text style={styles.timeLabelText}>Hora do consumo</Text>
-              //       </View>
-              //       {/* Note: RN TextInput does not have a 'type="time"'.
-              //           You would typically use a DatePicker component for time input in a real app.
-              //           Here, we use a simple TextInput for the refactoring purpose. */}
-              //       <RNInput
-              //         value={meal?.timeConsumed}
-              //         onChangeText={onTimeChange}
-              //         placeholder="Ex: 12:30"
-              //         style={styles.timeInput}
-              //       />
-              //     </View>
-              //   )
-            }
-            {/* Leftovers Checkbox */}
-            <RNCheckbox
-              id="leftovers"
-              checked={meal?.tem_sobras}
-              onCheckedChange={onLeftoversChange}
-              label="Tem sobras"
-            />
-          </View>
+            <View style={styles.cardSectionOptions}>
+              {/* Consumed Checkbox */}
+              <SwitchBtn
+                id="consumed"
+                checked={isConsumed}
+                onCheckedChange={(checked) => {
+                  Alert.alert(
+                    "Tem certeza?",
+                    "Essas alterações não podem ser desfeitas!",
+                    [
+                      {
+                        text: "Cancelar",
+                        onPress: () => null,
+                        style: "cancel",
+                      },
+                      {
+                        text: "Sim",
+                        onPress: () => {
+                          setIsConsumed(checked);
+                          updateMealState(checked, undefined);
+                        },
+                      },
+                    ]
+                  );
+                }}
+                label="Marcar como consumido"
+                disabled={isConsumed}
+              />
 
-          {/* Actions */}
-          <View style={styles.cardSectionActions}>
-            <RNButton
-              onPress={seeRecipe}
-              style={styles.actionButton}
-              variant="primary"
-            >
-              <Icon name="book-open" size={16} color="#FFFFFF" />
-              <Text style={styles.buttonText}>Ver Receita</Text>
-            </RNButton>
+              {
+                //   meal?.consumed && (
+                //     <View style={styles.timeInputContainer}>
+                //       <View style={styles.timeLabelContainer}>
+                //         <Icon name="clock" size={14} color="#4B5563" />
+                //         <Text style={styles.timeLabelText}>Hora do consumo</Text>
+                //       </View>
+                //       {/* Note: RN TextInput does not have a 'type="time"'.
+                //           You would typically use a DatePicker component for time input in a real app.
+                //           Here, we use a simple TextInput for the refactoring purpose. */}
+                //       <RNInput
+                //         value={meal?.timeConsumed}
+                //         onChangeText={onTimeChange}
+                //         placeholder="Ex: 12:30"
+                //         style={styles.timeInput}
+                //       />
+                //     </View>
+                //   )
+              }
+              {/* Leftovers Checkbox */}
+              {isConsumed && (
+                <SwitchBtn
+                  id="leftovers"
+                  checked={hasLeftovers}
+                  onCheckedChange={(checked) => {
+                    Alert.alert(
+                      "Tem certeza?",
+                      "Essas alterações não podem ser desfeitas!",
+                      [
+                        {
+                          text: "Cancelar",
+                          onPress: () => null,
+                          style: "cancel",
+                        },
+                        {
+                          text: "Sim",
+                          onPress: () => {
+                            setHasLeftovers(checked);
+                            updateMealState(undefined, checked);
+                          },
+                        },
+                      ]
+                    );
+                  }}
+                  label="Tem sobras"
+                  disabled={hasLeftovers}
+                />
+              )}
+              {hasLeftovers && (
+                <Input
+                  value={leftoverPortions}
+                  onChangeText={(val: number) => {
+                    setLeftoverPortions(val);
+                  }}
+                  keyboardType="numeric"
+                  placeholder="Número estimado de porções"
+                  onFocus={() => setKeyboardAvoid(true)}
+                  onBlur={() => {
+                    setKeyboardAvoid(false);
+                    updateLeftoverPortions();
+                  }}
+                />
+              )}
+            </View>
 
-            <RNButton
-              onPress={() => {
-                Alert.alert(
-                  "Cuidado",
-                  "Tem certeza que deseja remover esta refeição da semana?",
-                  [
-                    {
-                      text: "Cancelar",
-                      onPress: () => null,
-                      style: "cancel",
-                    },
-                    { text: "Sim", onPress: onDeleteMeal },
-                  ]
-                );
-              }}
-              style={styles.actionButton}
-              variant="destructive"
-            >
-              <Icon name="trash-2" size={16} color="#FFFFFF" />
-              <Text style={styles.buttonText}>Remover Refeição</Text>
-            </RNButton>
+            {/* Actions */}
+            <View style={styles.cardSectionActions}>
+              <Button
+                onPress={seeRecipe}
+                buttonStyle={styles.actionButton}
+                variant="primary"
+              >
+                <Feather name="book-open" size={16} color="#FFFFFF" />
+                <Text style={styles.buttonText}>Ver Receita</Text>
+              </Button>
+
+              <Button
+                onPress={() => {
+                  Alert.alert(
+                    "Cuidado",
+                    "Tem certeza que deseja remover esta refeição da semana?",
+                    [
+                      {
+                        text: "Cancelar",
+                        onPress: () => null,
+                        style: "cancel",
+                      },
+                      { text: "Sim", onPress: onDeleteMeal },
+                    ]
+                  );
+                }}
+                buttonStyle={styles.actionButton}
+                variant="destructive"
+              >
+                <Feather name="trash-2" size={16} color="#FFFFFF" />
+
+                <Text style={styles.buttonText}>Remover Refeição</Text>
+              </Button>
+            </View>
           </View>
         </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 

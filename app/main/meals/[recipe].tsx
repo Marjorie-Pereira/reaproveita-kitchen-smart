@@ -1,5 +1,4 @@
 import Button from "@/components/Button";
-import { COLORS } from "@/constants/theme";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -129,19 +128,24 @@ const RecipeView = () => {
             <Text style={styles.titleText}>{recipe.title}</Text>
             <Text style={styles.infoText}>Tempo de preparo: {recipe.time}</Text>
             <Button
-              title={isSaved === "true" ? "Remover de salvas" : "Salvar"}
               buttonStyle={[styles.saveButton, isSaved && { padding: 10 }]}
               onPress={handleSaveRecipe}
-            />
+            >
+              <Text style={styles.buttonText}>
+                {isSaved === "true" ? "Remover de salvas" : "Salvar"}
+              </Text>
+            </Button>
             <Button
-              title="Adicionar à semana"
               buttonStyle={{
                 ...styles.saveButton,
-                backgroundColor: COLORS.seconday,
-                padding: 10,
+                width: "65%",
+                padding: 5,
               }}
               onPress={handleAddMeal}
-            />
+              variant="secondary"
+            >
+              <Text style={styles.buttonText}>Adicionar ao dia</Text>
+            </Button>
           </View>
         </View>
 
@@ -223,12 +227,11 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   saveButton: {
-    backgroundColor: COLORS.primary,
     borderRadius: 20,
     alignSelf: "flex-start",
-    minWidth: 100,
     alignItems: "center",
     marginBottom: 5,
+    width: "50%",
   },
   buttonText: {
     color: BACKGROUND_COLOR,

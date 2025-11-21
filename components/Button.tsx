@@ -1,8 +1,8 @@
+import { COLORS } from "@/constants/theme";
 import {
   Pressable,
   StyleProp,
   StyleSheet,
-  Text,
   TextStyle,
   View,
   ViewStyle,
@@ -12,20 +12,20 @@ import Loading from "./Loading";
 interface buttonProps {
   buttonStyle?: StyleProp<ViewStyle>;
   textStyle?: StyleProp<TextStyle>;
-  title: string;
   onPress?: () => void;
   loading?: boolean;
   hasShadow?: boolean;
-  outline?: boolean;
+  variant?: "primary" | "destructive" | "secondary";
+  children: React.ReactNode;
 }
 const Button = ({
   buttonStyle = {},
   textStyle = {},
-  title = "",
   onPress = () => {},
   loading = false,
   hasShadow = true,
-  outline = false,
+  variant = "primary",
+  children,
 }: buttonProps) => {
   const shadowStyle = {
     shadowColor: "#000",
@@ -48,12 +48,20 @@ const Button = ({
     );
   }
 
+  const buttonBaseStyleMap = {
+    destructive: styles.buttonDestructive,
+    primary: styles.buttonPrimary,
+    secondary: styles.buttonSecondary,
+  };
+
+  const baseStyle = buttonBaseStyleMap[variant];
+
   return (
     <Pressable
       onPress={onPress}
-      style={[styles.button, buttonStyle, hasShadow && shadowStyle]}
+      style={[baseStyle, styles.button, buttonStyle, hasShadow && shadowStyle]}
     >
-      <Text style={[styles.text, textStyle]}>{title}</Text>
+      {children}
     </Pressable>
   );
 };
@@ -62,15 +70,21 @@ export default Button;
 
 const styles = StyleSheet.create({
   button: {
-    backgroundColor: "#4A7D47",
-    height: 40,
+    flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    borderRadius: 50,
+    paddingVertical: 16, // size="lg" equivalent
+    borderRadius: 12, // large rounded corners
+    width: "100%",
+    minHeight: 50,
   },
-  text: {
-    fontSize: 12,
-    color: "white",
-    fontWeight: "600",
+  buttonPrimary: {
+    backgroundColor: COLORS.primary, // Indigo-600
+  },
+  buttonDestructive: {
+    backgroundColor: COLORS.danger, // Red-600
+  },
+  buttonSecondary: {
+    backgroundColor: COLORS.seconday,
   },
 });
