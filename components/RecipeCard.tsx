@@ -22,6 +22,7 @@ export interface Recipe {
   style?: StyleProp<ViewStyle>;
   mealType?: mealType;
   isSaved?: boolean;
+  weekDay?: string;
 }
 
 export const RecipeCard: React.FC<Recipe> = ({
@@ -34,6 +35,7 @@ export const RecipeCard: React.FC<Recipe> = ({
   style,
   mealType,
   isSaved = false,
+  weekDay,
 }) => {
   const recipeIngredients = ingredients.map((ing, index) => {
     const item = { id: index, ingredient: ing, checked: false };
@@ -64,6 +66,7 @@ export const RecipeCard: React.FC<Recipe> = ({
             recipe: JSON.stringify(recipe),
             mealType,
             isSaved: String(isSaved),
+            weekDay,
           },
         })
       }

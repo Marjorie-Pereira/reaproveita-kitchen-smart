@@ -144,6 +144,7 @@ const ExploreRecipesScreen = () => {
                   ingredients={recipe.ingredientes.split("| ")}
                   mealType={category as mealType}
                   isSaved={selectedTab === "Salvas"}
+                  weekDay={params.weekDay as string}
                 />
               ))}
             {recipes.length === 0 && selectedTab === "Salvas" && (

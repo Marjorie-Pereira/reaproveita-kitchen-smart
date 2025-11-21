@@ -2,8 +2,13 @@ import FloatingButton from "@/components/FloatingButton";
 import { MealCard } from "@/components/MealCard";
 import { supabase } from "@/lib/supabase";
 import { mealType } from "@/types/mealTypeEnum";
-import { recipe } from "@/types/recipeType";
-import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
+import { weekDaysMap } from "@/utils/weekDaysMap";
+import {
+  router,
+  useFocusEffect,
+  useLocalSearchParams,
+  useRootNavigationState,
+} from "expo-router";
 import React, { useCallback, useState } from "react";
 import {
   ScrollView,
@@ -13,43 +18,6 @@ import {
   View,
 } from "react-native";
 
-const mealSchedule: recipe[] = [
-  {
-    id: 1,
-    categoria: "Café da manhã",
-    ingredientes: "banana| farinha",
-    IngredientesBase: [],
-    link_imagem:
-      "https://hips.hearstapps.com/hmg-prod/images/best-homemade-pancakes-index-640775a2dbad8.jpg?crop=0.6667877686951256xw:1xh;center,top&resize=1200:*",
-    modo_preparo: "se vira aí",
-    receita: "Panquecas Americanas",
-    tempo_preparo: "15 min",
-  },
-  {
-    id: 2,
-    categoria: "Almoço",
-    ingredientes: "banana| farinha",
-    IngredientesBase: [],
-    link_imagem:
-      "https://hips.hearstapps.com/hmg-prod/images/best-homemade-pancakes-index-640775a2dbad8.jpg?crop=0.6667877686951256xw:1xh;center,top&resize=1200:*",
-    modo_preparo: "se vira aí",
-    receita: "Panquecas Americanas",
-    tempo_preparo: "15 min",
-  },
-  {
-    id: 3,
-    categoria: "Almoço",
-    ingredientes: "banana| farinha",
-    IngredientesBase: [],
-    link_imagem:
-      "https://hips.hearstapps.com/hmg-prod/images/best-homemade-pancakes-index-640775a2dbad8.jpg?crop=0.6667877686951256xw:1xh;center,top&resize=1200:*",
-    modo_preparo: "se vira aí",
-    receita: "Panquecas Americanas",
-    tempo_preparo: "15 min",
-  },
-  // Adicione mais refeições conforme necessário
-];
-
 const daysOfWeek = [
   { label: "Seg", isSelected: true },
   { label: "Ter", isSelected: false },
@@ -58,36 +26,6 @@ const daysOfWeek = [
   { label: "Sex", isSelected: false },
   { label: "Sáb", isSelected: false },
   { label: "Dom", isSelected: false },
-];
-
-const actionButtons = [
-  {
-    icon: "",
-    label: "Jantar",
-    onPress: () =>
-      router.navigate({
-        pathname: "/main/meals/recipes",
-        params: { category: "Janta" },
-      }),
-  },
-  {
-    icon: "",
-    label: "Almoço",
-    onPress: () =>
-      router.navigate({
-        pathname: "/main/meals/recipes",
-        params: { category: "Almoço" },
-      }),
-  },
-  {
-    icon: "",
-    label: "Café da Manhã",
-    onPress: () =>
-      router.navigate({
-        pathname: "/main/meals/recipes",
-        params: { category: "Café da Manhã" },
-      }),
-  },
 ];
 
 const MealPlannerItem = ({
@@ -101,10 +39,44 @@ const MealPlannerItem = ({
 }) => <MealCard id={mealId} recipeId={recipeId} type={type} />;
 
 const PlanWeeklyMeals = () => {
+  const rootNavigationState = useRootNavigationState();
+
+  if (!rootNavigationState?.key) return null;
   const params = useLocalSearchParams();
   const [breakfast, setBreakFast] = useState<any[]>([]);
   const [lunch, setLunch] = useState<any[]>([]);
   const [dinner, setDinner] = useState<any[]>([]);
+  const [weekDay, setWeekDay] = useState<keyof typeof weekDaysMap>("Seg");
+
+  const actionButtons = [
+    {
+      icon: "",
+      label: "Jantar",
+      onPress: () =>
+        router.navigate({
+          pathname: "/main/meals/recipes",
+          params: { category: "Janta", weekDay: weekDaysMap[weekDay] },
+        }),
+    },
+    {
+      icon: "",
+      label: "Almoço",
+      onPress: () =>
+        router.navigate({
+          pathname: "/main/meals/recipes",
+          params: { category: "Almoço", weekDay: weekDaysMap[weekDay] },
+        }),
+    },
+    {
+      icon: "",
+      label: "Café da Manhã",
+      onPress: () =>
+        router.navigate({
+          pathname: "/main/meals/recipes",
+          params: { category: "Café da Manhã", weekDay: weekDaysMap[weekDay] },
+        }),
+    },
+  ];
 
   async function fetchMeals() {
     const { data, error } = await supabase
@@ -117,13 +89,23 @@ const PlanWeeklyMeals = () => {
 
   async function setMeals() {
     const meals = await fetchMeals();
-    const breakfastMeals = meals.filter((d) => d.tipo === "Café da Manhã");
-    const lunchMeals = meals.filter((d) => d.tipo === "Almoço");
-    const dinnerMeals = meals.filter((d) => d.tipo === "Janta");
+    const breakfastMeals: any[] = [];
+    const lunchMeals: any[] = [];
+    const dinnerMeals: any[] = [];
+    meals.forEach((meal) => {
+      if (meal.tipo === "Café da Manhã") {
+        breakfastMeals.push(meal);
+      } else if (meal.tipo === "Almoço") {
+        lunchMeals.push(meal);
+      } else {
+        dinnerMeals.push(meal);
+      }
+    });
 
     setBreakFast(breakfastMeals);
-    setDinner(dinnerMeals);
     setLunch(lunchMeals);
+    setDinner(dinnerMeals);
+
     console.log(breakfast, lunch, dinner);
   }
 
@@ -160,11 +142,17 @@ const PlanWeeklyMeals = () => {
             key={index}
             style={[
               styles.dayButton,
-              day.isSelected && styles.selectedDayButton,
+              day.label === weekDay && styles.selectedDayButton,
             ]}
+            onPress={() => {
+              setWeekDay(day.label as keyof typeof weekDaysMap);
+            }}
           >
             <Text
-              style={[styles.dayText, day.isSelected && styles.selectedDayText]}
+              style={[
+                styles.dayText,
+                day.label === weekDay && styles.selectedDayText,
+              ]}
             >
               {day.label}
             </Text>

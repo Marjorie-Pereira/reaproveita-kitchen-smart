@@ -1,7 +1,10 @@
-import { Stack } from "expo-router";
+import { Stack, useRootNavigationState } from "expo-router";
 import React from "react";
 
 const Layout = () => {
+  const rootNavigationState = useRootNavigationState();
+
+  if (!rootNavigationState?.key) return null;
   return (
     <Stack
       screenOptions={{
@@ -20,6 +23,10 @@ const Layout = () => {
       <Stack.Screen
         name="[recipe]"
         options={{ title: "Informações da Receita" }}
+      />
+      <Stack.Screen
+        name="mealView"
+        options={{ title: "Detalhes da Refeição" }}
       />
     </Stack>
   );

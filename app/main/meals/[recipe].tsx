@@ -38,8 +38,15 @@ const IngredientItem = ({ name, checked, onPress }: any) => (
 );
 
 const RecipeView = () => {
-  const { mealType, isSaved, recipe: recipeParam } = useLocalSearchParams();
+  const {
+    mealType,
+    isSaved,
+    recipe: recipeParam,
+    weekDay,
+  } = useLocalSearchParams();
   const { user } = useAuth();
+
+  console.log("dia da semana", weekDay);
 
   useFocusEffect(
     useCallback(() => {
@@ -91,9 +98,11 @@ const RecipeView = () => {
 
   async function handleAddMeal() {
     console.log(recipe);
-    const { error } = await supabase
-      .from("Refeicoes")
-      .insert({ id_receita: recipe.id, tipo: mealType });
+    const { error } = await supabase.from("Refeicoes").insert({
+      id_receita: recipe.id,
+      tipo: mealType,
+      dia_da_semana: weekDay,
+    });
     if (error) throw Error(error.message);
     else {
       Alert.alert("Refeição Cadastrada!");
