@@ -183,9 +183,11 @@ export default function MealViewScreen() {
   }
 
   async function updateLeftoverPortions() {
+    const newValue =
+      leftoverPortions?.toString().length === 0 ? null : leftoverPortions;
     const { error } = await supabase
       .from("Refeicoes")
-      .update({ porcoes: leftoverPortions })
+      .update({ porcoes: newValue })
       .eq("id", mealId);
     if (error) throw new Error(error.message);
     Alert.alert("Alterações salvas!");
