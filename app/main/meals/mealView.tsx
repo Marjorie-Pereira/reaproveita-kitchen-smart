@@ -1,7 +1,7 @@
 import Badge from "@/components/Badge";
 import Button from "@/components/Button";
 import Input from "@/components/Input";
-import { COLORS } from "@/constants/theme";
+import SwitchBtn from "@/components/SwitchBtn";
 import { supabase } from "@/lib/supabase";
 import { recipeParamType } from "@/types/params";
 import { recipe } from "@/types/recipeType";
@@ -15,7 +15,6 @@ import {
   KeyboardAvoidingView,
   ScrollView,
   StyleSheet,
-  Switch,
   Text,
   View,
 } from "react-native";
@@ -26,32 +25,6 @@ import {
 // --- Style Data (Adaptado para RN) ---
 
 // Componente RNCheckbox (usando Switch para simular o comportamento de toggle)
-interface SwitchBtnProps {
-  id: string;
-  checked?: boolean;
-  onCheckedChange: (checked: boolean) => void;
-  label: string;
-  disabled: boolean;
-}
-
-const SwitchBtn = ({
-  checked = false,
-  onCheckedChange,
-  label,
-  disabled,
-}: SwitchBtnProps) => (
-  <View style={styles.checkboxContainer}>
-    <Switch
-      value={checked}
-      onValueChange={onCheckedChange}
-      trackColor={{ false: "#E5E7EB", true: COLORS.seconday }} // gray-200 and indigo-600
-      thumbColor={checked ? "#FFFFFF" : "#F3F4F6"} // white and gray-100
-      style={styles.switchStyle}
-      disabled={disabled}
-    />
-    <Text style={styles.checkboxLabel}>{label}</Text>
-  </View>
-);
 
 // Componente RNBadge (View/Text estilizado)
 
@@ -342,21 +315,6 @@ const styles = StyleSheet.create({
     alignSelf: "center", // mx-auto
     width: "100%",
   },
-  header: {
-    marginBottom: 24, // mb-6
-    marginTop: 8, // mt-2
-  },
-  headerTitleContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8, // gap-2
-    marginBottom: 16, // mb-4
-  },
-  h1: {
-    fontSize: 20,
-    fontWeight: "700", // Semibold/Bold
-    color: "#374151", // gray-700
-  },
   card: {
     backgroundColor: "#FFFFFF",
     borderRadius: 16, // rounded-2xl
@@ -410,20 +368,6 @@ const styles = StyleSheet.create({
   // Badge Styles
 
   // Checkbox/Switch Styles
-  checkboxContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-  },
-  switchStyle: {
-    // You may need to adjust the position for better alignment based on the specific RN environment
-    transform: [{ scaleX: 0.8 }, { scaleY: 0.8 }],
-  },
-  checkboxLabel: {
-    fontSize: 16,
-    color: "#1F2937", // text-gray-800
-    flex: 1,
-  },
 
   // Time Input Styles
   timeInputContainer: {
@@ -450,22 +394,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
   },
 
-  // Button Styles
-  buttonBase: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    paddingVertical: 16, // size="lg" equivalent
-    borderRadius: 12, // large rounded corners
-    width: "100%",
-    minHeight: 50,
-  },
-  buttonPrimary: {
-    backgroundColor: COLORS.primary, // Indigo-600
-  },
-  buttonDestructive: {
-    backgroundColor: COLORS.danger, // Red-600
-  },
   buttonText: {
     color: "#FFFFFF",
     fontSize: 16,
