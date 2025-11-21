@@ -22,11 +22,12 @@ export interface Meal {
 }
 
 export const MealCard: React.FC<Meal> = ({ id, recipeId, style, type }) => {
+  const router = useRouter();
+
   const rootNavigationState = useRootNavigationState();
 
   if (!rootNavigationState?.key) return null;
   const [recipe, setRecipe] = useState<recipe | null>(null);
-  const router = useRouter();
 
   async function fetchRecipe() {
     const { data, error } = await supabase
@@ -50,26 +51,6 @@ export const MealCard: React.FC<Meal> = ({ id, recipeId, style, type }) => {
           pathname: "/main/meals/mealView",
           params: { recipe: recipeId, meal: id },
         });
-        // if (recipe) {
-        //   const ingredients = recipe.ingredientes.split("| ");
-        //   const recipeIngredients = ingredients.map((ing, index) => {
-        //     const item = { id: index, ingredient: ing, checked: false };
-        //     return item;
-        //   });
-        //   const recipeParam: recipeParamType = {
-        //     id: recipe.id,
-        //     title: recipe.receita,
-        //     time: recipe.tempo_preparo,
-        //     imageUri: recipe.link_imagem,
-        //     instructions: recipe.modo_preparo,
-        //     recipeIngredients,
-        //   };
-        //   console.log("recipe param", recipeParam);
-        //   router.navigate({
-        //     pathname: "/main/meals/[recipe]",
-        //     params: { recipe: JSON.stringify(recipeParam) },
-        //   });
-        // }
       }}
     >
       <View>

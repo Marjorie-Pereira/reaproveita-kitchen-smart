@@ -4,10 +4,10 @@ import { supabase } from "@/lib/supabase";
 import { mealType } from "@/types/mealTypeEnum";
 import { weekDaysMap } from "@/utils/weekDaysMap";
 import {
-  router,
   useFocusEffect,
   useLocalSearchParams,
   useRootNavigationState,
+  useRouter,
 } from "expo-router";
 import React, { useCallback, useState } from "react";
 import {
@@ -39,6 +39,7 @@ const MealPlannerItem = ({
 }) => <MealCard id={mealId} recipeId={recipeId} type={type} />;
 
 const PlanWeeklyMeals = () => {
+  const router = useRouter();
   const rootNavigationState = useRootNavigationState();
 
   if (!rootNavigationState?.key) return null;

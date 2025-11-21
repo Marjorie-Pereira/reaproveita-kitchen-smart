@@ -18,17 +18,6 @@ import {
   Text,
   View,
 } from "react-native";
-// Replaced lucide-react with react-native-vector-icons/Feather (a standard RN icon library)
-
-// --- Type Definitions (Mantidas) ---
-
-// --- Style Data (Adaptado para RN) ---
-
-// Componente RNCheckbox (usando Switch para simular o comportamento de toggle)
-
-// Componente RNBadge (View/Text estilizado)
-
-// --- Main Component ---
 
 export default function MealViewScreen() {
   const { meal: mealId, recipe: recipeId } = useLocalSearchParams();
@@ -74,6 +63,7 @@ export default function MealViewScreen() {
 
     setHasLeftovers(data[0].tem_sobras);
     setIsConsumed(data[0].foi_consumida);
+    setLeftoverPortions(data[0].porcoes);
   }
 
   async function fetchRecipe() {
@@ -365,11 +355,6 @@ const styles = StyleSheet.create({
     color: "#4B5563",
   },
 
-  // Badge Styles
-
-  // Checkbox/Switch Styles
-
-  // Time Input Styles
   timeInputContainer: {
     marginLeft: 32, // ml-7 equivalent (approx 28px)
     gap: 8, // space-y-2
@@ -400,7 +385,5 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     marginLeft: 8, // Space between icon and text
   },
-  actionButton: {
-    // Full width already handled by buttonBase
-  },
+  actionButton: {},
 });

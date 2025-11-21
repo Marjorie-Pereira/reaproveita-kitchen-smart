@@ -10,7 +10,7 @@ interface Meal {
   timeConsumed: string;
 }
 interface BadgeProps {
-  mealType: Meal["mealType"];
+  mealType: string;
 }
 
 const mealTypeColors = {
@@ -28,24 +28,18 @@ const mealTypeColors = {
     backgroundColor: "#F3E8FF",
     color: "#5B21B6",
     borderColor: "#E9D5FF",
-  }, // Purple equivalent
-  snack: {
-    backgroundColor: "#D1FAE5",
-    color: "#065F46",
-    borderColor: "#A7F3D0",
-  }, // Green equivalent
+  },
 };
 
-const mealTypeMap = {
-  "Café da Manhã": "breakfast",
-  Almoço: "lunch",
-  Janta: "dinner",
-};
-
-const Badge = ({ mealType }: BadgeProps) => {
-  const mappedMealType = mealTypeMap[mealType as keyof typeof mealTypeMap];
+const Badge = ({ mealType = "breakfast" }: BadgeProps) => {
+  const mappedMealType =
+    mealType === "Café da Manhã"
+      ? "breakfast"
+      : mealType === "Almoço"
+      ? "lunch"
+      : "dinner";
   const { backgroundColor, color, borderColor } =
-    mealTypeColors[mappedMealType as Meal["mealType"]];
+    mealTypeColors[mappedMealType];
   return (
     <View style={[styles.badgeBase, { backgroundColor, borderColor }]}>
       <Text style={[styles.badgeText, { color }]}>
