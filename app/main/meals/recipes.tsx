@@ -23,6 +23,10 @@ const ExploreRecipesScreen = () => {
   const params = useLocalSearchParams();
   const [category, setCategory] = useState(params.category);
   const [onlyAvailable, setOnlyAvailable] = useState(false);
+  const [selectedCategories, setSelectedCategories] = useState([
+    category as string,
+  ]);
+  const [allFilterActive, setAllFilterActive] = useState(false);
 
   async function getRecipes(limit: number) {
     const tableToQueryFrom =
@@ -46,10 +50,23 @@ const ExploreRecipesScreen = () => {
     setRecipes(data);
   }
 
+  async function getRecipesByCategory() {
+    if (selectedCategories.length == 0) return;
+    const { data, error } = await supabase
+      .from("ReceitasCompletas")
+      .select("*")
+      .in("categoria", selectedCategories);
+    if (error) throw new Error(error.message);
+
+    setRecipes(data);
+  }
+
   useEffect(() => {
     getRecipes(20);
     if (onlyAvailable) getRecipesByAvailableItems();
-  }, [selectedTab, onlyAvailable]);
+    getRecipesByCategory();
+    console.log(selectedCategories);
+  }, [selectedTab, onlyAvailable, selectedCategories]);
 
   useFocusEffect(
     useCallback(() => {
@@ -63,6 +80,17 @@ const ExploreRecipesScreen = () => {
       };
     }, [])
   );
+
+  function toggleCategory(category: string) {
+    if (!selectedCategories.includes(category)) {
+      setSelectedCategories((prev) => [...prev, category]);
+    } else {
+      const index = selectedCategories.indexOf(category);
+      const newValue = [...selectedCategories];
+      newValue.splice(index, 1);
+      setSelectedCategories(newValue);
+    }
+  }
 
   return (
     <>
@@ -126,20 +154,46 @@ const ExploreRecipesScreen = () => {
           <RecipeFilter
             text="Somente ingredientes disponíveis"
             onPress={() => setOnlyAvailable((prev) => !prev)}
+            isActive={allFilterActive === true}
           />
 
           {/* 6. Tags de Refeição */}
           <View style={styles.mealTagContainer}>
             {/* Tag "Todos" selecionada */}
-            <RecipeFilter text="Todos" />
+            <RecipeFilter
+              text="Todos"
+              onPress={() => {
+                setSelectedCategories([]);
+                setAllFilterActive((prev) => !prev);
+              }}
+              isActive={
+                selectedCategories.length == 0 && onlyAvailable === false
+              }
+            />
 
             {/* Outras Tags */}
             <RecipeFilter
               text="Café da Manhã"
-              isActive={category == "Café da Manhã"}
+              isActive={
+                category == "Café da Manhã" ||
+                selectedCategories.includes("Café da Manhã")
+              }
+              onPress={() => toggleCategory("Café da Manhã")}
             />
-            <RecipeFilter text="Almoço" isActive={category == "Almoço"} />
-            <RecipeFilter text="Jantar" isActive={category == "Janta"} />
+            <RecipeFilter
+              text="Almoço"
+              isActive={
+                category == "Almoço" || selectedCategories.includes("Almoço")
+              }
+              onPress={() => toggleCategory("Almoço")}
+            />
+            <RecipeFilter
+              text="Jantar"
+              isActive={
+                category == "Janta" || selectedCategories.includes("Janta")
+              }
+              onPress={() => toggleCategory("Janta")}
+            />
           </View>
           {/* 7. Lista de Receitas (FlatList) */}
           {/* 7. Lista de Receitas (Substituída por View e map) */}

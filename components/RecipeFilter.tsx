@@ -15,7 +15,7 @@ const RecipeFilter = (props: RecipeFilterProps) => {
   useEffect(() => {
     console.log(`is ${text}`, isActive);
     setIsSelected(isActive ?? false);
-  }, []);
+  }, [isActive]);
 
   return (
     <TouchableOpacity
