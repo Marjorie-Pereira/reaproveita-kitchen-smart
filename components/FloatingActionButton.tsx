@@ -1,10 +1,11 @@
+import { COLORS } from "@/constants/theme";
 import { GestureResponderEvent, Pressable, StyleSheet } from "react-native";
 import Animated, {
-    SharedValue,
-    useAnimatedStyle,
-    withDelay,
-    withSpring,
-    withTiming,
+  SharedValue,
+  useAnimatedStyle,
+  withDelay,
+  withSpring,
+  withTiming,
 } from "react-native-reanimated";
 
 const SPRING_CONFIG = {
@@ -21,8 +22,8 @@ type floatingActionButtonProps = {
   isExpanded: SharedValue<boolean>;
   index: number;
   buttonLetter: string;
-  icon: any;
-  onPress: (event: GestureResponderEvent) => void
+  icon?: any;
+  onPress: (event: GestureResponderEvent) => void;
 };
 
 const FloatingActionButton = ({
@@ -30,7 +31,7 @@ const FloatingActionButton = ({
   index,
   buttonLetter,
   onPress,
-  icon
+  icon,
 }: floatingActionButtonProps) => {
   const animatedStyles = useAnimatedStyle(() => {
     const moveValue = isExpanded.value ? OFFSET * index : 0;
@@ -54,7 +55,7 @@ const FloatingActionButton = ({
       style={[animatedStyles, styles.shadow, styles.button]}
       onPress={onPress}
     >
-        {icon}
+      {icon && icon}
       <Animated.Text style={styles.content}>{buttonLetter}</Animated.Text>
     </AnimatedPressable>
   );
@@ -73,10 +74,11 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
   },
   button: {
-    width: 100,
+    minWidth: 100,
+    width: "100%",
     height: 50,
-    padding: 3,
-    backgroundColor: "white",
+    padding: 4,
+    backgroundColor: COLORS.white,
     position: "absolute",
     bottom: 80,
     right: 1,
@@ -84,10 +86,9 @@ const styles = StyleSheet.create({
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    textAlign: "center",
     zIndex: 1,
     flexDirection: "row",
-    gap: 4
+    elevation: 1,
   },
 });
 

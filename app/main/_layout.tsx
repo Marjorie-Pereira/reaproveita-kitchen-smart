@@ -43,7 +43,8 @@ export default function TabLayout() {
       <Tabs.Screen
         name="shoppingList"
         options={{
-          title: "Compras",
+          tabBarLabel: "Compras",
+          headerShown: false,
           tabBarIcon: ({ color }) => (
             <FontAwesome name="list" size={24} color={color} />
           ),
