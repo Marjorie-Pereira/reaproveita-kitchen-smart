@@ -67,15 +67,17 @@ export default function BarCodeScanner() {
           style={StyleSheet.absoluteFillObject}
         />
       </View>
-      {scanned && (
+      {true && (
         <Button
-          title={"Escanear Novamente"}
           onPress={() => setScanned(false)}
           buttonStyle={{
             padding: 10,
             marginTop: 20,
+            margin: 20,
           }}
-        />
+        >
+          <Text style={{ color: "#fff" }}>Escanear Novamente</Text>
+        </Button>
       )}
     </View>
   );
@@ -87,6 +89,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "center",
+    padding: 20,
   },
   barcodebox: {
     alignItems: "center",

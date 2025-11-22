@@ -46,9 +46,6 @@ export const RecipeCard: React.FC<Recipe> = ({
   useFocusEffect(
     useCallback(() => {
       // Do something when the screen is focused
-      console.log("params mealType", mealType);
-      console.log("is saved", isSaved);
-      console.log("is saved string", String(isSaved));
 
       return () => {
         router.setParams({});

@@ -22,6 +22,7 @@ const ExploreRecipesScreen = () => {
   const [recipes, setRecipes] = useState<recipe[]>([]);
   const params = useLocalSearchParams();
   const [category, setCategory] = useState(params.category);
+  const [onlyAvailable, setOnlyAvailable] = useState(false);
 
   async function getRecipes(limit: number) {
     const tableToQueryFrom =
@@ -38,9 +39,17 @@ const ExploreRecipesScreen = () => {
     setRecipes(data);
   }
 
+  async function getRecipesByAvailableItems() {
+    const { data, error } = await supabase.rpc("get_receitas_by_alimentos");
+    if (error) throw new Error(error.message);
+
+    setRecipes(data);
+  }
+
   useEffect(() => {
-    getRecipes(50);
-  }, [selectedTab]);
+    getRecipes(20);
+    if (onlyAvailable) getRecipesByAvailableItems();
+  }, [selectedTab, onlyAvailable]);
 
   useFocusEffect(
     useCallback(() => {
@@ -114,7 +123,10 @@ const ExploreRecipesScreen = () => {
           </View>
 
           {/* 5. Filtro (Somente ingredientes disponíveis) */}
-          <RecipeFilter text="Somente ingredientes disponíveis" />
+          <RecipeFilter
+            text="Somente ingredientes disponíveis"
+            onPress={() => setOnlyAvailable((prev) => !prev)}
+          />
 
           {/* 6. Tags de Refeição */}
           <View style={styles.mealTagContainer}>

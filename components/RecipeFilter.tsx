@@ -5,9 +5,10 @@ import { StyleSheet, Text, TouchableOpacity } from "react-native";
 interface RecipeFilterProps {
   text: string;
   isActive?: boolean;
+  onPress?: () => void;
 }
 const RecipeFilter = (props: RecipeFilterProps) => {
-  const { text, isActive } = props;
+  const { text, isActive, onPress } = props;
 
   const [isSelected, setIsSelected] = useState(isActive);
 
@@ -18,7 +19,10 @@ const RecipeFilter = (props: RecipeFilterProps) => {
 
   return (
     <TouchableOpacity
-      onPress={() => setIsSelected((prev) => !prev)}
+      onPress={() => {
+        setIsSelected((prev) => !prev);
+        if (onPress) onPress();
+      }}
       style={isSelected ? styles.mealTagSelected : styles.mealTag}
     >
       {isSelected && (
