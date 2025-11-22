@@ -2,11 +2,14 @@ import Button from "@/components/Button";
 import FloatingButton from "@/components/FloatingButton";
 import InventoryModal from "@/components/InventoryModal";
 import { COLORS, globalStyles } from "@/constants/theme";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/lib/supabase";
 import { buttonActionsObject } from "@/types/buttonActionsObject";
 import { Feather, Ionicons } from "@expo/vector-icons";
-import { useRootNavigationState, useRouter } from "expo-router";
-import { useState } from "react";
+import { useFocusEffect, useRootNavigationState, useRouter } from "expo-router";
+import { useCallback, useEffect, useState } from "react";
 import {
+  Alert,
   ScrollView,
   StyleSheet,
   Text,
@@ -17,9 +20,9 @@ import {
 
 // --- Interfaces ---
 interface ShoppingItem {
-  id: string;
+  id?: string;
   name: string;
-  quantity: string;
+  quantity: number;
   checked: boolean;
 }
 
@@ -27,42 +30,8 @@ interface InventoryItem {
   id: string;
   name: string;
   category: string;
-  stock: number;
+  stock: string;
 }
-
-// --- Dados Mock ---
-const mockInventory: InventoryItem[] = [
-  { id: "1", name: "Arroz", category: "Grãos", stock: 2 },
-  { id: "2", name: "Feijão", category: "Grãos", stock: 3 },
-  { id: "3", name: "Macarrão", category: "Massas", stock: 1 },
-  { id: "4", name: "Tomate", category: "Vegetais", stock: 5 },
-  { id: "5", name: "Cebola", category: "Vegetais", stock: 4 },
-  { id: "6", name: "Leite", category: "Laticínios", stock: 2 },
-  { id: "7", name: "Queijo", category: "Laticínios", stock: 1 },
-  { id: "8", name: "Frango", category: "Carnes", stock: 3 },
-  { id: "9", name: "Carne Moída", category: "Carnes", stock: 2 },
-  { id: "10", name: "Banana", category: "Frutas", stock: 6 },
-];
-
-// --- Componentes de UI Simples (Substitutos para Shadcn/ui) ---
-
-// const Button = ({
-//   onPress,
-//   style,
-//   textStyle,
-//   title,
-//   icon,
-//   disabled = false,
-// }: any) => (
-//   <TouchableOpacity
-//     onPress={onPress}
-//     style={[globalStyles.buttonBase, style, disabled && { opacity: 0.5 }]}
-//     disabled={disabled}
-//   >
-//     {icon && <View style={{ marginRight: 8 }}>{icon}</View>}
-//     <Text style={textStyle}>{title}</Text>
-//   </TouchableOpacity>
-// );
 
 const Card = ({ children, style }: any) => (
   <View style={[globalStyles.card, style]}>{children}</View>
@@ -75,6 +44,7 @@ const Input = ({
   onChangeText,
   onBlur,
   onEndEditing,
+  keyboardType = "default",
 }: any) => (
   <View style={{ marginBottom: 12 }}>
     {label && <Text style={globalStyles.label}>{label}</Text>}
@@ -86,17 +56,24 @@ const Input = ({
       onSubmitEditing={onEndEditing}
       style={globalStyles.input}
       placeholderTextColor={COLORS.slate400}
+      keyboardType={keyboardType}
     />
   </View>
 );
 
+type shoppingListItem = {
+  item: string;
+  quantity: number;
+};
+
 // --- Componente Principal ---
 
 function ShoppingList() {
-  const [shoppingList, setShoppingList] = useState<ShoppingItem[]>([]);
+  const [shoppingList, setShoppingList] = useState<any[]>([]);
   const [itemName, setItemName] = useState("");
-  const [itemQuantity, setItemQuantity] = useState("");
+  const [itemQuantity, setItemQuantity] = useState<number | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [inventoryItems, setInventoryItems] = useState<any[]>([]);
   const [selectedInventoryItems, setSelectedInventoryItems] = useState<
     Set<string>
   >(new Set());
@@ -104,40 +81,90 @@ function ShoppingList() {
   const rootNavigationState = useRootNavigationState();
 
   if (!rootNavigationState?.key) return null;
+  const { user } = useAuth();
+
+  const getShoppingListId = async () => {
+    const { data, error } = await supabase
+      .from("ListasCompras")
+      .select("id")
+      .eq("id_usuario", user.id);
+    if (error) throw new Error(error.message);
+    return data[0].id;
+  };
+
+  const fetchShoppingListItems = async () => {
+    const listId = await getShoppingListId();
+    if (!listId) return;
+    const { data, error } = await supabase
+      .from("ItensListaCompras")
+      .select("*")
+      .eq("id_lista", listId)
+      .order("id", { ascending: false });
+    if (error) throw new Error(error.message);
+
+    setShoppingList(data);
+  };
+
+  useEffect(() => {
+    console.log(shoppingList);
+  }, [shoppingList]);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchShoppingListItems();
+      return () => {
+        console.log("saiu");
+      };
+    }, [])
+  );
 
   // --- Funções da Lista de Compras ---
 
-  const addManualItem = () => {
+  const addManualItem = async () => {
+    const listId = await getShoppingListId();
     if (itemName.trim()) {
       const newItem: ShoppingItem = {
-        id: Date.now().toString(),
         name: itemName,
-        quantity: itemQuantity || "1",
+        quantity: itemQuantity || 0,
         checked: false,
       };
-      setShoppingList([...shoppingList, newItem]);
+
+      console.log("shopping list", listId);
+      const { error } = await supabase.from("ItensListaCompras").insert({
+        item: newItem.name,
+        quantidade: newItem.quantity,
+        comprado: newItem.checked,
+        id_lista: listId,
+      });
+      if (error) {
+        throw new Error(error.message);
+      } else {
+        Alert.alert("ok");
+      }
+
       setItemName("");
-      setItemQuantity("");
+      setItemQuantity(null);
+      fetchShoppingListItems();
     }
   };
 
-  const addFromInventory = () => {
-    const itemsToAdd: ShoppingItem[] = Array.from(selectedInventoryItems).map(
-      (id) => {
-        const inventoryItem = mockInventory.find((item) => item.id === id);
-        return {
-          // Gera um ID composto para evitar colisão com novos itens manuais
-          id: `inv-${Date.now()}-${id}`,
-          name: inventoryItem?.name || "",
-          quantity: "1", // Quantidade inicial padrão 1
-          checked: false,
-        };
-      }
-    );
-    setShoppingList((prevList) => [...prevList, ...itemsToAdd]);
-    setSelectedInventoryItems(new Set());
-    setIsModalOpen(false);
-  };
+  // const addFromInventory = () => {
+  //   const itemsToAdd: ShoppingItem[] = Array.from(selectedInventoryItems).map(
+  //     (id) => {
+  //       const inventoryItem = inventoryItems.find((item) => item.id === id);
+  //       return {
+  //         // Gera um ID composto para evitar colisão com novos itens manuais
+  //         id: `inv-${Date.now()}-${id}`,
+  //         name: inventoryItem?.name || "",
+  //         quantity: 1, // Quantidade inicial padrão 1
+  //         checked: false,
+  //       };
+  //     }
+  //   );
+  //   setShoppingList((prevList) => [...prevList, ...itemsToAdd]);
+  //   setSelectedInventoryItems(new Set());
+  //   setIsModalOpen(false);
+  // };
 
   const toggleInventoryItem = (id: string) => {
     setSelectedInventoryItems((prevSelected) => {
@@ -151,21 +178,27 @@ function ShoppingList() {
     });
   };
 
-  const toggleItemCheck = (id: string) => {
-    setShoppingList(
-      shoppingList.map((item) =>
-        item.id === id ? { ...item, checked: !item.checked } : item
-      )
-    );
+  const toggleItemCheck = async (id: string, currValue: any) => {
+    const { error } = await supabase
+      .from("ItensListaCompras")
+      .update({ comprado: !currValue })
+      .eq("id", id);
+    if (error) throw new Error(error.message);
+    fetchShoppingListItems();
   };
 
-  const removeItem = (id: string) => {
-    setShoppingList(shoppingList.filter((item) => item.id !== id));
+  const removeItem = async (id: string) => {
+    const { error } = await supabase
+      .from("ItensListaCompras")
+      .delete()
+      .eq("id", id);
+    if (error) throw new Error(error.message);
+    fetchShoppingListItems();
   };
 
   // --- Agrupamento do Inventário (para o Modal) ---
 
-  const groupedInventory = mockInventory.reduce((acc, item) => {
+  const groupedInventory = inventoryItems.reduce((acc, item) => {
     if (!acc[item.category]) {
       acc[item.category] = [];
     }
@@ -206,7 +239,8 @@ function ShoppingList() {
             placeholder="Ex: 2kg, 1L, 3 unidades..."
             value={itemQuantity}
             onChangeText={setItemQuantity}
-            onEndEditing={addManualItem} // Usado para acionar com "Enter" no teclado
+            onEndEditing={addManualItem}
+            keyboardType="numeric"
           />
           <Button
             onPress={addManualItem}
@@ -244,22 +278,24 @@ function ShoppingList() {
                   key={item.id}
                   style={[
                     globalStyles.listItem,
-                    item.checked && globalStyles.checkedListItem,
+                    item.comprado && globalStyles.checkedListItem,
                   ]}
                 >
                   <TouchableOpacity
-                    onPress={() => toggleItemCheck(item.id)}
+                    onPress={() =>
+                      toggleItemCheck(item.id as string, item.comprado)
+                    }
                     style={styles.checkboxTouchArea}
                   >
                     <View
                       style={[
                         styles.checkbox,
-                        item.checked
+                        item.comprado
                           ? styles.checkboxChecked
                           : styles.checkboxUnchecked,
                       ]}
                     >
-                      {item.checked && (
+                      {item.comprado && (
                         <Feather name="check" size={16} color={COLORS.white} />
                       )}
                     </View>
@@ -269,22 +305,22 @@ function ShoppingList() {
                       numberOfLines={1}
                       style={[
                         styles.itemName,
-                        item.checked && styles.itemNameChecked,
+                        item.comprado && styles.itemNameChecked,
                       ]}
                     >
-                      {item.name}
+                      {item.item}
                     </Text>
                     <Text
                       style={[
                         styles.itemQuantity,
-                        item.checked && styles.itemQuantityChecked,
+                        item.comprado && styles.itemQuantityChecked,
                       ]}
                     >
-                      {item.quantity}
+                      {item.quantidade}
                     </Text>
                   </View>
                   <TouchableOpacity
-                    onPress={() => removeItem(item.id)}
+                    onPress={() => removeItem(item.id as string)}
                     style={[globalStyles.ghostButton, styles.removeButton]}
                   >
                     <Feather name="trash-2" size={16} color={COLORS.red500} />
@@ -300,7 +336,7 @@ function ShoppingList() {
       <InventoryModal
         isVisible={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onAdd={addFromInventory}
+        onAdd={() => {}}
         groupedInventory={groupedInventory}
         selectedInventoryItems={selectedInventoryItems}
         toggleInventoryItem={toggleInventoryItem}

@@ -50,25 +50,6 @@ export default function TabLayout() {
           ),
         }}
       />
-      <Tabs.Screen
-        name="items"
-        options={{
-          tabBarItemStyle: {
-            display: "none",
-          },
-          headerShown: false,
-        }}
-      />
-
-      <Tabs.Screen
-        name="inventory"
-        options={{
-          // tabBarItemStyle: {
-          //   display: "none",
-          // },
-          headerShown: false,
-        }}
-      />
     </Tabs>
   );
 }

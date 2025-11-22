@@ -16,10 +16,10 @@
     },
     "android": {
       "edgeToEdgeEnabled": true,
-      "permissions": [
-        "android.permission.CAMERA",
-        "android.permission.RECORD_AUDIO"
-      ],
+      // "permissions": [
+      //   "android.permission.CAMERA",
+      //   "android.permission.RECORD_AUDIO"
+      // ],
       "package": "com.anonymous.reaproveitakitchensmartpds",
       "googleServicesFile": "./google-services.json"
     },
