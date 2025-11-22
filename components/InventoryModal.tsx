@@ -12,9 +12,9 @@ import {
 
 interface InventoryItem {
   id: string;
-  name: string;
-  category: string;
-  stock: number;
+  nome: string;
+  categoria: string;
+  quantidade: number;
 }
 
 interface InventoryModalProps {
@@ -80,7 +80,7 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
 
         {/* Modal Content */}
         <ScrollView style={modalStyles.content}>
-          <View style={{ gap: 20 }}>
+          <View style={{ gap: 20, marginBottom: 40 }}>
             {Object.entries(groupedInventory).map(([category, items]) => (
               <View key={category}>
                 <Text style={modalStyles.categoryTitle}>{category}</Text>
@@ -112,9 +112,9 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
                           </View>
                         </View>
                         <View style={{ flex: 1 }}>
-                          <Text style={modalStyles.itemName}>{item.name}</Text>
+                          <Text style={modalStyles.itemName}>{item.nome}</Text>
                           <Text style={modalStyles.itemStock}>
-                            Estoque: {item.stock}
+                            Estoque: {item.quantidade}
                           </Text>
                         </View>
                       </TouchableOpacity>

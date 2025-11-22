@@ -61,11 +61,6 @@ const Input = ({
   </View>
 );
 
-type shoppingListItem = {
-  item: string;
-  quantity: number;
-};
-
 // --- Componente Principal ---
 
 function ShoppingList() {
@@ -84,6 +79,7 @@ function ShoppingList() {
   const { user } = useAuth();
 
   const getShoppingListId = async () => {
+    if (!user) return;
     const { data, error } = await supabase
       .from("ListasCompras")
       .select("id")
@@ -105,13 +101,22 @@ function ShoppingList() {
     setShoppingList(data);
   };
 
+  const fetchItemsFromInventory = async () => {
+    const { data, error } = await supabase.from("Alimentos").select("*");
+
+    if (error) throw new Error(error.message);
+    setInventoryItems(data);
+  };
+
   useEffect(() => {
-    console.log(shoppingList);
+    console.log("shopping list changed");
   }, [shoppingList]);
 
   useFocusEffect(
     useCallback(() => {
+      console.log(user);
       fetchShoppingListItems();
+      fetchItemsFromInventory();
       return () => {
         console.log("saiu");
       };
@@ -148,23 +153,32 @@ function ShoppingList() {
     }
   };
 
-  // const addFromInventory = () => {
-  //   const itemsToAdd: ShoppingItem[] = Array.from(selectedInventoryItems).map(
-  //     (id) => {
-  //       const inventoryItem = inventoryItems.find((item) => item.id === id);
-  //       return {
-  //         // Gera um ID composto para evitar colisão com novos itens manuais
-  //         id: `inv-${Date.now()}-${id}`,
-  //         name: inventoryItem?.name || "",
-  //         quantity: 1, // Quantidade inicial padrão 1
-  //         checked: false,
-  //       };
-  //     }
-  //   );
-  //   setShoppingList((prevList) => [...prevList, ...itemsToAdd]);
-  //   setSelectedInventoryItems(new Set());
-  //   setIsModalOpen(false);
-  // };
+  const addFromInventory = async () => {
+    const listId = await getShoppingListId();
+    const itemsToAdd = Array.from(selectedInventoryItems).map((id) => {
+      const inventoryItem = inventoryItems.find((item) => item.id === id);
+      return {
+        // Gera um ID composto para evitar colisão com novos itens manuais
+        item: inventoryItem?.nome || "",
+        quantidade: 1, // Quantidade inicial padrão 1
+        comprado: false,
+        id_lista: listId,
+      };
+    });
+
+    const { error } = await supabase
+      .from("ItensListaCompras")
+      .insert(itemsToAdd);
+    if (error) {
+      throw new Error(error.message);
+    } else {
+      Alert.alert("ok");
+    }
+
+    setSelectedInventoryItems(new Set());
+    setIsModalOpen(false);
+    fetchShoppingListItems();
+  };
 
   const toggleInventoryItem = (id: string) => {
     setSelectedInventoryItems((prevSelected) => {
@@ -199,10 +213,10 @@ function ShoppingList() {
   // --- Agrupamento do Inventário (para o Modal) ---
 
   const groupedInventory = inventoryItems.reduce((acc, item) => {
-    if (!acc[item.category]) {
-      acc[item.category] = [];
+    if (!acc[item.categoria]) {
+      acc[item.categoria] = [];
     }
-    acc[item.category].push(item);
+    acc[item.categoria].push(item);
     return acc;
   }, {} as Record<string, InventoryItem[]>);
 
@@ -336,7 +350,7 @@ function ShoppingList() {
       <InventoryModal
         isVisible={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onAdd={() => {}}
+        onAdd={addFromInventory}
         groupedInventory={groupedInventory}
         selectedInventoryItems={selectedInventoryItems}
         toggleInventoryItem={toggleInventoryItem}

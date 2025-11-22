@@ -160,7 +160,7 @@ export const globalStyles = StyleSheet.create({
     borderBottomColor: COLORS.slate200,
   },
   modalFooter: {
-    padding: 16,
+    padding: 10,
     borderTopWidth: 1,
     borderTopColor: COLORS.slate200,
     flexDirection: "row",
