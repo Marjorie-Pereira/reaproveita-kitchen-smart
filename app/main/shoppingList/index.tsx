@@ -91,9 +91,9 @@ function ShoppingList() {
     const { data, error } = await supabase
       .from("ListasCompras")
       .select("id")
-      .eq("id_usuario", user.id);
+      .eq("id_usuario", user?.id);
     if (error) throw new Error(error.message);
-    return data[0].id;
+    return data[0]?.id;
   };
 
   const fetchShoppingListItems = async () => {
@@ -171,7 +171,7 @@ function ShoppingList() {
   const addFromInventory = async () => {
     const listId = await getShoppingListId();
     const itemsToAdd = Array.from(selectedInventoryItems).map((id) => {
-      const inventoryItem = inventoryItems.find((item) => item.id === id);
+      const inventoryItem = inventoryItems.find((item) => item?.id === id);
       return {
         // Gera um ID composto para evitar colisão com novos itens manuais
         item: inventoryItem?.nome || "",
@@ -304,7 +304,7 @@ function ShoppingList() {
             <View style={{ gap: 8 }}>
               {shoppingList.map((item) => (
                 <Card
-                  key={item.id}
+                  key={item?.id}
                   style={[
                     globalStyles.listItem,
                     item.comprado && globalStyles.checkedListItem,
@@ -312,7 +312,7 @@ function ShoppingList() {
                 >
                   <TouchableOpacity
                     onPress={() =>
-                      toggleItemCheck(item.id as string, item.comprado)
+                      toggleItemCheck(item?.id as string, item?.comprado)
                     }
                     style={styles.checkboxTouchArea}
                   >
@@ -345,11 +345,11 @@ function ShoppingList() {
                         item.comprado && styles.itemQuantityChecked,
                       ]}
                     >
-                      {item.quantidade}
+                      {item?.quantidade}
                     </Text>
                   </View>
                   <TouchableOpacity
-                    onPress={() => removeItem(item.id as string)}
+                    onPress={() => removeItem(item?.id as string)}
                     style={[globalStyles.ghostButton, styles.removeButton]}
                   >
                     <Feather name="trash-2" size={16} color={COLORS.red500} />

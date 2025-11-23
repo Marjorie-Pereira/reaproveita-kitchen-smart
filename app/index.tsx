@@ -63,10 +63,6 @@ export default function Index() {
         <Pressable style={[styles.button, styles.secondaryBtn]}>
           <Text style={styles.secondaryBtnText}>Login com Google</Text>
         </Pressable>
-
-        <Pressable onPress={() => router.push("./main")}>
-          <Text style={styles.underlineText}>Usar sem uma conta</Text>
-        </Pressable>
       </View>
     </View>
   );

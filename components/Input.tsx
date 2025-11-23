@@ -1,5 +1,19 @@
-import { Pressable, StyleSheet, TextInput, View } from "react-native";
+import {
+  Pressable,
+  StyleSheet,
+  TextInput,
+  TextInputProps,
+  View,
+  ViewStyle,
+} from "react-native";
 
+interface InputProps extends TextInputProps {
+  containerStyles: ViewStyle;
+  type?: "password" | "text";
+  icon?: any;
+  inputRef: React.Ref<TextInput> | undefined;
+  togglePassword: () => void;
+}
 const Input = ({ ...props }) => {
   return (
     <View

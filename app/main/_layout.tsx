@@ -1,4 +1,5 @@
 import { usePush } from "@/hooks/usePush";
+import { Feather } from "@expo/vector-icons";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { Tabs } from "expo-router";
 
@@ -47,6 +48,17 @@ export default function TabLayout() {
           headerShown: false,
           tabBarIcon: ({ color }) => (
             <FontAwesome name="list" size={24} color={color} />
+          ),
+        }}
+      />
+
+      <Tabs.Screen
+        name="profile"
+        options={{
+          tabBarLabel: "Perfil",
+          headerShown: false,
+          tabBarIcon: ({ color }) => (
+            <Feather name="user" size={24} color={color} />
           ),
         }}
       />
