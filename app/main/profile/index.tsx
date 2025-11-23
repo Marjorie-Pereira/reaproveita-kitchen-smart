@@ -1,86 +1,151 @@
 import Button from "@/components/Button";
+import EditUserInfoModal from "@/components/EditUserInfoModal";
 import Input from "@/components/Input";
 import RestrictionChip from "@/components/RestrictionChip";
 import { fallbackImg } from "@/constants/fallbackImage";
 import { COLORS } from "@/constants/theme";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/lib/supabase";
 import { Entypo, Feather } from "@expo/vector-icons";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
 
 const Index = () => {
-  const tulla = "https://statics.otvfoco.com.br/2019/03/tulla-luana-1.jpg";
-  return (
-    <ScrollView>
-      <View style={styles.container}>
-        <View style={styles.profileTopSection}>
-          <Image
-            resizeMode="cover"
-            source={{
-              uri: tulla ?? fallbackImg,
-            }}
-            style={{
-              width: 150,
-              height: 150,
-              aspectRatio: 1,
-              marginBottom: 10,
-              borderRadius: 100,
-            }}
-          />
-          <Text style={styles.userName}>Webdiva Tulla Luana</Text>
-        </View>
-        <View style={styles.userInfoContainer}>
-          <View style={styles.userInfo}>
-            <Feather name="mail" size={20} color={COLORS.slate600} />
-            <Text style={styles.userInfoText}>tulla@diva.com</Text>
-          </View>
-          <View style={styles.userInfo}>
-            <Feather name="phone" size={20} color={COLORS.slate600} />
-            <Text style={styles.userInfoText}>(11) 998998989</Text>
-          </View>
-        </View>
+  const { user } = useAuth();
+  const [userData, setUserData] = useState<any>(null);
+  const [foodRestrictions, setFoodRestrictions] = useState([
+    "Lactose",
+    "Glúten",
+    "Amendoim",
+    "Pimenta",
+  ]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-        <View
-          style={{
-            ...styles.profileTopSection,
-            alignItems: "flex-start",
-          }}
-        >
-          <View>
-            <Text style={[styles.restrictionsTitle, { textAlign: "left" }]}>
-              Restrições Alimentares
-            </Text>
-            <Text style={{ color: COLORS.slate600 }}>
-              Gerencie suas restrições alimentares
-            </Text>
+  const removeRestriction = (name: string) => {
+    if (foodRestrictions.includes(name)) {
+      const index = foodRestrictions.indexOf(name);
+      const newValue = [...foodRestrictions];
+      newValue.splice(index, 1);
+
+      setFoodRestrictions(newValue);
+    }
+  };
+
+  const fetchUserData = async () => {
+    if (!user) return;
+
+    const { data, error } = await supabase
+      .from("users")
+      .select("*")
+      .eq("id", user.id);
+    if (error) throw new Error(error.message);
+
+    setUserData(data[0]);
+  };
+
+  useEffect(() => {
+    fetchUserData();
+  }, [user, foodRestrictions]);
+
+  return (
+    <>
+      <ScrollView>
+        <View style={styles.container}>
+          <View style={styles.profileTopSection}>
+            <Image
+              resizeMode="cover"
+              source={{
+                uri: userData?.profile_pic ?? fallbackImg,
+              }}
+              style={{
+                width: 150,
+                height: 150,
+                aspectRatio: 1,
+                marginBottom: 10,
+                borderRadius: 100,
+              }}
+            />
+            <Text style={styles.userName}>{userData?.first_name}</Text>
           </View>
-          <View style={styles.selectedRestrictions}>
-            <RestrictionChip text="Lactose" />
-            <RestrictionChip text="Glúten" />
-            <RestrictionChip text="Amendoim" />
-            <RestrictionChip text="Banana" />
+          <View style={styles.userInfoContainer}>
+            <View style={styles.userInfo}>
+              <Feather name="mail" size={20} color={COLORS.slate600} />
+              <Text style={styles.userInfoText}>{userData?.email}</Text>
+            </View>
+            <View style={styles.userInfo}>
+              <Feather name="phone" size={20} color={COLORS.slate600} />
+              <Text style={styles.userInfoText}>
+                {userData?.phone ?? "Nenhum número cadastrado"}
+              </Text>
+            </View>
           </View>
-        </View>
-        <View style={styles.newRestrictionInput}>
-          <Input
-            placeholder="Adicionar nova restrição"
-            containerStyles={{
-              flex: 1,
-            }}
-          />
-          <Button
-            buttonStyle={{
-              width: 50,
-              height: 50,
-              borderRadius: 10,
-              alignItems: "center",
-              justifyContent: "center",
+
+          {/* restrições */}
+          <View
+            style={{
+              ...styles.profileTopSection,
+              alignItems: "flex-start",
             }}
           >
-            <Entypo name="plus" size={20} color={COLORS.white} />
+            <View>
+              <Text style={[styles.restrictionsTitle, { textAlign: "left" }]}>
+                Restrições Alimentares
+              </Text>
+              <Text style={{ color: COLORS.slate600 }}>
+                Gerencie suas restrições alimentares
+              </Text>
+            </View>
+            <View style={styles.selectedRestrictions}>
+              {foodRestrictions.map((item, index) => (
+                <RestrictionChip
+                  text={item}
+                  key={index}
+                  onRemove={() => removeRestriction(item)}
+                />
+              ))}
+            </View>
+          </View>
+          <View style={styles.newRestrictionInput}>
+            <Input
+              placeholder="Adicionar nova restrição"
+              containerStyles={{
+                flex: 1,
+              }}
+            />
+            <Button
+              buttonStyle={{
+                width: 50,
+                height: 50,
+                borderRadius: 10,
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Entypo name="plus" size={20} color={COLORS.white} />
+            </Button>
+          </View>
+
+          <Button
+            buttonStyle={{ marginTop: 20 }}
+            onPress={() => setIsModalOpen(true)}
+          >
+            <Text style={{ color: "white", fontWeight: "500" }}>
+              Editar Informações
+            </Text>
           </Button>
         </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
+      <EditUserInfoModal
+        isVisible={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSubmit={() => setIsModalOpen(false)}
+        userData={{
+          name: userData?.first_name,
+          email: userData?.email,
+          phone: userData?.phone,
+        }}
+      />
+    </>
   );
 };
 
