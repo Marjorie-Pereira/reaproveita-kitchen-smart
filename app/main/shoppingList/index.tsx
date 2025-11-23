@@ -5,8 +5,14 @@ import { COLORS, globalStyles } from "@/constants/theme";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
 import { buttonActionsObject } from "@/types/buttonActionsObject";
+import { productType } from "@/types/openFoodApiResponse";
 import { Feather, Ionicons } from "@expo/vector-icons";
-import { useFocusEffect, useRootNavigationState, useRouter } from "expo-router";
+import {
+  useFocusEffect,
+  useLocalSearchParams,
+  useRootNavigationState,
+  useRouter,
+} from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import {
   Alert,
@@ -64,6 +70,8 @@ const Input = ({
 // --- Componente Principal ---
 
 function ShoppingList() {
+  const params = useLocalSearchParams();
+
   const [shoppingList, setShoppingList] = useState<any[]>([]);
   const [itemName, setItemName] = useState("");
   const [itemQuantity, setItemQuantity] = useState<number | null>(null);
@@ -114,7 +122,14 @@ function ShoppingList() {
 
   useFocusEffect(
     useCallback(() => {
-      console.log(user);
+      console.log(params);
+      if (params.scannedProduct) {
+        const scannedProduct: productType = JSON.parse(
+          params?.scannedProduct as string
+        );
+        setItemName(scannedProduct.product_name);
+        console.log(scannedProduct);
+      }
       fetchShoppingListItems();
       fetchItemsFromInventory();
       return () => {
@@ -229,7 +244,7 @@ function ShoppingList() {
     {
       icon: <Ionicons name="barcode-sharp" size={24} color="black" />,
       label: "Escanear",
-      onPress: () => router.navigate("/main/home/forms/barCodeScanner"),
+      onPress: () => router.navigate("/main/shoppingList/scanBarCode"),
     },
   ];
 

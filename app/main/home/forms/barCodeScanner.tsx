@@ -3,14 +3,14 @@ import { baseUrl, queryFields } from "@/constants/openFoodFactsApi";
 import { userAgent } from "@/constants/userAgent";
 import { responseType } from "@/types/openFoodApiResponse";
 import { Camera, CameraView } from "expo-camera";
-import { router, useFocusEffect } from "expo-router";
+import { ExternalPathString, router, useFocusEffect } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 
-export default function BarCodeScanner() {
+export default function BarCodeScanner(props: { backToPath?: string }) {
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [scanned, setScanned] = useState(false);
-
+  const { backToPath } = props;
   useEffect(() => {
     const getCameraPermissions = async () => {
       const { status } = await Camera.requestCameraPermissionsAsync();
@@ -41,7 +41,8 @@ export default function BarCodeScanner() {
     } else {
       console.log("fetch", result);
       router.push({
-        pathname: "/main/home/forms/newFoodItem",
+        pathname:
+          (backToPath as ExternalPathString) || "/main/home/forms/newFoodItem",
         params: {
           scannedProduct: JSON.stringify(result.product),
         },
