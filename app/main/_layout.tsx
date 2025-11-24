@@ -35,6 +35,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="meals"
         options={{
+          tabBarLabel: "Refeições",
           headerShown: false,
           tabBarIcon: ({ color }) => (
             <FontAwesome name="calendar" size={24} color={color} />
