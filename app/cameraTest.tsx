@@ -1,7 +1,12 @@
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import * as ImagePicker from "expo-image-picker";
-import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
+import {
+  RelativePathString,
+  router,
+  useFocusEffect,
+  useLocalSearchParams,
+} from "expo-router";
 import { useCallback, useRef } from "react";
 import { Button, Pressable, StyleSheet, Text, View } from "react-native";
 
@@ -11,10 +16,10 @@ export default function CameraTest() {
   const params = useLocalSearchParams();
 
   useFocusEffect(
-      useCallback(() => {
-        console.log("params camera: ", params);
-      }, [])
-    );
+    useCallback(() => {
+      console.log("params camera: ", params);
+    }, [])
+  );
 
   if (!permission) {
     return null;
@@ -35,14 +40,11 @@ export default function CameraTest() {
     const photo = await ref.current?.takePictureAsync();
     if (photo?.uri) {
       router.navigate({
-        pathname:
-          params.path === "new"
-            ? "/main/home/forms/newFoodItem"
-            : "/main/home/forms/editFoodItem",
+        pathname: params.path as RelativePathString,
         params: { ...params, uri: photo.uri },
       });
 
-      router.setParams({})
+      router.setParams({});
     }
   };
 
@@ -56,13 +58,10 @@ export default function CameraTest() {
 
     if (!result.canceled) {
       router.navigate({
-        pathname:
-          params.path === "new"
-            ? "/main/home/forms/newFoodItem"
-            : "/main/home/forms/editFoodItem",
+        pathname: params.path as RelativePathString,
         params: { ...params, uri: result.assets[0].uri },
       });
-      router.setParams({})
+      router.setParams({});
     }
   };
 
