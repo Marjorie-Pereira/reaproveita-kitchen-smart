@@ -1,9 +1,12 @@
 import { usePush } from "@/hooks/usePush";
 import { Feather } from "@expo/vector-icons";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { Tabs } from "expo-router";
+import { Tabs, useRootNavigationState } from "expo-router";
 
 export default function TabLayout() {
+  const rootNavigationState = useRootNavigationState();
+
+  if (!rootNavigationState?.key) return null;
   usePush();
   return (
     <Tabs
@@ -55,6 +58,9 @@ export default function TabLayout() {
 
       <Tabs.Screen
         name="profile"
+        // listeners={({ navigation }) => ({
+        //   blur: () => navigation.setParams(undefined),
+        // })}
         options={{
           tabBarLabel: "Perfil",
           headerShown: false,
