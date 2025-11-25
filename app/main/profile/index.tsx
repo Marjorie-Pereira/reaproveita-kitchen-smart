@@ -1,5 +1,5 @@
 import Button from "@/components/Button";
-import EditUserInfoModal from "@/components/EditUserInfoModal";
+import EditUserInfoModal, { userData } from "@/components/EditUserInfoModal";
 import Input from "@/components/Input";
 import RestrictionChip from "@/components/RestrictionChip";
 import { fallbackImg } from "@/constants/fallbackImage";
@@ -7,12 +7,13 @@ import { COLORS } from "@/constants/theme";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
 import { Entypo, Feather } from "@expo/vector-icons";
-import React, { useEffect, useState } from "react";
-import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useFocusEffect } from "expo-router";
+import React, { useCallback, useEffect, useState } from "react";
+import { Alert, Image, ScrollView, StyleSheet, Text, View } from "react-native";
 
 const Index = () => {
   const { user } = useAuth();
-  const [userData, setUserData] = useState<any>(null);
+  const [userData, setUserData] = useState<userData | null>(null);
   const [foodRestrictions, setFoodRestrictions] = useState([
     "Lactose",
     "Glúten",
@@ -44,8 +45,41 @@ const Index = () => {
   };
 
   useEffect(() => {
+    console.log("user data effect");
+  }, [userData, foodRestrictions]);
+
+  useEffect(() => {
+    console.log("fecthing again");
     fetchUserData();
-  }, [user, foodRestrictions]);
+  }, [user]);
+
+  const updateUserData = async (id: string, newData: userData) => {
+    const { error } = await supabase
+      .from("users")
+      .update({
+        first_name: newData.first_name,
+        profile_pic: newData.profile_pic,
+        phone: newData.phone,
+      })
+      .eq("id", id);
+
+    if (error) {
+      Alert.alert("Erro ao atualizar informações");
+      console.error(error);
+      return;
+    } else {
+      Alert.alert("Alterações salvas!");
+      fetchUserData();
+    }
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchUserData();
+
+      return () => {};
+    }, [])
+  );
 
   return (
     <>
@@ -138,12 +172,10 @@ const Index = () => {
       <EditUserInfoModal
         isVisible={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onSubmit={() => setIsModalOpen(false)}
-        userData={{
-          name: userData?.first_name,
-          email: userData?.email,
-          phone: userData?.phone,
+        onSubmit={(userId, newValue) => {
+          updateUserData(userId, newValue);
         }}
+        userData={userData!}
       />
     </>
   );
