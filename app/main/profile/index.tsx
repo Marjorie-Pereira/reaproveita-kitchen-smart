@@ -14,22 +14,19 @@ import { Alert, Image, ScrollView, StyleSheet, Text, View } from "react-native";
 const Index = () => {
   const { user } = useAuth();
   const [userData, setUserData] = useState<userData | null>(null);
-  const [foodRestrictions, setFoodRestrictions] = useState([
-    "Lactose",
-    "Glúten",
-    "Amendoim",
-    "Pimenta",
-  ]);
+  const [foodRestrictions, setFoodRestrictions] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [description, setDescription] = useState("");
 
-  const removeRestriction = (name: string) => {
-    if (foodRestrictions.includes(name)) {
-      const index = foodRestrictions.indexOf(name);
-      const newValue = [...foodRestrictions];
-      newValue.splice(index, 1);
+  const removeRestriction = async (restrictionId: number) => {
+    const { data, error } = await supabase
+      .from("RestricoesAlimentares")
+      .delete()
+      .eq("id", restrictionId);
 
-      setFoodRestrictions(newValue);
-    }
+    if (error) throw new Error(error.message);
+
+    fetchFoodRestrictions();
   };
 
   const fetchUserData = async () => {
@@ -44,6 +41,35 @@ const Index = () => {
     setUserData(data[0]);
   };
 
+  const fetchFoodRestrictions = async () => {
+    if (!user) return;
+
+    const { data, error } = await supabase
+      .from("RestricoesAlimentares")
+      .select("*")
+      .eq("id_usuario", user.id);
+    if (error) throw new Error(error.message);
+
+    console.log("restrictions", data);
+
+    setFoodRestrictions(data);
+  };
+
+  const addRestriction = async () => {
+    if (!user) return;
+
+    const { data, error } = await supabase
+      .from("RestricoesAlimentares")
+      .insert({ descricao: description, id_usuario: user.id });
+
+    if (error) throw new Error(error.message);
+
+    console.log("restrictions", data);
+    setDescription("");
+
+    fetchFoodRestrictions();
+  };
+
   useEffect(() => {
     console.log("user data effect");
   }, [userData, foodRestrictions]);
@@ -51,7 +77,7 @@ const Index = () => {
   useEffect(() => {
     console.log("fecthing again");
     fetchUserData();
-  }, [user]);
+  }, [user, foodRestrictions]);
 
   const updateUserData = async (id: string, newData: userData) => {
     const { error } = await supabase
@@ -76,6 +102,7 @@ const Index = () => {
   useFocusEffect(
     useCallback(() => {
       fetchUserData();
+      fetchFoodRestrictions();
 
       return () => {};
     }, [])
@@ -132,9 +159,9 @@ const Index = () => {
             <View style={styles.selectedRestrictions}>
               {foodRestrictions.map((item, index) => (
                 <RestrictionChip
-                  text={item}
-                  key={index}
-                  onRemove={() => removeRestriction(item)}
+                  text={item.descricao}
+                  key={item.id}
+                  onRemove={() => removeRestriction(item.id)}
                 />
               ))}
             </View>
@@ -145,6 +172,8 @@ const Index = () => {
               containerStyles={{
                 flex: 1,
               }}
+              value={description}
+              onChangeText={setDescription}
             />
             <Button
               buttonStyle={{
@@ -154,6 +183,7 @@ const Index = () => {
                 alignItems: "center",
                 justifyContent: "center",
               }}
+              onPress={addRestriction}
             >
               <Entypo name="plus" size={20} color={COLORS.white} />
             </Button>
