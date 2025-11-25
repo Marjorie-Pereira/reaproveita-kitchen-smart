@@ -272,7 +272,7 @@ export default function AddFoodScreen() {
             onPress={() => {
               router.push({
                 pathname: "/cameraTest",
-                params: { ...itemParams, path: "new" },
+                params: { ...itemParams, path: "/main/home/forms/newFoodItem" },
               });
             }}
           >

@@ -46,12 +46,15 @@ export default function AddFoodScreen() {
   const { uri } = useLocalSearchParams();
 
   useFocusEffect(
-      useCallback( () => {
-        console.log("params form", params);
-        if(!params.local) getLocationById(params.id_ambiente as string).then((data) => setLocation(data))
-        console.log("Local: ", location);
-      }, [])
-    );
+    useCallback(() => {
+      console.log("params form", params);
+      if (!params.local)
+        getLocationById(params.id_ambiente as string).then((data) =>
+          setLocation(data)
+        );
+      console.log("Local: ", location);
+    }, [])
+  );
 
   const itemParams = {
     id: params.id,
@@ -99,7 +102,7 @@ export default function AddFoodScreen() {
       router.setParams({});
     }
   }
-  
+
   const renderPicture = (uri: string) => {
     return (
       <View>
@@ -262,7 +265,10 @@ export default function AddFoodScreen() {
             onPress={() => {
               router.push({
                 pathname: "/cameraTest",
-                params: { ...itemParams, path: "edit" },
+                params: {
+                  ...itemParams,
+                  path: "/main/home/forms/editFoodItem",
+                },
               });
             }}
           >
