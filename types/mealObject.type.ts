@@ -1,3 +1,6 @@
 export type mealObject = {
-  id?: string;
+  id?: number;
+  id_receita: number;
+  porcoes: number;
+  data_sobras: Date;
 };

@@ -46,6 +46,18 @@ export default function Layout() {
           title: "Cadastrar novo item",
         }}
       />
+      <Stack.Screen
+        name="leftovers/index"
+        options={{
+          title: "Sobras de refeições",
+        }}
+      />
+      <Stack.Screen
+        name="leftovers/leftover"
+        options={{
+          title: "Detalhes da sobra",
+        }}
+      />
     </Stack>
   );
 }

@@ -19,9 +19,16 @@ export interface Meal {
   recipeId: number;
   style?: StyleProp<ViewStyle>;
   type: mealType;
+  onPress?: () => void;
 }
 
-export const MealCard: React.FC<Meal> = ({ id, recipeId, style, type }) => {
+export const MealCard: React.FC<Meal> = ({
+  id,
+  recipeId,
+  style,
+  type,
+  onPress,
+}) => {
   const router = useRouter();
 
   const rootNavigationState = useRootNavigationState();
@@ -45,8 +52,12 @@ export const MealCard: React.FC<Meal> = ({ id, recipeId, style, type }) => {
 
   return (
     <TouchableOpacity
-      style={[styles.recipeCardContainer, style && style]}
+      style={[styles.recipeCardContainer, style]}
       onPress={() => {
+        if (onPress) {
+          onPress();
+          return;
+        }
         router.navigate({
           pathname: "/main/meals/mealView",
           params: { recipe: recipeId, meal: id },

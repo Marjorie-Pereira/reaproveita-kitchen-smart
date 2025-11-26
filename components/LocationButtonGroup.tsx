@@ -18,9 +18,11 @@ const COLORS = {
 const LocationButtonGroup = ({
   onSelect,
   activeBtn = "Geladeira",
+  screen,
 }: {
   onSelect: (val: string) => void;
   activeBtn?: string;
+  screen?: string;
 }) => {
   // useEffect(() => {
   //   console.log("active buton", activeBtn);
@@ -28,13 +30,14 @@ const LocationButtonGroup = ({
 
   return (
     <View style={styles.shadowContainer}>
-      <View style={styles.buttonGroup}>
+      <View style={[styles.buttonGroup, ,]}>
         <TouchableOpacity
           style={[
             styles.button,
             activeBtn === "Geladeira"
               ? styles.buttonActive
               : styles.buttonInactive,
+            screen === "leftovers" ? { width: "50%" } : styles.button,
           ]}
           onPress={() => {
             onSelect("Geladeira");
@@ -61,40 +64,44 @@ const LocationButtonGroup = ({
           </Text>
         </TouchableOpacity>
 
-        <TouchableOpacity
-          style={[
-            styles.button,
-            styles.divider,
-            activeBtn === "Despensa"
-              ? styles.buttonActive
-              : styles.buttonInactive,
-          ]}
-          onPress={() => {
-            onSelect("Despensa");
-          }}
-        >
-          <Feather
-            name="box"
-            size={20}
-            color={
-              activeBtn === "Despensa" ? COLORS.activeText : COLORS.inactiveText
-            }
-          />
-          <Text
+        {screen != "leftovers" && (
+          <TouchableOpacity
             style={[
-              styles.text,
+              styles.button,
+              styles.divider,
               activeBtn === "Despensa"
-                ? styles.textActive
-                : styles.textInactive,
+                ? styles.buttonActive
+                : styles.buttonInactive,
             ]}
+            onPress={() => {
+              onSelect("Despensa");
+            }}
           >
-            Despensa
-          </Text>
-        </TouchableOpacity>
-
+            <Feather
+              name="box"
+              size={20}
+              color={
+                activeBtn === "Despensa"
+                  ? COLORS.activeText
+                  : COLORS.inactiveText
+              }
+            />
+            <Text
+              style={[
+                styles.text,
+                activeBtn === "Despensa"
+                  ? styles.textActive
+                  : styles.textInactive,
+              ]}
+            >
+              Despensa
+            </Text>
+          </TouchableOpacity>
+        )}
         <TouchableOpacity
           style={[
             styles.button,
+            screen === "leftovers" ? { width: "50%" } : "",
             activeBtn === "Freezer"
               ? styles.buttonActive
               : styles.buttonInactive,
@@ -170,6 +177,9 @@ const styles = StyleSheet.create({
   divider: {
     borderRightWidth: 1,
     borderColor: COLORS.divider,
+  },
+  leftoversPage: {
+    width: "50%",
   },
 });
 

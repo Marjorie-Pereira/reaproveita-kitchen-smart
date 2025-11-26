@@ -70,9 +70,24 @@ export default function WelcomeScreen() {
     }
   }
 
+  async function fetchLeftOvers() {
+    const { data, error } = await supabase
+      .from("Refeicoes")
+      .select("*")
+      .eq("tem_sobras", true);
+
+    if (error) {
+      console.error(error);
+      setLeftoversCount(0);
+    }
+
+    setLeftoversCount(data?.length || 0);
+  }
+
   useFocusEffect(
     useCallback(() => {
       getItemsCount();
+      fetchLeftOvers();
 
       return () => {
         // Do something when the screen is unfocused/unmount
@@ -98,12 +113,7 @@ export default function WelcomeScreen() {
             }
             label="Sobras"
             itemsCount={leftoversCount}
-            onPress={() =>
-              router.navigate({
-                pathname: "/main/home/items",
-                params: { group: "leftovers" },
-              })
-            }
+            onPress={() => router.navigate("/main/home/leftovers")}
           />
           <Card
             icon={
