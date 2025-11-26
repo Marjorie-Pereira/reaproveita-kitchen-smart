@@ -110,9 +110,9 @@ export default function MealViewScreen() {
 
   async function onDeleteMeal() {
     const { error } = await supabase
-      .from("ReceitasCompletas")
+      .from("Refeicoes")
       .delete()
-      .eq("id", recipeId);
+      .eq("id", mealId);
     if (error) throw new Error(error.message);
     Alert.alert("Refeição Deletada!");
     router.back();
