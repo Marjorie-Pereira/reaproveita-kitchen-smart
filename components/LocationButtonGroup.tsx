@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 import {
@@ -17,22 +17,26 @@ const COLORS = {
 
 const LocationButtonGroup = ({
   onSelect,
+  activeBtn = "Geladeira",
 }: {
   onSelect: (val: string) => void;
+  activeBtn?: string;
 }) => {
-  const [activeBtn, setActiveBtn] = useState("geladeira");
+  // useEffect(() => {
+  //   console.log("active buton", activeBtn);
+  // }, [activeBtn, onSelect]);
+
   return (
     <View style={styles.shadowContainer}>
       <View style={styles.buttonGroup}>
         <TouchableOpacity
           style={[
             styles.button,
-            activeBtn === "geladeira"
+            activeBtn === "Geladeira"
               ? styles.buttonActive
               : styles.buttonInactive,
           ]}
           onPress={() => {
-            setActiveBtn("geladeira");
             onSelect("Geladeira");
           }}
         >
@@ -40,7 +44,7 @@ const LocationButtonGroup = ({
             name="fridge-outline"
             size={20}
             color={
-              activeBtn === "geladeira"
+              activeBtn === "Geladeira"
                 ? COLORS.activeText
                 : COLORS.inactiveText
             }
@@ -48,7 +52,7 @@ const LocationButtonGroup = ({
           <Text
             style={[
               styles.text,
-              activeBtn === "geladeira"
+              activeBtn === "Geladeira"
                 ? styles.textActive
                 : styles.textInactive,
             ]}
@@ -61,12 +65,11 @@ const LocationButtonGroup = ({
           style={[
             styles.button,
             styles.divider,
-            activeBtn === "despensa"
+            activeBtn === "Despensa"
               ? styles.buttonActive
               : styles.buttonInactive,
           ]}
           onPress={() => {
-            setActiveBtn("despensa");
             onSelect("Despensa");
           }}
         >
@@ -74,13 +77,13 @@ const LocationButtonGroup = ({
             name="box"
             size={20}
             color={
-              activeBtn === "despensa" ? COLORS.activeText : COLORS.inactiveText
+              activeBtn === "Despensa" ? COLORS.activeText : COLORS.inactiveText
             }
           />
           <Text
             style={[
               styles.text,
-              activeBtn === "despensa"
+              activeBtn === "Despensa"
                 ? styles.textActive
                 : styles.textInactive,
             ]}
@@ -92,12 +95,11 @@ const LocationButtonGroup = ({
         <TouchableOpacity
           style={[
             styles.button,
-            activeBtn === "freezer"
+            activeBtn === "Freezer"
               ? styles.buttonActive
               : styles.buttonInactive,
           ]}
           onPress={() => {
-            setActiveBtn("freezer");
             onSelect("Freezer");
           }}
         >
@@ -105,13 +107,13 @@ const LocationButtonGroup = ({
             name="snowflake"
             size={20}
             color={
-              activeBtn === "freezer" ? COLORS.activeText : COLORS.inactiveText
+              activeBtn === "Freezer" ? COLORS.activeText : COLORS.inactiveText
             }
           />
           <Text
             style={[
               styles.text,
-              activeBtn === "freezer" ? styles.textActive : styles.textInactive,
+              activeBtn === "Freezer" ? styles.textActive : styles.textInactive,
             ]}
           >
             Freezer
@@ -143,7 +145,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     paddingVertical: 12,
-    paddingHorizontal: 10,
+    paddingHorizontal: 12,
+    width: "34%",
   },
   text: {
     marginLeft: 8,

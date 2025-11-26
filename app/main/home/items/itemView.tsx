@@ -1,8 +1,10 @@
 import { supabase } from "@/lib/supabase";
+import { foodItem } from "@/types/FoodListItemProps";
 import { capitalizeFirstLetter } from "@/utils/capitalizeString";
+import { getLocationById } from "@/utils/locationUtils";
 import { MaterialIcons } from "@expo/vector-icons";
-import { router, useLocalSearchParams } from "expo-router";
-import React, { useState } from "react";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
+import React, { useCallback, useState } from "react";
 import {
   Alert,
   Image,
@@ -28,28 +30,16 @@ const InfoRow = ({ iconName, label, value }: any) => (
   </View>
 );
 
-const TelaAlimento = () => {
-  const params = useLocalSearchParams();
+const FoodItemView = () => {
+  const { itemId } = useLocalSearchParams<{ itemId: string }>();
   const [location, setLocation] = useState("");
-  async function getLocationById(id: string) {
-    const { data, error } = await supabase
-      .from("Ambientes")
-      .select("nome")
-      .eq("id", id);
+  const [itemData, setItemData] = useState<foodItem | undefined>();
+  const router = useRouter();
 
-    if (error) {
-      throw Error(error.message);
-    }
-
-    setLocation(data[0].nome);
-  }
-
-  getLocationById(params.id_ambiente as string);
-
-  async function handleEdit() {
+  function handleEdit() {
     router.push({
       pathname: "/main/home/forms/editFoodItem",
-      params: { ...params },
+      params: { itemData: JSON.stringify(itemData!) },
     });
   }
 
@@ -68,10 +58,10 @@ const TelaAlimento = () => {
         {
           text: "Sim",
           onPress: async () => {
-            const { data, error } = await supabase
+            const { error } = await supabase
               .from("Alimentos")
               .delete()
-              .eq("id", params.id);
+              .eq("id", itemId);
 
             if (error) {
               Alert.alert(error.message);
@@ -90,12 +80,34 @@ const TelaAlimento = () => {
     );
   }
 
+  async function fetchItemData() {
+    if (!itemId) return;
+    const { data, error } = await supabase
+      .from("Alimentos")
+      .select("*")
+      .eq("id", itemId);
+    if (error) throw new Error(error.message);
+
+    const locationName = await getLocationById(data[0].id_ambiente);
+    setLocation(locationName);
+
+    setItemData(data[0] as foodItem);
+  }
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchItemData();
+
+      return () => {};
+    }, [])
+  );
+
   return (
     <>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         {/* Header da Seção (Item e Badge) */}
         <View style={styles.headerRow}>
-          <Text style={styles.title}>{params.nome}</Text>
+          <Text style={styles.title}>{itemData?.nome}</Text>
           {/* <View style={styles.badgeContainer}>
               <Text style={styles.badgeText}>Vencendo</Text>
             </View> */}
@@ -104,7 +116,7 @@ const TelaAlimento = () => {
         {/* Imagem do Produto */}
         <Image
           source={{
-            uri: params.imagem as string,
+            uri: itemData?.imagem as string,
           }}
           style={styles.image}
         />
@@ -124,12 +136,12 @@ const TelaAlimento = () => {
             <InfoRow
               iconName="category"
               label="Categoria"
-              value={params.categoria}
+              value={itemData?.categoria}
             />
             <InfoRow
               iconName="bookmark-border"
               label="Marca"
-              value={capitalizeFirstLetter(params.marca as string)}
+              value={capitalizeFirstLetter(itemData?.marca as string)}
             />
             <InfoRow
               iconName="location-on"
@@ -142,13 +154,13 @@ const TelaAlimento = () => {
             <InfoRow
               iconName="inventory-2"
               label="Quantidade"
-              value={`${params.quantidade} ${params.unidade_medida}`}
+              value={`${itemData?.quantidade} ${itemData?.unidade_medida}`}
             />
             <InfoRow
               iconName="calendar-today"
               label="Validade"
               value={new Date(
-                params.data_validade as string
+                itemData?.data_validade as string
               ).toLocaleDateString()}
             />
           </View>
@@ -290,4 +302,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default TelaAlimento;
+export default FoodItemView;

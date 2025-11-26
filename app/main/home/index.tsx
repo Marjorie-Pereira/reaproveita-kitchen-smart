@@ -98,7 +98,12 @@ export default function WelcomeScreen() {
             }
             label="Sobras"
             itemsCount={leftoversCount}
-            onPress={() => router.push("/main/home/items")}
+            onPress={() =>
+              router.navigate({
+                pathname: "/main/home/items",
+                params: { group: "leftovers" },
+              })
+            }
           />
           <Card
             icon={
@@ -110,7 +115,12 @@ export default function WelcomeScreen() {
             }
             label="Abertos"
             itemsCount={openedCount}
-            onPress={() => router.push("/main/home/items")}
+            onPress={() =>
+              router.navigate({
+                pathname: "/main/home/items",
+                params: { group: "open" },
+              })
+            }
           />
           <Card
             icon={
@@ -122,7 +132,12 @@ export default function WelcomeScreen() {
             }
             label="Vencendo"
             itemsCount={expiringCount}
-            onPress={() => router.push("/main/home/items")}
+            onPress={() =>
+              router.navigate({
+                pathname: "/main/home/items",
+                params: { group: "expiring" },
+              })
+            }
           />
           <Card
             icon={
@@ -134,7 +149,12 @@ export default function WelcomeScreen() {
             }
             label="Vencidos"
             itemsCount={expiredCount}
-            onPress={() => router.push("/main/home/items")}
+            onPress={() =>
+              router.navigate({
+                pathname: "/main/home/items",
+                params: { group: "expired" },
+              })
+            }
           />
         </View>
 

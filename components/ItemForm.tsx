@@ -99,7 +99,9 @@ export default function ItemForm(props: ItemFormProps) {
       unidade_medida: unit,
     };
 
-    const notComplete = Object.values(itemData).some((val) => val == undefined);
+    const { imagem, ...rest } = itemData;
+
+    const notComplete = Object.values(rest).some((val) => val == undefined);
     if (notComplete) {
       Alert.alert("Por favor preencha todos os campos");
       return;
@@ -176,7 +178,7 @@ export default function ItemForm(props: ItemFormProps) {
           <Picker
             selectedValue={category}
             onValueChange={(itemValue, itemIndex) => setCategory(itemValue)}
-            style={{ backgroundColor: "white" }}
+            style={{ backgroundColor: "white", color: COLORS.text }}
           >
             {/* TODO - Implementar Array.map */}
             <Picker.Item label="Grãos" value="Grãos" />
@@ -225,7 +227,7 @@ export default function ItemForm(props: ItemFormProps) {
           <Picker
             selectedValue={unit}
             onValueChange={(itemValue, itemIndex) => setUnit(itemValue)}
-            style={{ backgroundColor: "white" }}
+            style={{ backgroundColor: "white", color: COLORS.text }}
           >
             {OPCOES_UNIDADE.map((option, index) => (
               <Picker.Item label={option} value={option} key={index} />
@@ -238,7 +240,7 @@ export default function ItemForm(props: ItemFormProps) {
           <Picker
             selectedValue={status}
             onValueChange={(itemValue, itemIndex) => setStatus(itemValue)}
-            style={{ backgroundColor: "white" }}
+            style={{ backgroundColor: "white", color: COLORS.text }}
           >
             <Picker.Item label="Aberto" value="Aberto" />
             <Picker.Item label="Fechado" value="Fechado" />
@@ -250,7 +252,7 @@ export default function ItemForm(props: ItemFormProps) {
           <Picker
             selectedValue={location}
             onValueChange={(itemValue, itemIndex) => setLocation(itemValue)}
-            style={{ backgroundColor: "white" }}
+            style={{ backgroundColor: "white", color: COLORS.text }}
           >
             <Picker.Item label="Geladeira" value="Geladeira" />
             <Picker.Item label="Freezer" value="Freezer" />
@@ -386,8 +388,9 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: "#e0e0e0",
     flexDirection: "row",
-    justifyContent: "space-around",
+    gap: 10,
     width: "100%",
+    justifyContent: "center",
   },
   addButton: {
     flexDirection: "row",

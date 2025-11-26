@@ -35,12 +35,13 @@ const DatePickerInput = ({ label, value, onChange }: any) => {
   const formatDate = (date: Date) => {
     if (!date) return "Selecione";
 
-    return date.toLocaleDateString("pt-BR", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      timeZone: "UTC",
-    });
+    // return date.toLocaleDateString("pt-BR", {
+    //   day: "2-digit",
+    //   month: "2-digit",
+    //   year: "numeric",
+    //   timeZone: "UTC",
+    // });
+    return date.toLocaleDateString();
   };
 
   return (
