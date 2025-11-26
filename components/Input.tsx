@@ -1,3 +1,4 @@
+import { COLORS } from "@/constants/theme";
 import {
   Pressable,
   StyleSheet,
@@ -20,7 +21,7 @@ const Input = ({ ...props }) => {
       style={[styles.container, props.containerStyles && props.containerStyles]}
     >
       <TextInput
-        style={{ flex: 1 }}
+        style={{ flex: 1, color: COLORS.text }}
         placeholderTextColor={"#49454F"}
         ref={props.inputRef && props.inputRef}
         {...props}

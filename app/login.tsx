@@ -89,7 +89,15 @@ const Login = () => {
               secureTextEntry={eyeIcon === "hide" ? true : false}
             />
             <Text style={styles.forgotPassword}>Esqueceu a senha?</Text>
-            <Button title="Entrar" loading={loading} onPress={onSubmit} />
+            <Button
+              loading={loading}
+              onPress={onSubmit}
+              buttonStyle={{ marginBottom: 5 }}
+            >
+              <Text style={{ color: "white", fontWeight: "500" }}>
+                Cadastrar
+              </Text>
+            </Button>
           </View>
           {/* footer */}
           <View style={styles.footer as StyleProp<ViewStyle>}>

@@ -9,7 +9,7 @@ export type FoodListItemProps = {
 };
 
 export type foodItem = {
-  id: string;
+  id?: string;
   imagem: string;
   nome: string;
   marca: string;
@@ -21,3 +21,5 @@ export type foodItem = {
   status: "Aberto" | "Fechado";
   id_ambiente: string;
 };
+
+export type foodStatus = "Aberto" | "Fechado";

@@ -1,19 +1,12 @@
 import DatePickerInput from "@/components/DatePicker";
 import { COLORS } from "@/constants/theme";
-import { supabase } from "@/lib/supabase";
+import { foodItem, foodStatus } from "@/types/FoodListItemProps";
 import { productType } from "@/types/openFoodApiResponse";
-import { toISOFormatString } from "@/utils/dateFormat";
-import { getLocationId } from "@/utils/locationUtils";
+import { getLocationById, getLocationId } from "@/utils/locationUtils";
 import { FontAwesome, Ionicons } from "@expo/vector-icons";
 import { Picker } from "@react-native-picker/picker";
 import { Image } from "expo-image";
-import {
-  RelativePathString,
-  router,
-  useFocusEffect,
-  useLocalSearchParams,
-} from "expo-router";
-import React, { useCallback, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Alert,
   ScrollView,
@@ -23,97 +16,96 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import CameraModal from "./CameraModal";
 
 const OPCOES_UNIDADE = ["Kg", "g", "L", "ml", "Unidade(s)"];
 
-export default function AddFoodScreen() {
-  const params = useLocalSearchParams();
+interface ItemFormProps {
+  productData?: foodItem;
+  scanned?: productType;
+  variant: "edit" | "new";
+  onSubmit: (itemData: foodItem) => void;
+  onCancel: () => void;
+}
+export default function ItemForm(props: ItemFormProps) {
+  const { productData, scanned, variant, onSubmit, onCancel } = props;
 
-  let scannedProduct: productType | undefined;
-
-  if (params?.scannedProduct)
-    scannedProduct = JSON.parse(params?.scannedProduct as string);
-
-  const initialValues = {
-    name: scannedProduct?.product_name ?? params.name,
-    brand: scannedProduct?.brands ?? params.brand,
-    expirationDate:
-      toISOFormatString(scannedProduct?.expiration_date as string).length > 0
-        ? toISOFormatString(scannedProduct?.expiration_date as string)
-        : params.expirationDate,
-    category: scannedProduct?.categories ?? params.category,
-  };
-  const [name, setName] = useState(initialValues.name);
-  const [brand, setBrand] = useState(initialValues.brand);
-  const [expirationDate, setExpirationDate] = useState<null | Date>(
-    new Date(initialValues.expirationDate as string)
+  const [name, setName] = useState("");
+  const [brand, setBrand] = useState("");
+  const [expirationDate, setExpirationDate] = useState<undefined | Date>(
+    undefined
   );
-  const [category, setCategory] = useState(initialValues.category ?? "Grãos");
-  const imageUri = scannedProduct?.image_url ?? params.uri;
+  const [category, setCategory] = useState("Grãos");
+  const [imageUri, setImageUri] = useState<string | undefined>(undefined);
 
   // user input states
-  const [price, setPrice] = useState(params.price ?? 0);
-  const [quantity, setQuantity] = useState(params.quantity ?? 0);
-  const [unit, setUnit] = useState(params.unit ?? OPCOES_UNIDADE[0]);
-  const [status, setStatus] = useState(params.status ?? "Fechado");
-  const [location, setLocation] = useState(params.location ?? "Geladeira");
+  const [price, setPrice] = useState<number | undefined>(undefined);
+  const [quantity, setQuantity] = useState<number | undefined>(undefined);
+  const [unit, setUnit] = useState(OPCOES_UNIDADE[0]);
+  const [status, setStatus] = useState("Fechado");
+  const [location, setLocation] = useState("Geladeira");
+  const [isCameraOpen, setIsCameraOpen] = useState(false);
 
-  const itemParams = {
-    name,
-    brand,
-    expirationDate: expirationDate?.toUTCString(),
-    category,
-    price,
-    quantity,
-    unit,
-    status,
-    location,
-  };
+  useEffect(() => {
+    if (variant === "edit" && productData) {
+      setName(productData?.nome ?? "");
+      setBrand(productData?.marca ?? "");
+      setExpirationDate(new Date(productData?.data_validade!));
+      setCategory(productData?.categoria!);
+      setImageUri(productData?.imagem);
+      setPrice(productData.preco);
+      setQuantity(productData.quantidade);
+      setUnit(productData.unidade_medida);
+      setStatus(productData.status);
 
-  useFocusEffect(
-    useCallback(() => {
-      console.log("params de new food", params);
-      return () => {};
-    }, [])
-  );
+      getLocationById(productData.id_ambiente).then((data) =>
+        setLocation(data)
+      );
+    } else if (scanned) {
+      setName(scanned.product_name);
+      setBrand(scanned.brands);
+      setExpirationDate(
+        scanned.expiration_date ? new Date(scanned.expiration_date) : undefined
+      );
+      setCategory(scanned.categories);
+      setImageUri(scanned.image_url);
+    }
+  }, [variant, scanned]);
 
   function resetForm() {
     setName("");
     setBrand("");
-    setExpirationDate(null);
+    setExpirationDate(undefined);
     setCategory("Grãos");
-    setPrice("");
-    setQuantity("");
+    setPrice(undefined);
+    setQuantity(undefined);
     setUnit(OPCOES_UNIDADE[0]);
     setStatus("Fechado");
     setLocation("Geladeira");
   }
 
-  async function handleAddItem() {
-    const { id } = await getLocationId(location as string);
-    const { error } = await supabase.from("Alimentos").insert({
+  async function submitForm() {
+    const { id } = await getLocationId(location);
+    const itemData: foodItem = {
       nome: name,
       marca: brand,
-      data_validade: expirationDate,
       categoria: category,
-      preco: price,
-      quantidade: quantity,
-      unidade_medida: unit,
-      status,
       id_ambiente: id,
-      imagem: imageUri,
-    });
+      data_validade: expirationDate?.toISOString()!,
+      imagem: imageUri!,
+      preco: price!,
+      quantidade: quantity!,
+      status: status as foodStatus,
+      unidade_medida: unit,
+    };
 
-    if (error) {
-      Alert.alert("Erro", "Por favor, preencha todos os campos");
-    } else {
-      Alert.alert("Alimento Adicionado");
-      resetForm();
-      router.replace({
-        pathname: params.backToPath as RelativePathString,
-        params: params.group ? { group: params.group } : {},
-      });
+    const notComplete = Object.values(itemData).some((val) => val == undefined);
+    if (notComplete) {
+      Alert.alert("Por favor preencha todos os campos");
+      return;
     }
+    resetForm();
+    onSubmit(itemData);
   }
 
   const renderPicture = (uri: string) => {
@@ -205,8 +197,8 @@ export default function AddFoodScreen() {
               <Text style={styles.prefix}>R$</Text>
               <TextInput
                 style={[styles.textInput, { paddingLeft: 5 }]}
-                value={price as string}
-                onChangeText={setPrice}
+                value={price?.toString()}
+                onChangeText={(val) => setPrice(Number(val))}
                 placeholder="0,00"
                 keyboardType="numeric"
               />
@@ -219,8 +211,8 @@ export default function AddFoodScreen() {
             <View style={styles.inputWrapper}>
               <TextInput
                 style={styles.textInput}
-                value={quantity as string}
-                onChangeText={setQuantity}
+                value={quantity?.toString()}
+                onChangeText={(val) => setQuantity(Number(val))}
                 placeholder="1"
                 keyboardType="numeric"
               />
@@ -276,10 +268,7 @@ export default function AddFoodScreen() {
               padding: 10,
             }}
             onPress={() => {
-              router.push({
-                pathname: "/cameraTest",
-                params: { ...itemParams, path: "/main/home/forms/newFoodItem" },
-              });
+              setIsCameraOpen(true);
             }}
           >
             <Text>Escolher imagem...</Text>
@@ -292,11 +281,29 @@ export default function AddFoodScreen() {
       </ScrollView>
 
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.addButton} onPress={handleAddItem}>
+        <TouchableOpacity style={styles.addButton} onPress={() => submitForm()}>
           <Ionicons name="add" size={24} color={COLORS.white} />
-          <Text style={styles.addButtonText}>Adicionar</Text>
+          <Text style={styles.addButtonText}>
+            {variant === "edit" ? "Confirmar" : "Adicionar"}
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.addButton, styles.cancelButton]}
+          onPress={onCancel}
+        >
+          <Ionicons name="close" size={24} color={COLORS.primary} />
+          <Text style={[styles.addButtonText, { color: COLORS.primary }]}>
+            Cancelar
+          </Text>
         </TouchableOpacity>
       </View>
+
+      <CameraModal
+        isVisible={isCameraOpen}
+        onClose={() => setIsCameraOpen(false)}
+        onSubmit={setImageUri}
+      />
     </>
   );
 }
@@ -305,6 +312,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.background,
+    paddingTop: 70,
   },
   scrollContainer: {
     padding: 20,
@@ -373,9 +381,13 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     padding: 20,
+    paddingBottom: 40,
     backgroundColor: COLORS.background,
     borderTopWidth: 1,
     borderTopColor: "#e0e0e0",
+    flexDirection: "row",
+    justifyContent: "space-around",
+    width: "100%",
   },
   addButton: {
     flexDirection: "row",
@@ -384,6 +396,13 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.primary,
     borderRadius: 26,
     height: 52,
+    paddingHorizontal: 25,
+  },
+  cancelButton: {
+    backgroundColor: "transparent",
+    borderStyle: "solid",
+    borderWidth: 2,
+    borderColor: COLORS.primary,
   },
   addButtonText: {
     color: COLORS.white,

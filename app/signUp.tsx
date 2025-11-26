@@ -8,7 +8,6 @@ import {
   StyleProp,
   StyleSheet,
   Text,
-  TextStyle,
   View,
   ViewStyle,
 } from "react-native";
@@ -104,13 +103,19 @@ const SignUp = () => {
               secureTextEntry={eyeIcon === "hide" ? true : false}
             />
             <Text style={styles.forgotPassword}>Esqueceu a senha?</Text>
-            <Button title="Cadastrar" loading={loading} onPress={onSubmit} />
+            <Button
+              loading={loading}
+              onPress={onSubmit}
+              buttonStyle={{ marginBottom: 5 }}
+            >
+              <Text style={{ color: "white", fontWeight: "500" }}>
+                Cadastrar
+              </Text>
+            </Button>
           </View>
           {/* footer */}
           <View style={styles.footer as StyleProp<ViewStyle>}>
-            <Text style={styles.footerText as StyleProp<TextStyle>}>
-              Já possui uma conta?{" "}
-            </Text>
+            <Text style={styles.footerText}>Já possui uma conta? </Text>
             <Pressable onPress={() => router.push("./login")}>
               <Text
                 style={[
@@ -160,5 +165,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: "#000",
     fontSize: 16,
+    marginTop: 10,
   },
 });

@@ -128,7 +128,10 @@ const RecipeView = () => {
             <Text style={styles.titleText}>{recipe.title}</Text>
             <Text style={styles.infoText}>Tempo de preparo: {recipe.time}</Text>
             <Button
-              buttonStyle={[styles.saveButton, isSaved && { padding: 10 }]}
+              buttonStyle={[
+                styles.saveButton,
+                isSaved && { padding: 5, width: 140 },
+              ]}
               onPress={handleSaveRecipe}
             >
               <Text style={styles.buttonText}>
@@ -237,6 +240,7 @@ const styles = StyleSheet.create({
     color: BACKGROUND_COLOR,
     fontWeight: "bold",
     fontSize: 14,
+    textAlign: "center",
   },
 
   // Estilos das seções de texto (Modo de preparo, Ingredientes)

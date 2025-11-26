@@ -3,8 +3,9 @@ import RecipeFilter from "@/components/RecipeFilter";
 import { supabase } from "@/lib/supabase";
 import { mealType } from "@/types/mealTypeEnum";
 import { recipe } from "@/types/recipeType";
+import { intersectInsensitive } from "@/utils/findIntersection";
 import { MaterialIcons } from "@expo/vector-icons";
-import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
 import {
   ScrollView,
@@ -23,10 +24,9 @@ const ExploreRecipesScreen = () => {
   const params = useLocalSearchParams();
   const [category, setCategory] = useState(params.category);
   const [onlyAvailable, setOnlyAvailable] = useState(false);
-  const [selectedCategories, setSelectedCategories] = useState([
-    category as string,
-  ]);
-  const [allFilterActive, setAllFilterActive] = useState(false);
+
+  const [activeFilters, setActiveFilters] = useState<string[]>([]);
+  const router = useRouter();
 
   async function getRecipes(limit: number) {
     const tableToQueryFrom =
@@ -38,35 +38,78 @@ const ExploreRecipesScreen = () => {
 
     if (error) throw Error(error.message);
 
-    // const recipesWithImage = await filterRecipesWithImage(data);
-
     setRecipes(data);
+  }
+
+  async function getFoodItems() {
+    const { data, error } = await supabase.from("Alimentos").select("nome");
+    if (error) throw new Error(error.message);
+
+    return data;
   }
 
   async function getRecipesByAvailableItems() {
-    const { data, error } = await supabase.rpc("get_receitas_by_alimentos");
-    if (error) throw new Error(error.message);
+    // pegar apenas de salvas se selecionado
+    // pegar pelas categorias tambem
+    //
+    // const { data, error } = await supabase.rpc("get_receitas_by_alimentos");
+    // if (error) throw new Error(error.message);
 
-    setRecipes(data);
+    // console.log("apena disponiveis", data.length);
+    // setRecipes(data);
+    if (!recipes) return;
+    const availableItems = (await getFoodItems()).map((item) => item.nome);
+    const recipesWithIngredients = recipes.filter(
+      (rec) => rec.ingredientes_base && rec.ingredientes_base.length > 0
+    );
+
+    const ingredients = recipesWithIngredients
+      .map((r) => r.ingredientes_base)
+      .flat();
+
+    const intersection = intersectInsensitive(availableItems, ingredients);
+
+    console.log(intersection);
   }
 
   async function getRecipesByCategory() {
-    if (selectedCategories.length == 0) return;
+    if (activeFilters.includes("all")) return;
+    const tableToQueryFrom =
+      selectedTab === "Explorar" ? "ReceitasCompletas" : "ReceitasSalvas";
+
+    const categoryMap = {
+      breakfast: "Café da Manhã",
+      lunch: "Almoço",
+      dinner: "Janta",
+    };
+    const categories = activeFilters.map(
+      (filter) => categoryMap[filter as keyof typeof categoryMap]
+    );
     const { data, error } = await supabase
-      .from("ReceitasCompletas")
+      .from(tableToQueryFrom)
       .select("*")
-      .in("categoria", selectedCategories);
+      .in("categoria", categories);
     if (error) throw new Error(error.message);
 
     setRecipes(data);
   }
 
   useEffect(() => {
+    if (activeFilters.includes("all")) getRecipes(20);
+    else getRecipesByCategory();
+  }, [activeFilters]);
+
+  useEffect(() => {
     getRecipes(20);
+  }, [selectedTab]);
+
+  useEffect(() => {
     if (onlyAvailable) getRecipesByAvailableItems();
-    getRecipesByCategory();
-    console.log(selectedCategories);
-  }, [selectedTab, onlyAvailable, selectedCategories]);
+  }, [onlyAvailable]);
+
+  useEffect(() => {
+    console.log("receitas mudaram");
+  }, [recipes]);
 
   useFocusEffect(
     useCallback(() => {
@@ -81,16 +124,16 @@ const ExploreRecipesScreen = () => {
     }, [])
   );
 
-  function toggleCategory(category: string) {
-    if (!selectedCategories.includes(category)) {
-      setSelectedCategories((prev) => [...prev, category]);
-    } else {
-      const index = selectedCategories.indexOf(category);
-      const newValue = [...selectedCategories];
-      newValue.splice(index, 1);
-      setSelectedCategories(newValue);
-    }
-  }
+  // function toggleCategory(category: string) {
+  //   if (!selectedCategories.includes(category)) {
+  //     setSelectedCategories((prev) => [...prev, category]);
+  //   } else {
+  //     const index = selectedCategories.indexOf(category);
+  //     const newValue = [...selectedCategories];
+  //     newValue.splice(index, 1);
+  //     setSelectedCategories(newValue);
+  //   }
+  // }
 
   return (
     <>
@@ -153,8 +196,10 @@ const ExploreRecipesScreen = () => {
           {/* 5. Filtro (Somente ingredientes disponíveis) */}
           <RecipeFilter
             text="Somente ingredientes disponíveis"
-            onPress={() => setOnlyAvailable((prev) => !prev)}
-            isActive={allFilterActive === true}
+            onPress={() => {
+              setOnlyAvailable((prev) => !prev);
+            }}
+            isActive={onlyAvailable}
           />
 
           {/* 6. Tags de Refeição */}
@@ -163,12 +208,14 @@ const ExploreRecipesScreen = () => {
             <RecipeFilter
               text="Todos"
               onPress={() => {
-                setSelectedCategories([]);
-                setAllFilterActive((prev) => !prev);
+                if (!activeFilters.includes("all")) {
+                  setActiveFilters(["all"]);
+                } else {
+                  setActiveFilters([]);
+                  router.setParams({ category: null });
+                }
               }}
-              isActive={
-                selectedCategories.length == 0 && onlyAvailable === false
-              }
+              isActive={activeFilters.includes("all")}
             />
 
             {/* Outras Tags */}
@@ -176,23 +223,55 @@ const ExploreRecipesScreen = () => {
               text="Café da Manhã"
               isActive={
                 category == "Café da Manhã" ||
-                selectedCategories.includes("Café da Manhã")
+                activeFilters.includes("breakfast")
               }
-              onPress={() => toggleCategory("Café da Manhã")}
+              onPress={() => {
+                if (activeFilters[0] == "all") {
+                  setActiveFilters([]);
+                } else if (activeFilters.includes("breakfast")) {
+                  const index = activeFilters.indexOf("breakfast");
+                  const newValue = activeFilters;
+                  newValue.splice(index, 1);
+                  setActiveFilters(newValue);
+                  return;
+                }
+
+                setActiveFilters((prev) => [...prev, "breakfast"]);
+              }}
             />
             <RecipeFilter
               text="Almoço"
-              isActive={
-                category == "Almoço" || selectedCategories.includes("Almoço")
-              }
-              onPress={() => toggleCategory("Almoço")}
+              isActive={category == "Almoço" || activeFilters.includes("lunch")}
+              onPress={() => {
+                if (activeFilters[0] == "all") {
+                  setActiveFilters([]);
+                } else if (activeFilters.includes("lunch")) {
+                  const index = activeFilters.indexOf("lunch");
+                  const newValue = activeFilters;
+                  newValue.splice(index, 1);
+                  setActiveFilters(newValue);
+                  return;
+                }
+
+                setActiveFilters((prev) => [...prev, "lunch"]);
+              }}
             />
             <RecipeFilter
               text="Jantar"
-              isActive={
-                category == "Janta" || selectedCategories.includes("Janta")
-              }
-              onPress={() => toggleCategory("Janta")}
+              isActive={category == "Janta" || activeFilters.includes("dinner")}
+              onPress={() => {
+                if (activeFilters[0] == "all") {
+                  setActiveFilters([]);
+                } else if (activeFilters.includes("dinner")) {
+                  const index = activeFilters.indexOf("dinner");
+                  const newValue = activeFilters;
+                  newValue.splice(index, 1);
+                  setActiveFilters(newValue);
+                  return;
+                }
+
+                setActiveFilters((prev) => [...prev, "dinner"]);
+              }}
             />
           </View>
           {/* 7. Lista de Receitas (FlatList) */}

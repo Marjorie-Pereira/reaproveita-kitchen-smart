@@ -1,5 +1,6 @@
 import FloatingButton from "@/components/FloatingButton";
 import FoodCard from "@/components/FoodCard";
+import ItemForm from "@/components/ItemForm";
 import LocationButtonGroup from "@/components/LocationButtonGroup";
 import SearchBar from "@/components/SearchBar";
 import { supabase } from "@/lib/supabase";
@@ -7,25 +8,40 @@ import { buttonActionsObject } from "@/types/buttonActionsObject";
 import { foodItem } from "@/types/FoodListItemProps";
 import { getLocationId } from "@/utils/locationUtils";
 import { FontAwesome6, Ionicons } from "@expo/vector-icons";
-import { router, useLocalSearchParams } from "expo-router";
-import Drawer from "expo-router/drawer";
-import React, { useEffect, useState } from "react";
 import {
-  Pressable,
+  router,
+  Stack,
+  useFocusEffect,
+  useLocalSearchParams,
+  usePathname,
+} from "expo-router";
+import React, { useCallback, useEffect, useState } from "react";
+import {
+  Alert,
+  Modal,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
   View,
 } from "react-native";
 
+const groupMap = {
+  leftovers: "Sobras",
+  expiring: "Itens Vencendo",
+  expired: "Itens Vencidos",
+  open: "Itens Abertos",
+  all: "Todos os itens",
+};
+
 const Inventory = () => {
   const { group } = useLocalSearchParams();
   const params = useLocalSearchParams();
+  const path = usePathname();
   const FLOATING_BUTTON_ACTIONS: buttonActionsObject[] = [
     {
       label: "Cadastrar",
       icon: <FontAwesome6 name="keyboard" size={20} color="black" />,
-      onPress: () => router.push("/main/home/forms/newFoodItem"),
+      onPress: () => setIsModalOpen(true),
     },
     {
       label: "Escanear",
@@ -36,8 +52,7 @@ const Inventory = () => {
 
   const [location, setLocation] = useState("Geladeira");
   const [foodList, setFoodList] = useState<foodItem[]>([]);
-  const [headerTitle, setHeaderTitle] = useState("Todos os itens");
-
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const getExpiredItems = (items: foodItem[], id: string) => {
     return items.filter((item) => {
       const expirationDate = new Date(item.data_validade);
@@ -74,6 +89,19 @@ const Inventory = () => {
     return [];
   };
 
+  async function handleAddItem(item: foodItem) {
+    const { error } = await supabase.from("Alimentos").insert({
+      ...item,
+    });
+
+    if (error) {
+      Alert.alert("Erro", "Por favor, preencha todos os campos");
+    } else {
+      Alert.alert("Alimento Adicionado");
+      setIsModalOpen(false);
+    }
+  }
+
   async function fetchItemsFromLocation(
     field: string = "",
     value: string = ""
@@ -94,56 +122,54 @@ const Inventory = () => {
       case "open":
         const openItems = getOpenItems(data, id);
         setFoodList(openItems);
-        setHeaderTitle("Itens Abertos");
+
         break;
       case "expiring":
         const expiringItems = getExpiringItems(data, id);
         setFoodList(expiringItems);
-        setHeaderTitle("Itens Vencendo");
+
         break;
       case "expired":
         const expiredItems = getExpiredItems(data, id);
         setFoodList(expiredItems);
-        setHeaderTitle("Itens Vencidos");
         break;
       case "leftovers":
-        setHeaderTitle("Sobras");
         break;
       default:
         setFoodList(data);
-        setHeaderTitle("Todos os itens");
         break;
     }
   }
 
+  useFocusEffect(
+    useCallback(() => {
+      console.log("entrou na telas");
+      console.log("params de group", params);
+      fetchItemsFromLocation();
+
+      return () => {};
+    }, [])
+  );
+
   useEffect(() => {
-    console.log("Novo ID detectado:", group);
-    console.log(location);
+    console.log("Remontando");
     fetchItemsFromLocation();
   }, [location, group]);
 
+  useEffect(() => {
+    console.log("Remontando");
+    if (!isModalOpen) fetchItemsFromLocation();
+  }, [isModalOpen]);
+
+  // useEffect(() => {
+  //   console.log("Remontando");
+  // }, [foodList]);
+
   return (
     <>
-      <Drawer.Screen
+      <Stack.Screen
         options={{
-          headerLeft: () => (
-            <Pressable
-              onPress={() => {
-                router.setParams({});
-                router.replace("/main/home");
-              }}
-            >
-              <Ionicons name="arrow-back" size={24} color="#fff" />
-            </Pressable>
-          ),
-          title: headerTitle,
-          headerLeftContainerStyle: {
-            paddingHorizontal: 10,
-            alignItems: "center",
-          },
-          drawerItemStyle: {
-            display: "none",
-          },
+          title: groupMap[group as keyof typeof groupMap],
         }}
       />
       <View style={{ flex: 1, paddingHorizontal: 10, paddingTop: 20, gap: 20 }}>
@@ -158,8 +184,8 @@ const Inventory = () => {
                   key={item.id}
                   style={{ width: "48%" }}
                   onPress={() =>
-                    router.push({
-                      pathname: "/main/home/itemView",
+                    router.navigate({
+                      pathname: "/main/home/items/itemView",
                       params: { ...item },
                     })
                   }
@@ -179,6 +205,20 @@ const Inventory = () => {
           </View>
         </ScrollView>
       </View>
+      <Modal
+        visible={isModalOpen}
+        onBlur={() => setIsModalOpen(false)}
+        onDismiss={() => setIsModalOpen(false)}
+        allowSwipeDismissal={true}
+        style={styles.modal}
+        animationType="slide"
+      >
+        <ItemForm
+          variant="new"
+          onSubmit={handleAddItem}
+          onCancel={() => setIsModalOpen(false)}
+        />
+      </Modal>
     </>
   );
 };
@@ -188,6 +228,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 10,
+  },
+  modal: {
+    justifyContent: "flex-end",
+    margin: 0,
   },
 });
 

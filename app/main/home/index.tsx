@@ -17,7 +17,7 @@ import {
   Ionicons,
   MaterialCommunityIcons,
 } from "@expo/vector-icons";
-import { router, useFocusEffect } from "expo-router";
+import { router, useFocusEffect, usePathname } from "expo-router";
 import React, { useCallback, useState } from "react";
 import {
   ScrollView,
@@ -26,14 +26,18 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function WelcomeScreen() {
+  const path = usePathname();
   const FLOATING_BUTTON_ACTIONS: buttonActionsObject[] = [
     {
       label: "Cadastrar",
       icon: <FontAwesome6 name="keyboard" size={20} color="black" />,
-      onPress: () => router.push("/main/home/forms/newFoodItem"),
+      onPress: () =>
+        router.navigate({
+          pathname: "/main/home/forms/newFoodItem",
+          params: { backToPath: path },
+        }),
     },
     {
       label: "Escanear",
@@ -78,7 +82,7 @@ export default function WelcomeScreen() {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <FloatingButton actions={FLOATING_BUTTON_ACTIONS} />
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         {/* Section: Sua cozinha */}
@@ -94,7 +98,7 @@ export default function WelcomeScreen() {
             }
             label="Sobras"
             itemsCount={leftoversCount}
-            onPress={() => router.push("/main/home/items/leftovers")}
+            onPress={() => router.push("/main/home/items")}
           />
           <Card
             icon={
@@ -106,7 +110,7 @@ export default function WelcomeScreen() {
             }
             label="Abertos"
             itemsCount={openedCount}
-            onPress={() => router.push("/main/home/items/open")}
+            onPress={() => router.push("/main/home/items")}
           />
           <Card
             icon={
@@ -118,7 +122,7 @@ export default function WelcomeScreen() {
             }
             label="Vencendo"
             itemsCount={expiringCount}
-            onPress={() => router.push("/main/home/items/expiring")}
+            onPress={() => router.push("/main/home/items")}
           />
           <Card
             icon={
@@ -130,7 +134,7 @@ export default function WelcomeScreen() {
             }
             label="Vencidos"
             itemsCount={expiredCount}
-            onPress={() => router.push("/main/home/items/expired")}
+            onPress={() => router.push("/main/home/items")}
           />
         </View>
 
@@ -142,7 +146,12 @@ export default function WelcomeScreen() {
             <Text style={styles.sectionTitle}>Todos os itens</Text>
             <TouchableOpacity
               style={styles.viewAllBtn}
-              onPress={() => router.push("/main/home/items/all")}
+              onPress={() =>
+                router.navigate({
+                  pathname: "/main/home/items",
+                  params: { group: "all" },
+                })
+              }
             >
               <Ionicons name="arrow-forward-sharp" size={18} color="#C95CA5" />
               <Text style={styles.viewAllText}>Ver mais</Text>
@@ -189,7 +198,7 @@ export default function WelcomeScreen() {
           </View>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -199,6 +208,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "#fff",
+    paddingTop: 20,
   },
   scrollContainer: {
     padding: 16,
