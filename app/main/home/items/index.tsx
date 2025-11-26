@@ -174,23 +174,37 @@ const Inventory = () => {
 
   useFocusEffect(
     useCallback(() => {
+      let isActive = true; // previne crash quando a tela desmonta
+
       const load = async () => {
-        // 1) Pegue o id da location UMA VEZ
-        const { id } = await getLocationId(location ?? "Geladeira");
+        try {
+          // 1) Pegue o ID da location uma única vez
+          const { id } = await getLocationId(location ?? "Geladeira");
+          if (!isActive) return;
 
-        // 2) Busque todos os itens da location
-        let items = await fetchItemsFromLocation("id_ambiente", id);
+          // 2) Busque todos os itens dessa location
+          let items = await fetchItemsFromLocation("id_ambiente", id);
+          if (!isActive) return;
 
-        // 3) Aplique FILTROS localmente (não no banco)
-        if (group && group !== "all") {
-          items = getFilteredByGroup(group as string, items, id);
+          // 3) Aplique filtros localmente (somente em memória)
+          if (group && group !== "all") {
+            items = getFilteredByGroup(group as string, items, id) || [];
+            if (!isActive) return;
+          }
+
+          // 4) Atualize o estado uma única vez no final
+          setFoodList(items);
+        } catch (err) {
+          console.error("Erro no carregamento da tela:", err);
         }
-
-        // 4) Atualize o estado uma única vez
-        setFoodList(items);
       };
 
       load();
+
+      // cleanup → cancela promessas se a tela perder o foco
+      return () => {
+        isActive = false;
+      };
     }, [group, location])
   );
 
