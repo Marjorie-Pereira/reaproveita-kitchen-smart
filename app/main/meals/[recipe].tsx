@@ -1,6 +1,7 @@
 import Button from "@/components/Button";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
+import { isDuplicateRecord } from "@/utils/isDuplicateRecord";
 import { MaterialIcons } from "@expo/vector-icons";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import React, { useCallback, useState } from "react";
@@ -73,6 +74,15 @@ const RecipeView = () => {
 
   async function handleSaveRecipe() {
     if (!recipe) return;
+    const isDuplicate = await isDuplicateRecord(
+      "ReceitasSalvas",
+      "id_receita",
+      recipe.id
+    );
+    if (isDuplicate) {
+      Alert.alert("A receita já foi salva!");
+      return;
+    }
     const ingredientsString = recipe?.recipeIngredients
       .map((item) => item.ingredient)
       .join(", ");
@@ -84,6 +94,7 @@ const RecipeView = () => {
       modo_preparo: recipe.instructions,
       link_imagem: recipe.imageUri,
       tempo_preparo: recipe.time,
+      categoria: mealType,
     });
 
     if (error) throw Error(error.message);
