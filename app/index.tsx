@@ -60,9 +60,9 @@ export default function Index() {
           ou
         </Text>
 
-        <Pressable style={[styles.button, styles.secondaryBtn]}>
+        {/* <Pressable style={[styles.button, styles.secondaryBtn]}>
           <Text style={styles.secondaryBtnText}>Login com Google</Text>
-        </Pressable>
+        </Pressable> */}
       </View>
     </View>
   );
@@ -87,6 +87,7 @@ const styles = StyleSheet.create({
     color: "#1E251E",
     fontSize: 20,
     textAlign: "center",
+    marginBottom: 50,
   },
   button: {
     borderRadius: 50,
