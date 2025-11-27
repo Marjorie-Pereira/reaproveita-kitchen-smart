@@ -84,7 +84,10 @@ const Leftovers = () => {
                     type={"Almoço"}
                     style={{ marginRight: 0 }}
                     onPress={() => {
-                      router.push("/main/home/leftovers/leftover");
+                      router.push({
+                        pathname: "/main/home/leftovers/leftover",
+                        params: { mealId: item.id },
+                      });
                     }}
                   />
                 </TouchableOpacity>
