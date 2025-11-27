@@ -67,7 +67,11 @@ const Leftovers = () => {
           justifyContent: "center",
         }}
       >
-        <SearchBar placeholder="Pesquisar itens..." />
+        <SearchBar
+          placeholder="Pesquisar itens..."
+          value=""
+          onChangeText={() => {}}
+        />
         <LocationButtonGroup
           onSelect={(val) => setLocation(val as typeof location)}
           activeBtn={location}

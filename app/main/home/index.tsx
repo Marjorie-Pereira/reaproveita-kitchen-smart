@@ -2,6 +2,7 @@ import Card from "@/components/Card";
 import FloatingButton from "@/components/FloatingButton";
 import FoodListItem from "@/components/FoodListItem";
 import SearchBar from "@/components/SearchBar";
+import SearchItemsModal, { FoodItem } from "@/components/SearchItemsModal";
 import { labelColor, labelTextColor } from "@/constants/status.colors";
 import { supabase } from "@/lib/supabase";
 import { buttonActionsObject } from "@/types/buttonActionsObject";
@@ -18,7 +19,7 @@ import {
   MaterialCommunityIcons,
 } from "@expo/vector-icons";
 import { router, useFocusEffect, usePathname } from "expo-router";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   ScrollView,
   StyleSheet,
@@ -50,6 +51,8 @@ export default function WelcomeScreen() {
   const [openedCount, setOpenedCount] = useState(0);
   const [expiringCount, setExpiringCount] = useState(0);
   const [expiredCount, setExpiredCount] = useState(0);
+  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
+  const [inventoryItems, setInventoryItems] = useState<any[]>([]);
 
   async function getItemsCount() {
     const { data, error } = await supabase.from("Alimentos").select("*");
@@ -84,6 +87,26 @@ export default function WelcomeScreen() {
     setLeftoversCount(data?.length || 0);
   }
 
+  const fetchItemsFromInventory = async () => {
+    const { data, error } = await supabase
+      .from("Alimentos")
+      .select("*, Ambientes(nome)");
+
+    if (error) throw new Error(error.message);
+    const items = data.map((r) => {
+      const foodItem = {
+        id: r.id,
+        nome: r.nome,
+        categoria: r.categoria,
+        imagem: r.imagem,
+        location: r["Ambientes"].nome,
+      };
+
+      return foodItem;
+    });
+    setInventoryItems(items);
+  };
+
   useFocusEffect(
     useCallback(() => {
       getItemsCount();
@@ -96,139 +119,167 @@ export default function WelcomeScreen() {
     }, [])
   );
 
+  useEffect(() => {
+    if (isSearchModalOpen) fetchItemsFromInventory();
+  }, [isSearchModalOpen, fetchItemsFromInventory]);
+
+  const groupedInventory = inventoryItems.reduce((acc, item) => {
+    if (!acc[item.location]) {
+      acc[item.location] = [];
+    }
+    acc[item.location].push(item);
+    return acc;
+  }, {} as Record<string, FoodItem[]>);
+
   return (
-    <View style={styles.container}>
-      <FloatingButton actions={FLOATING_BUTTON_ACTIONS} />
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        {/* Section: Sua cozinha */}
-        <Text style={styles.sectionTitle}>Sua cozinha</Text>
-        <View style={styles.grid}>
-          <Card
-            icon={
-              <MaterialCommunityIcons
-                name="silverware-variant"
-                size={34}
-                color={labelTextColor.Sobras}
-              />
-            }
-            label="Sobras"
-            itemsCount={leftoversCount}
-            onPress={() => router.navigate("/main/home/leftovers")}
-          />
-          <Card
-            icon={
-              <FontAwesome5
-                name="box-open"
-                size={30}
-                color={labelTextColor.Abertos}
-              />
-            }
-            label="Abertos"
-            itemsCount={openedCount}
-            onPress={() =>
-              router.navigate({
-                pathname: "/main/home/items",
-                params: { group: "open" },
-              })
-            }
-          />
-          <Card
-            icon={
-              <Feather
-                name="alert-triangle"
-                size={30}
-                color={labelTextColor.Vencendo}
-              />
-            }
-            label="Vencendo"
-            itemsCount={expiringCount}
-            onPress={() =>
-              router.navigate({
-                pathname: "/main/home/items",
-                params: { group: "expiring" },
-              })
-            }
-          />
-          <Card
-            icon={
-              <Ionicons
-                name="alert-circle-outline"
-                size={34}
-                color={labelTextColor.Vencidos}
-              />
-            }
-            label="Vencidos"
-            itemsCount={expiredCount}
-            onPress={() =>
-              router.navigate({
-                pathname: "/main/home/items",
-                params: { group: "expired" },
-              })
-            }
-          />
-        </View>
-
-        <SearchBar />
-
-        {/* Section: Todos os itens */}
-        <View style={styles.itemsList}>
-          <View style={styles.itemsHeader}>
-            <Text style={styles.sectionTitle}>Todos os itens</Text>
-            <TouchableOpacity
-              style={styles.viewAllBtn}
+    <>
+      <View style={styles.container}>
+        <FloatingButton actions={FLOATING_BUTTON_ACTIONS} />
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
+          {/* Section: Sua cozinha */}
+          <Text style={styles.sectionTitle}>Sua cozinha</Text>
+          <View style={styles.grid}>
+            <Card
+              icon={
+                <MaterialCommunityIcons
+                  name="silverware-variant"
+                  size={34}
+                  color={labelTextColor.Sobras}
+                />
+              }
+              label="Sobras"
+              itemsCount={leftoversCount}
+              onPress={() => router.navigate("/main/home/leftovers")}
+            />
+            <Card
+              icon={
+                <FontAwesome5
+                  name="box-open"
+                  size={30}
+                  color={labelTextColor.Abertos}
+                />
+              }
+              label="Abertos"
+              itemsCount={openedCount}
               onPress={() =>
                 router.navigate({
                   pathname: "/main/home/items",
-                  params: { group: "all" },
+                  params: { group: "open" },
                 })
               }
-            >
-              <Ionicons name="arrow-forward-sharp" size={18} color="#C95CA5" />
-              <Text style={styles.viewAllText}>Ver mais</Text>
-            </TouchableOpacity>
+            />
+            <Card
+              icon={
+                <Feather
+                  name="alert-triangle"
+                  size={30}
+                  color={labelTextColor.Vencendo}
+                />
+              }
+              label="Vencendo"
+              itemsCount={expiringCount}
+              onPress={() =>
+                router.navigate({
+                  pathname: "/main/home/items",
+                  params: { group: "expiring" },
+                })
+              }
+            />
+            <Card
+              icon={
+                <Ionicons
+                  name="alert-circle-outline"
+                  size={34}
+                  color={labelTextColor.Vencidos}
+                />
+              }
+              label="Vencidos"
+              itemsCount={expiredCount}
+              onPress={() =>
+                router.navigate({
+                  pathname: "/main/home/items",
+                  params: { group: "expired" },
+                })
+              }
+            />
           </View>
 
-          <View>
-            <FoodListItem
-              name="Leite Integral"
-              brand="Piracanjuba"
-              category="Laticínios"
-              volume="1 litro"
-              status="Vencendo"
-              statusColor={labelColor.Vencendo}
-              imageUri="https://wallpapers.com/images/hd/fresh-milk-png-tpj9-1g95ko8e01m5304i.jpg"
-            />
-            <FoodListItem
-              name="Leite Integral"
-              brand="Piracanjuba"
-              category="Laticínios"
-              volume="1 litro"
-              status="Vencendo"
-              statusColor={labelColor.Vencendo}
-              imageUri="https://wallpapers.com/images/hd/fresh-milk-png-tpj9-1g95ko8e01m5304i.jpg"
-            />
-            <FoodListItem
-              name="Leite Integral"
-              brand="Piracanjuba"
-              category="Laticínios"
-              volume="1 litro"
-              status="Vencendo"
-              statusColor={labelColor.Vencendo}
-              imageUri="https://wallpapers.com/images/hd/fresh-milk-png-tpj9-1g95ko8e01m5304i.jpg"
-            />
-            <FoodListItem
-              name="Leite Integral"
-              brand="Piracanjuba"
-              category="Laticínios"
-              volume="1 litro"
-              status="Vencendo"
-              statusColor={labelColor.Vencendo}
-              imageUri="https://wallpapers.com/images/hd/fresh-milk-png-tpj9-1g95ko8e01m5304i.jpg"
-            />
+          <SearchBar
+            value=""
+            onChangeText={() => {}}
+            onPress={() => setIsSearchModalOpen(true)}
+          />
+
+          {/* Section: Todos os itens */}
+          <View style={styles.itemsList}>
+            <View style={styles.itemsHeader}>
+              <Text style={styles.sectionTitle}>Todos os itens</Text>
+              <TouchableOpacity
+                style={styles.viewAllBtn}
+                onPress={() =>
+                  router.navigate({
+                    pathname: "/main/home/items",
+                    params: { group: "all" },
+                  })
+                }
+              >
+                <Ionicons
+                  name="arrow-forward-sharp"
+                  size={18}
+                  color="#C95CA5"
+                />
+                <Text style={styles.viewAllText}>Ver mais</Text>
+              </TouchableOpacity>
+            </View>
+
+            <View>
+              <FoodListItem
+                name="Leite Integral"
+                brand="Piracanjuba"
+                category="Laticínios"
+                volume="1 litro"
+                status="Vencendo"
+                statusColor={labelColor.Vencendo}
+                imageUri="https://wallpapers.com/images/hd/fresh-milk-png-tpj9-1g95ko8e01m5304i.jpg"
+              />
+              <FoodListItem
+                name="Leite Integral"
+                brand="Piracanjuba"
+                category="Laticínios"
+                volume="1 litro"
+                status="Vencendo"
+                statusColor={labelColor.Vencendo}
+                imageUri="https://wallpapers.com/images/hd/fresh-milk-png-tpj9-1g95ko8e01m5304i.jpg"
+              />
+              <FoodListItem
+                name="Leite Integral"
+                brand="Piracanjuba"
+                category="Laticínios"
+                volume="1 litro"
+                status="Vencendo"
+                statusColor={labelColor.Vencendo}
+                imageUri="https://wallpapers.com/images/hd/fresh-milk-png-tpj9-1g95ko8e01m5304i.jpg"
+              />
+              <FoodListItem
+                name="Leite Integral"
+                brand="Piracanjuba"
+                category="Laticínios"
+                volume="1 litro"
+                status="Vencendo"
+                statusColor={labelColor.Vencendo}
+                imageUri="https://wallpapers.com/images/hd/fresh-milk-png-tpj9-1g95ko8e01m5304i.jpg"
+              />
+            </View>
           </View>
-        </View>
-      </ScrollView>
-    </View>
+        </ScrollView>
+      </View>
+      <SearchItemsModal
+        groupedInventory={groupedInventory}
+        onClose={() => setIsSearchModalOpen(false)}
+        onItemPress={() => {}}
+        isVisible={isSearchModalOpen}
+      />
+    </>
   );
 }
 

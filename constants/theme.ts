@@ -155,6 +155,7 @@ export const globalStyles = StyleSheet.create({
     maxHeight: "80%",
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
+    paddingTop: 30,
   },
   modalHeader: {
     padding: 20,

@@ -2,7 +2,18 @@ import { Feather } from "@expo/vector-icons";
 import React from "react";
 import { Platform, StyleSheet, TextInput, View } from "react-native";
 
-const SearchBar = ({ value, onChangeText, placeholder = "Buscar..." }: any) => {
+interface SearchBarProps {
+  value: string;
+  onChangeText: () => void;
+  placeholder?: string;
+  onPress?: () => void;
+}
+const SearchBar = ({
+  value,
+  onChangeText,
+  placeholder = "Buscar...",
+  onPress = () => null,
+}: SearchBarProps) => {
   return (
     <View style={styles.container}>
       <TextInput
@@ -11,6 +22,7 @@ const SearchBar = ({ value, onChangeText, placeholder = "Buscar..." }: any) => {
         onChangeText={onChangeText}
         placeholder={placeholder}
         placeholderTextColor="#688067"
+        onPress={onPress}
       />
 
       <Feather name="search" size={22} color="#333" />

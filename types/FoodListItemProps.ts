@@ -10,7 +10,7 @@ export type FoodListItemProps = {
 
 export type foodItem = {
   id?: string;
-  imagem: string;
+  imagem?: string;
   nome: string;
   marca: string;
   quantidade: number;

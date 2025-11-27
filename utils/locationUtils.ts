@@ -1,6 +1,6 @@
 import { supabase } from "@/lib/supabase";
 
-export async function getLocationById(id: string) {
+export async function getLocationById(id: string): Promise<string> {
   const { data, error } = await supabase
     .from("Ambientes")
     .select("nome")
