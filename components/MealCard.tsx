@@ -20,6 +20,7 @@ export interface Meal {
   style?: StyleProp<ViewStyle>;
   type: mealType;
   onPress?: () => void;
+  leftoverDate?: string;
 }
 
 export const MealCard: React.FC<Meal> = ({
@@ -28,6 +29,7 @@ export const MealCard: React.FC<Meal> = ({
   style,
   type,
   onPress,
+  leftoverDate,
 }) => {
   const router = useRouter();
 
@@ -75,20 +77,40 @@ export const MealCard: React.FC<Meal> = ({
           style={{
             width: "100%",
             aspectRatio: 1,
-            marginBottom: 10,
+            marginBottom: 5,
           }}
         />
-        <Text style={styles.recipeCardName}>{recipe?.receita}</Text>
-        <View style={styles.timeInfoContainer}>
-          <Feather
-            name="clock"
-            size={14}
-            color="black"
-            style={{
-              margin: 0,
-            }}
-          />
-          <Text style={styles.recipeCardTime}>{recipe?.tempo_preparo}</Text>
+        <View style={{ gap: 8, padding: 5 }}>
+          <Text style={styles.recipeCardName}>{recipe?.receita}</Text>
+          <View style={styles.timeInfoContainer}>
+            {leftoverDate ? (
+              <>
+                <Feather
+                  name="calendar"
+                  size={14}
+                  color="black"
+                  style={{
+                    margin: 0,
+                  }}
+                />
+                <Text style={styles.recipeCardTime}>{leftoverDate}</Text>
+              </>
+            ) : (
+              <>
+                <Feather
+                  name="clock"
+                  size={14}
+                  color="black"
+                  style={{
+                    margin: 0,
+                  }}
+                />
+                <Text style={styles.recipeCardTime}>
+                  {recipe?.tempo_preparo}
+                </Text>
+              </>
+            )}
+          </View>
         </View>
       </View>
     </TouchableOpacity>

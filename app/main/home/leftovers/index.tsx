@@ -15,6 +15,7 @@ const groupMap = {
 
 import { MealCard } from "@/components/MealCard";
 import { mealObject } from "@/types/mealObject.type";
+import { formatDate } from "date-fns";
 
 const Leftovers = () => {
   const [location, setLocation] = useState<"Geladeira" | "Freezer">(
@@ -89,6 +90,7 @@ const Leftovers = () => {
                         params: { mealId: item.id },
                       });
                     }}
+                    leftoverDate={formatDate(item.data_sobras, "dd/MM/yyyy")}
                   />
                 </TouchableOpacity>
               );
