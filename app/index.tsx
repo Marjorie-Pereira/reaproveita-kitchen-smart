@@ -56,11 +56,11 @@ export default function Index() {
         </Pressable>
       </View>
       <View style={{ width: "100%", gap: 4 }}>
-        <Text style={{ textAlign: "center", fontFamily: "Lato_400Regular" }}>
+        {/* <Text style={{ textAlign: "center", fontFamily: "Lato_400Regular" }}>
           ou
         </Text>
 
-        {/* <Pressable style={[styles.button, styles.secondaryBtn]}>
+        <Pressable style={[styles.button, styles.secondaryBtn]}>
           <Text style={styles.secondaryBtnText}>Login com Google</Text>
         </Pressable> */}
       </View>
