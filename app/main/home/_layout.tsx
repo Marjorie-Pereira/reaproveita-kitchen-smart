@@ -58,6 +58,12 @@ export default function Layout() {
           title: "Detalhes da sobra",
         }}
       />
+      <Stack.Screen
+        name="leftovers/recipesLeftovers"
+        options={{
+          title: "Receitas para Reaproveitar",
+        }}
+      />
     </Stack>
   );
 }

@@ -152,7 +152,9 @@ export default function MealViewScreen() {
                   />
                 </View>
                 <Button
-                  onPress={() => {}}
+                  onPress={() => {
+                    router.push("/main/home/leftovers/recipesLeftovers");
+                  }}
                   buttonStyle={styles.actionButton}
                   variant="primary"
                 >
