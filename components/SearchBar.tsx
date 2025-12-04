@@ -4,16 +4,20 @@ import { Platform, StyleSheet, TextInput, View } from "react-native";
 
 interface SearchBarProps {
   value: string;
-  onChangeText: () => void;
+  onChangeText: (text: string) => void;
   placeholder?: string;
   onPress?: () => void;
+  ref?: React.RefObject<TextInput | null>
 }
 const SearchBar = ({
   value,
   onChangeText,
   placeholder = "Buscar...",
   onPress = () => null,
+  ref
+ 
 }: SearchBarProps) => {
+  
   return (
     <View style={styles.container}>
       <TextInput
@@ -23,6 +27,9 @@ const SearchBar = ({
         placeholder={placeholder}
         placeholderTextColor="#688067"
         onPress={onPress}
+        ref={ref}
+        clearButtonMode="always"
+        autoCapitalize="none"
       />
 
       <Feather name="search" size={22} color="#333" />

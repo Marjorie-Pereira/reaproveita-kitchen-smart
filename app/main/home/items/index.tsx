@@ -262,7 +262,7 @@ const Inventory = () => {
         }}
       />
       <View style={{ flex: 1, paddingHorizontal: 10, paddingTop: 20, gap: 20 }}>
-        <SearchBar placeholder="Pesquisar itens..." />
+        <SearchBar value="" onChangeText={() => {}} placeholder="Pesquisar itens..." />
         <LocationButtonGroup
           onSelect={(val) => setLocation(val)}
           activeBtn={location}

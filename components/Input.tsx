@@ -1,11 +1,11 @@
 import { COLORS } from "@/constants/theme";
 import {
-  Pressable,
-  StyleSheet,
-  TextInput,
-  TextInputProps,
-  View,
-  ViewStyle,
+    Pressable,
+    StyleSheet,
+    TextInput,
+    TextInputProps,
+    View,
+    ViewStyle,
 } from "react-native";
 
 interface InputProps extends TextInputProps {
@@ -24,6 +24,7 @@ const Input = ({ ...props }) => {
         style={{ flex: 1, color: COLORS.text }}
         placeholderTextColor={"#49454F"}
         ref={props.inputRef && props.inputRef}
+        autoCapitalize="none"
         {...props}
       />
 

@@ -34,12 +34,7 @@ export default function Layout() {
           title: "Informações do item",
         }}
       />
-      <Stack.Screen
-        name="items/index"
-        options={{
-          title: "Algo",
-        }}
-      />
+     
       <Stack.Screen
         name="forms/newFoodItem"
         options={{

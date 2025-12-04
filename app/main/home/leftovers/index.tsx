@@ -2,16 +2,9 @@ import LocationButtonGroup from "@/components/LocationButtonGroup";
 import SearchBar from "@/components/SearchBar";
 import { supabase } from "@/lib/supabase";
 import { getLocationId } from "@/utils/locationUtils";
-import { Stack, useFocusEffect, useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
 import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
-const groupMap = {
-  leftovers: "Sobras",
-  expiring: "Itens Vencendo",
-  expired: "Itens Vencidos",
-  open: "Itens Abertos",
-  all: "Todos os itens",
-};
 
 import { MealCard } from "@/components/MealCard";
 import { mealObject } from "@/types/mealObject.type";
@@ -53,11 +46,7 @@ const Leftovers = () => {
 
   return (
     <>
-      <Stack.Screen
-        options={{
-          title: "Sobras",
-        }}
-      />
+      
       <View
         style={{
           flex: 1,
