@@ -4,8 +4,8 @@ export type FoodListItemProps = {
   brand: string;
   category: string;
   volume: string;
-  status: string;
-  statusColor: string;
+  expiresIn: string
+ 
 };
 
 export type foodItem = {

@@ -3,7 +3,7 @@ import FloatingButton from "@/components/FloatingButton";
 import FoodListItem from "@/components/FoodListItem";
 import SearchBar from "@/components/SearchBar";
 import SearchItemsModal, { FoodItem } from "@/components/SearchItemsModal";
-import { labelColor, labelTextColor } from "@/constants/status.colors";
+import { labelTextColor } from "@/constants/status.colors";
 import { supabase } from "@/lib/supabase";
 import { buttonActionsObject } from "@/types/buttonActionsObject";
 import {
@@ -38,7 +38,7 @@ export default function WelcomeScreen() {
             onPress: () =>
                 router.push({
                     pathname: "/main/home/items",
-                    params: { group: 'all', addingItem: "true" },
+                    params: { group: "all", addingItem: "true" },
                 }),
         },
         {
@@ -47,7 +47,7 @@ export default function WelcomeScreen() {
             onPress: () =>
                 router.push({
                     pathname: "/main/home/items",
-                    params: { group: 'all', scanning: "true" },
+                    params: { group: "all", scanning: "true" },
                 }),
         },
     ];
@@ -58,6 +58,7 @@ export default function WelcomeScreen() {
     const [expiredCount, setExpiredCount] = useState(0);
     const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
     const [inventoryItems, setInventoryItems] = useState<any[]>([]);
+    const [orderedItems, setOrderedItems] = useState<any[]>([]);
 
     async function getItemsCount() {
         const { data, error } = await supabase.from("Alimentos").select("*");
@@ -112,10 +113,23 @@ export default function WelcomeScreen() {
         setInventoryItems(items);
     };
 
+    const fetchItemsByExpirationDate = async () => {
+        const { data, error } = await supabase
+            .from("Alimentos")
+            .select(
+                "id, nome, marca,  categoria,  quantidade,unidade_medida,imagem, data_validade"
+            ).limit(5).order('data_validade', {ascending: true});
+
+        if (error) throw new Error(error.message);
+       
+        setOrderedItems(data);
+    };
+
     useFocusEffect(
         useCallback(() => {
             getItemsCount();
             fetchLeftOvers();
+            fetchItemsByExpirationDate();
 
             return () => {
                 // Do something when the screen is unfocused/unmount
@@ -131,6 +145,10 @@ export default function WelcomeScreen() {
             Keyboard.dismiss();
         }
     }, [isSearchModalOpen, fetchItemsFromInventory]);
+
+    useEffect(() => {
+        fetchItemsByExpirationDate();
+    }, []);
 
     const groupedInventory = inventoryItems.reduce((acc, item) => {
         if (!acc[item.location]) {
@@ -248,42 +266,20 @@ export default function WelcomeScreen() {
                         </View>
 
                         <View>
-                            <FoodListItem
-                                name="Leite Integral"
-                                brand="Piracanjuba"
-                                category="Laticínios"
-                                volume="1 litro"
-                                status="Vencendo"
-                                statusColor={labelColor.Vencendo}
-                                imageUri="https://wallpapers.com/images/hd/fresh-milk-png-tpj9-1g95ko8e01m5304i.jpg"
+                            
+                            {orderedItems.map((item) => 
+                                <FoodListItem
+                                key={item.id}
+                                name={item.nome}
+                                brand={item.marca}
+                                category={item.categoria}
+                                volume={`${item.quantidade} ${item.unidade_medida}`}
+                                expiresIn={item.data_validade}
+                                
+                                
+                                imageUri={item.imagem}
                             />
-                            <FoodListItem
-                                name="Leite Integral"
-                                brand="Piracanjuba"
-                                category="Laticínios"
-                                volume="1 litro"
-                                status="Vencendo"
-                                statusColor={labelColor.Vencendo}
-                                imageUri="https://wallpapers.com/images/hd/fresh-milk-png-tpj9-1g95ko8e01m5304i.jpg"
-                            />
-                            <FoodListItem
-                                name="Leite Integral"
-                                brand="Piracanjuba"
-                                category="Laticínios"
-                                volume="1 litro"
-                                status="Vencendo"
-                                statusColor={labelColor.Vencendo}
-                                imageUri="https://wallpapers.com/images/hd/fresh-milk-png-tpj9-1g95ko8e01m5304i.jpg"
-                            />
-                            <FoodListItem
-                                name="Leite Integral"
-                                brand="Piracanjuba"
-                                category="Laticínios"
-                                volume="1 litro"
-                                status="Vencendo"
-                                statusColor={labelColor.Vencendo}
-                                imageUri="https://wallpapers.com/images/hd/fresh-milk-png-tpj9-1g95ko8e01m5304i.jpg"
-                            />
+                            )}
                         </View>
                     </View>
                 </ScrollView>

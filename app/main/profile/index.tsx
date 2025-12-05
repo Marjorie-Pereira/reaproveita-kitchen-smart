@@ -56,7 +56,7 @@ const Index = () => {
   };
 
   const addRestriction = async () => {
-    if (!user) return;
+    if (!user || description.trim() === '') return;
 
     const { data, error } = await supabase
       .from("RestricoesAlimentares")
