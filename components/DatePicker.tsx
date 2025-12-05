@@ -1,12 +1,12 @@
 import { Ionicons } from "@expo/vector-icons";
-import DateTimePicker from "@react-native-community/datetimepicker";
+import DateTimePicker, { DateTimePickerEvent } from "@react-native-community/datetimepicker";
 import React, { useState } from "react";
 import {
-  Platform,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    Platform,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 
 const COLORS = {
@@ -17,10 +17,15 @@ const COLORS = {
   placeholder: "#888",
 };
 
-const DatePickerInput = ({ label, value, onChange }: any) => {
+interface DatePickerInputProps {
+    label:string
+    value?: Date
+    onChange: (date: Date) => void
+}
+const DatePickerInput = ({ label, value, onChange }: DatePickerInputProps) => {
   const [showPicker, setShowPicker] = useState(false);
 
-  const onDateChange = (event: any, selectedDate: any) => {
+  const onDateChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
     setShowPicker(Platform.OS === "ios");
 
     if (selectedDate) {
@@ -54,7 +59,7 @@ const DatePickerInput = ({ label, value, onChange }: any) => {
         onPress={() => setShowPicker(true)}
       >
         <Text style={[styles.pickerText, !value && styles.placeholderText]}>
-          {formatDate(value)}
+          {value && formatDate(value)}
         </Text>
         <Ionicons name="calendar-outline" size={22} color={COLORS.label} />
       </TouchableOpacity>

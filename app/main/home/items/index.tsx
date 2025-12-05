@@ -16,7 +16,7 @@ import {
     useFocusEffect,
     useLocalSearchParams,
 } from "expo-router";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
     Alert,
     Modal,
@@ -45,7 +45,9 @@ const Inventory = () => {
     const [foodList, setFoodList] = useState<foodItem[]>([]);
     const [queryFoodList, setQueryFoodList] = useState<foodItem[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(addingItem ? true : false);
-    const [isScannerOpen, setIsScannerOpen] = useState<boolean>(scanning ? true  : false);
+    const [isScannerOpen, setIsScannerOpen] = useState<boolean>(
+        scanning ? true : false
+    );
     const [scannedItem, setScannedItem] = useState<productType | undefined>(
         undefined
     );
@@ -177,6 +179,33 @@ const Inventory = () => {
                 return items;
         }
     }
+
+    const load = async () => {
+        try {
+            // 1) Pegue o ID da location uma única vez
+            const { id } = await getLocationId(location ?? "Geladeira");
+
+            // 2) Busque todos os itens dessa location
+            let items = await fetchItemsFromLocation("id_ambiente", id);
+
+            // 3) Aplique filtros localmente (somente em memória)
+            if (group && group !== "all") {
+                items = getFilteredByGroup(group as string, items, id) || [];
+            }
+
+            // 4) Atualize o estado uma única vez no final
+            setFoodList(items);
+            setQueryFoodList(items);
+            setIsLoading(false);
+        } catch (err) {
+            console.error("Erro no carregamento da tela:", err);
+            setIsLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        if(!isModalOpen) load()
+    }, [isModalOpen])
 
     useFocusEffect(
         useCallback(() => {
@@ -313,7 +342,7 @@ const Inventory = () => {
                                         key={item.id}
                                         style={{ width: "48%" }}
                                         onPress={() =>
-                                            router.navigate({
+                                            router.push({
                                                 pathname:
                                                     "/main/home/items/itemView",
                                                 params: { itemId: item.id },

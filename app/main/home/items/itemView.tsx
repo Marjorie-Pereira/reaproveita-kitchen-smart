@@ -6,13 +6,13 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import React, { useCallback, useState } from "react";
 import {
-  Alert,
-  Image,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    Alert,
+    Image,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 
 const InfoRow = ({ iconName, label, value }: any) => (
@@ -39,7 +39,7 @@ const FoodItemView = () => {
   function handleEdit() {
     router.push({
       pathname: "/main/home/forms/editFoodItem",
-      params: { itemData: JSON.stringify(itemData!) },
+      params: { itemId: itemId },
     });
   }
 
