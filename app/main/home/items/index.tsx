@@ -33,12 +33,14 @@ const groupMap = {
     all: "Todos os itens",
 };
 
+import Loading from "@/components/Loading";
 import { subDays } from "date-fns";
 import filter from "lodash.filter";
 
 const Inventory = () => {
     const { group } = useLocalSearchParams();
 
+    const [isLoading, setIsLoading] = useState(false);
     const [location, setLocation] = useState<string>("Geladeira");
     const [foodList, setFoodList] = useState<foodItem[]>([]);
     const [queryFoodList, setQueryFoodList] = useState<foodItem[]>([]);
@@ -178,6 +180,7 @@ const Inventory = () => {
 
     useFocusEffect(
         useCallback(() => {
+            setIsLoading(true);
             let isActive = true; // previne crash quando a tela desmonta
 
             const load = async () => {
@@ -201,8 +204,10 @@ const Inventory = () => {
                     // 4) Atualize o estado uma única vez no final
                     setFoodList(items);
                     setQueryFoodList(items);
+                    setIsLoading(false);
                 } catch (err) {
                     console.error("Erro no carregamento da tela:", err);
+                    setIsLoading(false);
                 }
             };
 
@@ -298,35 +303,39 @@ const Inventory = () => {
                 />
                 <FloatingButton actions={FLOATING_BUTTON_ACTIONS} />
                 <ScrollView>
-                    <View style={styles.foodItemsGrid}>
-                        {foodList.map((item: foodItem) => {
-                            return (
-                                <TouchableOpacity
-                                    key={item.id}
-                                    style={{ width: "48%" }}
-                                    onPress={() =>
-                                        router.navigate({
-                                            pathname:
-                                                "/main/home/items/itemView",
-                                            params: { itemId: item.id },
-                                        })
-                                    }
-                                >
-                                    <FoodCard
-                                        image={item.imagem}
-                                        title={item.nome}
-                                        brand={item.marca}
-                                        quantity={item.quantidade}
-                                        measureUnit={item.unidade_medida}
-                                        expirationDate={
-                                            new Date(item.data_validade)
+                    {isLoading ? (
+                        <Loading />
+                    ) : (
+                        <View style={styles.foodItemsGrid}>
+                            {foodList.map((item: foodItem) => {
+                                return (
+                                    <TouchableOpacity
+                                        key={item.id}
+                                        style={{ width: "48%" }}
+                                        onPress={() =>
+                                            router.navigate({
+                                                pathname:
+                                                    "/main/home/items/itemView",
+                                                params: { itemId: item.id },
+                                            })
                                         }
-                                        category={item.categoria}
-                                    />
-                                </TouchableOpacity>
-                            );
-                        })}
-                    </View>
+                                    >
+                                        <FoodCard
+                                            image={item.imagem}
+                                            title={item.nome}
+                                            brand={item.marca}
+                                            quantity={item.quantidade}
+                                            measureUnit={item.unidade_medida}
+                                            expirationDate={
+                                                new Date(item.data_validade)
+                                            }
+                                            category={item.categoria}
+                                        />
+                                    </TouchableOpacity>
+                                );
+                            })}
+                        </View>
+                    )}
                 </ScrollView>
             </View>
             <Modal

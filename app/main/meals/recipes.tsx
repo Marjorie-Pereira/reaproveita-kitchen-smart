@@ -313,29 +313,32 @@ const ExploreRecipesScreen = () => {
                     </View>
                     {/* 7. Lista de Receitas (FlatList) */}
                     {/* 7. Lista de Receitas (Substituída por View e map) */}
-                    <View style={styles.recipeGrid}>
-                        {isLoading && <Loading />}
-                        {recipes &&
-                            recipes.map((recipe: recipe) => (
-                                <RecipeCard
-                                    key={recipe.id}
-                                    title={recipe.receita}
-                                    time={recipe.tempo_preparo}
-                                    id={recipe.id}
-                                    imageUri={recipe.link_imagem}
-                                    instructions={recipe.modo_preparo}
-                                    ingredients={recipe.ingredientes.split(
-                                        "| "
-                                    )}
-                                    mealType={category as mealType}
-                                    isSaved={selectedTab === "Salvas"}
-                                    weekDay={params.weekDay as string}
-                                />
-                            ))}
-                        {recipes?.length === 0 && (
-                            <Text>Nenhuma receita encontrada</Text>
-                        )}
-                    </View>
+                    {isLoading ? (
+                        <Loading />
+                    ) : (
+                        <View style={styles.recipeGrid}>
+                            {recipes &&
+                                recipes.map((recipe: recipe) => (
+                                    <RecipeCard
+                                        key={recipe.id}
+                                        title={recipe.receita}
+                                        time={recipe.tempo_preparo}
+                                        id={recipe.id}
+                                        imageUri={recipe.link_imagem}
+                                        instructions={recipe.modo_preparo}
+                                        ingredients={recipe.ingredientes.split(
+                                            "| "
+                                        )}
+                                        mealType={category as mealType}
+                                        isSaved={selectedTab === "Salvas"}
+                                        weekDay={params.weekDay as string}
+                                    />
+                                ))}
+                            {recipes?.length === 0 && (
+                                <Text>Nenhuma receita encontrada</Text>
+                            )}
+                        </View>
+                    )}
                 </View>
             </ScrollView>
         </>
