@@ -118,6 +118,7 @@ const ExploreRecipesScreen = () => {
     }, [activeFilters]);
 
     useEffect(() => {
+        setSearch('');
         getRecipes(20);
     }, [selectedTab]);
 
@@ -328,8 +329,8 @@ const ExploreRecipesScreen = () => {
                                     weekDay={params.weekDay as string}
                                 />
                             ))}
-                        {recipes.length === 0 && selectedTab === "Salvas" && (
-                            <Text>Nenhuma receita salva</Text>
+                        {recipes.length === 0  && (
+                            <Text>Nenhuma receita encontrada</Text>
                         )}
                     </View>
                 </View>
