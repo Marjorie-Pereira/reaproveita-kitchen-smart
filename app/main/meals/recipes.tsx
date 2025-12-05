@@ -28,11 +28,11 @@ const ExploreRecipesScreen = () => {
     const [selectedTab, setSelectedTab] = useState<"Salvas" | "Explorar">(
         "Explorar"
     );
-    const [recipes, setRecipes] = useState<recipe[]>([]);
-    const [allRecipes, setAllRecipes] = useState<recipe[]>([]);
+    const [recipes, setRecipes] = useState<recipe[] | undefined>([]);
+    const [allRecipes, setAllRecipes] = useState<recipe[] | undefined>([]);
 
     const [category, setCategory] = useState(params.category);
-    const [onlyAvailable, setOnlyAvailable] = useState(false);
+    const [onlyAvailable, setOnlyAvailable] = useState(true);
 
     const [activeFilters, setActiveFilters] = useState<string[]>([]);
     const [search, setSearch] = useState("");
@@ -47,10 +47,7 @@ const ExploreRecipesScreen = () => {
 
         if (error) throw Error(error.message);
 
-        setRecipes(data);
-        setAllRecipes(data);
-
-        
+        return data;
     }
 
     async function getFoodItems() {
@@ -60,10 +57,12 @@ const ExploreRecipesScreen = () => {
         return data.map(({ nome }) => nome.toLowerCase() as string);
     }
 
-    async function getRecipesByAvailableItems() {
-        console.log('bucando receitas com os ingredientes disponivbeiw')
+    async function getRecipesByAvailableItems(recipes: recipe[]) {
+        console.log("bucando receitas com os ingredientes disponivbeiw");
+        console.log(recipes?.length);
         const availableItems: string[] = await getFoodItems();
 
+        if (!recipes) return;
         const correspondingRecipes: recipe[] = recipes.filter((recipe) => {
             // 1. Unificar a obtenção e limpeza dos ingredientes da receita
             let recipeIngredients: string[];
@@ -105,7 +104,6 @@ const ExploreRecipesScreen = () => {
 
         // A variável 'correspondingRecipes' agora contém apenas as receitas com ingredientes disponíveis.
 
-        console.log(correspondingRecipes);
         setRecipes(correspondingRecipes);
     }
 
@@ -124,10 +122,7 @@ const ExploreRecipesScreen = () => {
             .in("categoria", [...categories, category]);
         if (error) throw new Error(error.message);
 
-        setRecipes(data);
-        setAllRecipes(data);
-
-        
+        return data;
     }
 
     const handleSearch = (query: string) => {
@@ -141,15 +136,22 @@ const ExploreRecipesScreen = () => {
     };
 
     const fetchData = async () => {
-        if (activeFilters.includes("all")) await getRecipes(20);
-        else await getRecipesByCategory();
+        let data;
+        if (activeFilters.includes("all")) {
+            data = await getRecipes(20);
+            setRecipes(data);
+            setAllRecipes(data);
+        } else {
+            data = await getRecipesByCategory();
+            setRecipes(data);
+            setAllRecipes(data);
+        }
 
-        if(onlyAvailable) await getRecipesByAvailableItems();
-    }
+        if (onlyAvailable) await getRecipesByAvailableItems(data!);
+    };
 
     useEffect(() => {
         fetchData();
-        
     }, [activeFilters, onlyAvailable]);
 
     useEffect(() => {
@@ -157,39 +159,36 @@ const ExploreRecipesScreen = () => {
         fetchData();
     }, [selectedTab]);
 
-    // useEffect(() => {
-    //     if (onlyAvailable) {
-    //         console.log('buscando recitas com ingredientes disponíveis...')
-    //         getRecipesByAvailableItems()
-    //     };
-    // }, [onlyAvailable, activeFilters]);
-
-    // useEffect(() => {
-    //     console.log("receitas mudaram");
-    // }, [recipes]);
+    useEffect(() => {
+        fetchData();
+    }, []);
 
     useFocusEffect(
         useCallback(() => {
             // Do something when the screen is focused
 
             setCategory(params.category);
-            getRecipesByCategory();
+            fetchData();
             return () => {
                 console.log("resetar coisas");
             };
         }, [])
     );
 
-    // function toggleCategory(category: string) {
-    //   if (!selectedCategories.includes(category)) {
-    //     setSelectedCategories((prev) => [...prev, category]);
-    //   } else {
-    //     const index = selectedCategories.indexOf(category);
-    //     const newValue = [...selectedCategories];
-    //     newValue.splice(index, 1);
-    //     setSelectedCategories(newValue);
-    //   }
-    // }
+    function toggleCategory(category: string) {
+        console.log("selected", category);
+        setCategory("");
+        const filtered = activeFilters.filter((active) => active != "all");
+        if (activeFilters.includes(category)) {
+            if (activeFilters.length <= 1) return;
+            const newValue = filtered.filter((active) => active != category);
+            setActiveFilters(newValue);
+        } else {
+            setActiveFilters([...filtered, category]);
+            console.log(filtered);
+            console.log("filtrosa tivos", activeFilters);
+        }
+    }
 
     return (
         <>
@@ -256,10 +255,9 @@ const ExploreRecipesScreen = () => {
 
                     {/* 5. Filtro (Somente ingredientes disponíveis) */}
                     <RecipeFilter
-                        text="Somente ingredientes disponíveis"
+                        text="Ingredientes disponíveis"
                         onPress={() => {
                             setOnlyAvailable((prev) => !prev);
-                            
                         }}
                         isActive={onlyAvailable}
                     />
@@ -270,13 +268,9 @@ const ExploreRecipesScreen = () => {
                         <RecipeFilter
                             text="Todos"
                             onPress={() => {
-                                if (!activeFilters.includes("all")) {
-                                    setActiveFilters(["all"]);
-                                    setCategory("");
-                                } else {
-                                    setActiveFilters([]);
-                                    router.setParams({ category: null });
-                                }
+                                console.log("limpando...");
+                                setActiveFilters(["all"]);
+                                setCategory("");
                             }}
                             isActive={activeFilters.includes("all")}
                         />
@@ -289,20 +283,7 @@ const ExploreRecipesScreen = () => {
                                 activeFilters.includes("breakfast")
                             }
                             onPress={() => {
-                                if (activeFilters.includes("breakfast")) {
-                                    const newValue = activeFilters.filter(
-                                        (category) => category != "breakfast"
-                                    );
-                                    setActiveFilters(newValue);
-                                } else {
-                                    if (activeFilters[0] == "all") {
-                                        setActiveFilters([]);
-                                    }
-                                    setActiveFilters((prev) => [
-                                        ...prev,
-                                        "breakfast",
-                                    ]);
-                                }
+                                toggleCategory("breakfast");
                             }}
                         />
                         <RecipeFilter
@@ -312,18 +293,7 @@ const ExploreRecipesScreen = () => {
                                 activeFilters.includes("lunch")
                             }
                             onPress={() => {
-                                if (activeFilters[0] == "all") {
-                                    setActiveFilters([]);
-                                } else if (activeFilters.includes("lunch")) {
-                                    const index =
-                                        activeFilters.indexOf("lunch");
-                                    const newValue = activeFilters;
-                                    newValue.splice(index, 1);
-                                    setActiveFilters(newValue);
-                                    return;
-                                }
-
-                                setActiveFilters((prev) => [...prev, "lunch"]);
+                                toggleCategory("lunch");
                             }}
                         />
                         <RecipeFilter
@@ -333,18 +303,7 @@ const ExploreRecipesScreen = () => {
                                 activeFilters.includes("dinner")
                             }
                             onPress={() => {
-                                if (activeFilters[0] == "all") {
-                                    setActiveFilters([]);
-                                } else if (activeFilters.includes("dinner")) {
-                                    const index =
-                                        activeFilters.indexOf("dinner");
-                                    const newValue = activeFilters;
-                                    newValue.splice(index, 1);
-                                    setActiveFilters(newValue);
-                                    return;
-                                }
-
-                                setActiveFilters((prev) => [...prev, "dinner"]);
+                                toggleCategory("dinner");
                             }}
                         />
                     </View>
@@ -368,7 +327,7 @@ const ExploreRecipesScreen = () => {
                                     weekDay={params.weekDay as string}
                                 />
                             ))}
-                        {recipes.length === 0 && (
+                        {recipes?.length === 0 && (
                             <Text>Nenhuma receita encontrada</Text>
                         )}
                     </View>

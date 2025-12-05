@@ -23,13 +23,13 @@ const RecipeFilter = (props: RecipeFilterProps) => {
         setIsSelected((prev) => !prev);
         if (onPress) onPress();
       }}
-      style={isSelected ? styles.mealTagSelected : styles.mealTag}
+      style={isActive ? styles.mealTagSelected : styles.mealTag}
     >
-      {isSelected && (
+      {isActive && (
         <MaterialCommunityIcons name="check" size={18} color="#fff" />
       )}
       <Text
-        style={isSelected ? styles.mealTagTextSelected : styles.mealTagText}
+        style={isActive ? styles.mealTagTextSelected : styles.mealTagText}
       >
         {text}
       </Text>

@@ -59,6 +59,9 @@ export default function BarCodeScanner(props: { backToPath?: string }) {
 
   return (
     <View style={styles.container}>
+        <Text style={{marginBottom: 20, fontSize: 20, textAlign:'center'}}>
+            Aponte a câmera para o código de barras
+        </Text>
       <View style={styles.barcodebox}>
         <CameraView
           onBarcodeScanned={scanned ? undefined : handleBarcodeScanned}

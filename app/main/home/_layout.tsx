@@ -59,6 +59,13 @@ export default function Layout() {
           title: "Receitas para Reaproveitar",
         }}
       />
+
+      <Stack.Screen
+        name="forms/barCodeScanner"
+        options={{
+          title: "Escanear Código de Barras",
+        }}
+      />
     </Stack>
   );
 }
