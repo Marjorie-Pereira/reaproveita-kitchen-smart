@@ -1,26 +1,138 @@
 import Loading from "@/components/Loading";
 import { RecipeCard } from "@/components/RecipeCard";
 import RecipeFilter from "@/components/RecipeFilter";
+import SearchBar from "@/components/SearchBar";
 import { supabase } from "@/lib/supabase";
 import { mealType } from "@/types/mealTypeEnum";
 import { recipe } from "@/types/recipeType";
-import { MaterialIcons } from "@expo/vector-icons";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import filter from "lodash.filter";
 import React, { useCallback, useEffect, useState } from "react";
 import {
-    ScrollView,
+    FlatList,
     StyleSheet,
     Text,
-    TextInput,
     TouchableOpacity,
-    View,
+    View
 } from "react-native";
 
 const categoryMap = {
     breakfast: "Café da Manhã",
     lunch: "Almoço",
     dinner: "Janta",
+};
+
+interface RecipeListHeaderProps {
+    onTabSelect: (tab: "Salvas" | "Explorar") => void;
+    selectedTab: string;
+    toggleCategory: (category: string) => void;
+    onSelectAll: () => void;
+    activeFilters: string[];
+    paramsCategory: string;
+    onlyAvailableSelected: boolean;
+    onSelectOnlyAvailable: () => void;
+}
+
+const RecipeListHeader = ({
+    onTabSelect,
+    selectedTab,
+    toggleCategory,
+    onSelectAll,
+    activeFilters,
+    paramsCategory,
+    onlyAvailableSelected,
+    onSelectOnlyAvailable,
+}: RecipeListHeaderProps) => {
+    return (
+        <>
+            <View style={styles.tabContainer}>
+                <TouchableOpacity
+                    style={[
+                        styles.tabButton,
+                        selectedTab === "Salvas" && styles.activeTab,
+                    ]}
+                    onPress={() => onTabSelect("Salvas")}
+                >
+                    <Text
+                        style={[
+                            styles.tabText,
+                            selectedTab === "Salvas" && styles.tabTextActive,
+                        ]}
+                    >
+                        Salvas
+                    </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                    style={[
+                        styles.tabButton,
+                        selectedTab === "Explorar" && styles.activeTab,
+                    ]}
+                    onPress={() => onTabSelect("Explorar")}
+                >
+                    <Text
+                        style={[
+                            styles.tabText,
+                            selectedTab === "Explorar" && styles.tabTextActive,
+                        ]}
+                    >
+                        Explorar
+                    </Text>
+                </TouchableOpacity>
+            </View>
+            {/* 3. Título */}
+            <Text style={styles.title}>Explorar Receitas</Text>
+
+            {/* 5. Filtro (Somente ingredientes disponíveis) */}
+            <RecipeFilter
+                text="Ingredientes disponíveis"
+                onPress={onSelectOnlyAvailable}
+                isActive={onlyAvailableSelected}
+            />
+
+            {/* 6. Tags de Refeição */}
+            <View style={styles.mealTagContainer}>
+                {/* Tag "Todos" selecionada */}
+                <RecipeFilter
+                    text="Todos"
+                    onPress={onSelectAll}
+                    isActive={activeFilters.includes("all")}
+                />
+
+                {/* Outras Tags */}
+                <RecipeFilter
+                    text="Café da Manhã"
+                    isActive={
+                        paramsCategory == "Café da Manhã" ||
+                        activeFilters.includes("breakfast")
+                    }
+                    onPress={() => {
+                        toggleCategory("breakfast");
+                    }}
+                />
+                <RecipeFilter
+                    text="Almoço"
+                    isActive={
+                        paramsCategory == "Almoço" ||
+                        activeFilters.includes("lunch")
+                    }
+                    onPress={() => {
+                        toggleCategory("lunch");
+                    }}
+                />
+                <RecipeFilter
+                    text="Jantar"
+                    isActive={
+                        paramsCategory == "Janta" ||
+                        activeFilters.includes("dinner")
+                    }
+                    onPress={() => {
+                        toggleCategory("dinner");
+                    }}
+                />
+            </View>
+        </>
+    );
 };
 
 const ExploreRecipesScreen = () => {
@@ -39,13 +151,13 @@ const ExploreRecipesScreen = () => {
     const [search, setSearch] = useState("");
     const [isLoading, setIsLoading] = useState(false);
 
-    async function getRecipes(limit: number) {
+    async function getRecipes() {
         const tableToQueryFrom =
             selectedTab === "Explorar" ? "ReceitasCompletas" : "ReceitasSalvas";
         const { data, error } = await supabase
             .from(tableToQueryFrom)
             .select("*")
-            .limit(limit);
+           
 
         if (error) throw Error(error.message);
 
@@ -140,7 +252,7 @@ const ExploreRecipesScreen = () => {
     const fetchData = async () => {
         let data;
         if (activeFilters.includes("all")) {
-            data = await getRecipes(20);
+            data = await getRecipes();
             setRecipes(data);
             setAllRecipes(data);
         } else {
@@ -196,151 +308,52 @@ const ExploreRecipesScreen = () => {
 
     return (
         <>
-            {/* transformar em flatlist */}
-            <ScrollView>
-                <View style={styles.contentContainer}>
-                    {/* 2. Tabs (Salvas / Explorar) */}
-                    <View style={styles.tabContainer}>
-                        <TouchableOpacity
-                            style={[
-                                styles.tabButton,
-                                selectedTab === "Salvas" && styles.activeTab,
-                            ]}
-                            onPress={() => setSelectedTab("Salvas")}
-                        >
-                            <Text
-                                style={[
-                                    styles.tabText,
-                                    selectedTab === "Salvas" &&
-                                        styles.tabTextActive,
-                                ]}
-                            >
-                                Salvas
-                            </Text>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity
-                            style={[
-                                styles.tabButton,
-                                selectedTab === "Explorar" && styles.activeTab,
-                            ]}
-                            onPress={() => setSelectedTab("Explorar")}
-                        >
-                            <Text
-                                style={[
-                                    styles.tabText,
-                                    selectedTab === "Explorar" &&
-                                        styles.tabTextActive,
-                                ]}
-                            >
-                                Explorar
-                            </Text>
-                        </TouchableOpacity>
-                    </View>
-                    {/* 3. Título */}
-                    <Text style={styles.title}>Explorar Receitas</Text>
-
-                    {/* 4. Barra de Pesquisa */}
-                    <View style={styles.searchBarContainer}>
-                        <TextInput
-                            style={styles.searchInput}
-                            placeholder="Pesquisar receitas"
-                            placeholderTextColor="#999"
-                            value={search}
-                            onChangeText={handleSearch}
-                        />
-                        <MaterialIcons
-                            name="search"
-                            size={24}
-                            color="#777"
-                            style={{ marginHorizontal: 8 }}
-                        />
-                    </View>
-
-                    {/* 5. Filtro (Somente ingredientes disponíveis) */}
-                    <RecipeFilter
-                        text="Ingredientes disponíveis"
-                        onPress={() => {
+           
+           <View style={{margin: 20}}>
+           <SearchBar value={search} onChangeText={handleSearch} placeholder="Buscar receitas..." />
+           </View>
+            
+            <FlatList
+                data={recipes}
+                contentContainerStyle={styles.contentContainer}
+                keyExtractor={(item) => item.id as unknown as string}
+                numColumns={2}
+                renderItem={({ item }) => (
+                    <RecipeCard
+                        key={item.id}
+                        title={item.receita}
+                        time={item.tempo_preparo}
+                        id={item.id}
+                        imageUri={item.link_imagem}
+                        instructions={item.modo_preparo}
+                        ingredients={item.ingredientes.split("| ")}
+                        mealType={category as mealType}
+                        isSaved={selectedTab === "Salvas"}
+                        weekDay={params.weekDay as string}
+                        style={styles.recipeCardContainer}
+                    />
+                )}
+                ListHeaderComponent={() => (
+                    <RecipeListHeader
+                        activeFilters={activeFilters}
+                        onSelectAll={() => {
+                            console.log("limpando...");
+                            setActiveFilters(["all"]);
+                            setCategory("");
+                        }}
+                        onSelectOnlyAvailable={() => {
                             setOnlyAvailable((prev) => !prev);
                         }}
-                        isActive={onlyAvailable}
+                        onTabSelect={setSelectedTab}
+                        onlyAvailableSelected={onlyAvailable}
+                        paramsCategory={category as string}
+                        selectedTab={selectedTab}
+                        toggleCategory={toggleCategory}
                     />
-
-                    {/* 6. Tags de Refeição */}
-                    <View style={styles.mealTagContainer}>
-                        {/* Tag "Todos" selecionada */}
-                        <RecipeFilter
-                            text="Todos"
-                            onPress={() => {
-                                console.log("limpando...");
-                                setActiveFilters(["all"]);
-                                setCategory("");
-                            }}
-                            isActive={activeFilters.includes("all")}
-                        />
-
-                        {/* Outras Tags */}
-                        <RecipeFilter
-                            text="Café da Manhã"
-                            isActive={
-                                category == "Café da Manhã" ||
-                                activeFilters.includes("breakfast")
-                            }
-                            onPress={() => {
-                                toggleCategory("breakfast");
-                            }}
-                        />
-                        <RecipeFilter
-                            text="Almoço"
-                            isActive={
-                                category == "Almoço" ||
-                                activeFilters.includes("lunch")
-                            }
-                            onPress={() => {
-                                toggleCategory("lunch");
-                            }}
-                        />
-                        <RecipeFilter
-                            text="Jantar"
-                            isActive={
-                                category == "Janta" ||
-                                activeFilters.includes("dinner")
-                            }
-                            onPress={() => {
-                                toggleCategory("dinner");
-                            }}
-                        />
-                    </View>
-                    {/* 7. Lista de Receitas (FlatList) */}
-                    {/* 7. Lista de Receitas (Substituída por View e map) */}
-                    {isLoading ? (
-                        <Loading />
-                    ) : (
-                        <View style={styles.recipeGrid}>
-                            {recipes &&
-                                recipes.map((recipe: recipe) => (
-                                    <RecipeCard
-                                        key={recipe.id}
-                                        title={recipe.receita}
-                                        time={recipe.tempo_preparo}
-                                        id={recipe.id}
-                                        imageUri={recipe.link_imagem}
-                                        instructions={recipe.modo_preparo}
-                                        ingredients={recipe.ingredientes.split(
-                                            "| "
-                                        )}
-                                        mealType={category as mealType}
-                                        isSaved={selectedTab === "Salvas"}
-                                        weekDay={params.weekDay as string}
-                                    />
-                                ))}
-                            {recipes?.length === 0 && (
-                                <Text>Nenhuma receita encontrada</Text>
-                            )}
-                        </View>
-                    )}
-                </View>
-            </ScrollView>
+                )}
+                ListFooterComponent={isLoading ? <Loading /> : null}
+                onEndReachedThreshold={0.2}
+            />
         </>
     );
 };
@@ -357,8 +370,6 @@ const styles = StyleSheet.create({
         margin: 0, // Fundo claro geral
     },
     contentContainer: {
-        flex: 1,
-        backgroundColor: "#f5f0f7", // Fundo Roxo-Claro da tela
         paddingHorizontal: 16,
         paddingTop: 10,
     },
@@ -459,21 +470,15 @@ const styles = StyleSheet.create({
         color: "#fff", // Cor do texto da tag selecionada
         marginLeft: 4,
     },
-    recipeGrid: {
-        // ESTILO NOVO: Permite que os cards se quebrem em múltiplas linhas
-        flexDirection: "row",
-        flexWrap: "wrap",
-        justifyContent: "space-between", // Distribui o espaço entre 3 colunas
-        marginTop: 10,
-        paddingBottom: 20, // Espaço no final da rolagem
-    },
+
     recipeCardContainer: {
         // Ajustado para o novo layout de View + wrap
-        width: "31%", // Pouco menos de 1/3 para deixar margem
-        marginBottom: 10,
-        backgroundColor: "#d8ead8",
+        width: "40%", // Pouco menos de 1/3 para deixar margem
+        margin: 5,
+        backgroundColor: "#dce1dcff",
         borderRadius: 8,
         alignItems: "flex-start",
         overflow: "hidden",
+        flex: 1,
     },
 });
