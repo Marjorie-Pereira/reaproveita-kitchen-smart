@@ -3,10 +3,9 @@ import RecipeFilter from "@/components/RecipeFilter";
 import { supabase } from "@/lib/supabase";
 import { mealType } from "@/types/mealTypeEnum";
 import { recipe } from "@/types/recipeType";
-import { intersectInsensitive } from "@/utils/findIntersection";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
-import filter from 'lodash.filter';
+import filter from "lodash.filter";
 import React, { useCallback, useEffect, useState } from "react";
 import {
     ScrollView,
@@ -24,19 +23,19 @@ const categoryMap = {
 };
 
 const ExploreRecipesScreen = () => {
-     const params = useLocalSearchParams();
-      const router = useRouter();
+    const params = useLocalSearchParams();
+    const router = useRouter();
     const [selectedTab, setSelectedTab] = useState<"Salvas" | "Explorar">(
         "Explorar"
     );
     const [recipes, setRecipes] = useState<recipe[]>([]);
     const [allRecipes, setAllRecipes] = useState<recipe[]>([]);
-   
+
     const [category, setCategory] = useState(params.category);
     const [onlyAvailable, setOnlyAvailable] = useState(false);
 
     const [activeFilters, setActiveFilters] = useState<string[]>([]);
-    const [search, setSearch] = useState('');
+    const [search, setSearch] = useState("");
 
     async function getRecipes(limit: number) {
         const tableToQueryFrom =
@@ -50,37 +49,64 @@ const ExploreRecipesScreen = () => {
 
         setRecipes(data);
         setAllRecipes(data);
+
+        
     }
 
     async function getFoodItems() {
         const { data, error } = await supabase.from("Alimentos").select("nome");
         if (error) throw new Error(error.message);
 
-        return data;
+        return data.map(({ nome }) => nome.toLowerCase() as string);
     }
 
     async function getRecipesByAvailableItems() {
-        // pegar apenas de salvas se selecionado
-        // pegar pelas categorias tambem
-        //
-        // const { data, error } = await supabase.rpc("get_receitas_by_alimentos");
-        // if (error) throw new Error(error.message);
+        console.log('bucando receitas com os ingredientes disponivbeiw')
+        const availableItems: string[] = await getFoodItems();
 
-        // console.log("apena disponiveis", data.length);
-        // setRecipes(data);
-        if (!recipes) return;
-        const availableItems = (await getFoodItems()).map((item) => item.nome);
-        const recipesWithIngredients = recipes.filter(
-            (rec) => rec.ingredientes_base && rec.ingredientes_base.length > 0
-        );
+        const correspondingRecipes: recipe[] = recipes.filter((recipe) => {
+            // 1. Unificar a obtenção e limpeza dos ingredientes da receita
+            let recipeIngredients: string[];
 
-        const ingredients = recipesWithIngredients
-            .map((r) => r.ingredientes_base)
-            .flat();
+            if (
+                recipe.ingredientes_base &&
+                recipe.ingredientes_base.length > 0
+            ) {
+                // Se existe o array 'ingredientes_base', use-o
+                recipeIngredients = recipe.ingredientes_base.map((ingredient) =>
+                    ingredient.toLowerCase()
+                );
+            } else if (typeof recipe.ingredientes === "string") {
+                // Se 'ingredientes' é uma string, faça a divisão
+                const separator = recipe.ingredientes.includes(",")
+                    ? ", "
+                    : "| ";
+                recipeIngredients = recipe.ingredientes
+                    .toLowerCase()
+                    .split(separator);
+            } else {
+                // Caso não tenha ingredientes válidos (ou seja null/undefined)
+                return false;
+            }
 
-        const intersection = intersectInsensitive(availableItems, ingredients);
+            // 2. Usar Set e flat() é desnecessário aqui, basta o array limpo
 
-        console.log(intersection);
+            // 3. Verifica se **algum** item disponível corresponde a **algum** ingrediente da receita
+            return recipeIngredients.some((recipeIngredient) =>
+                availableItems.some((availableItem) => {
+                    // Correspondência por Substring (mesma lógica que você usou)
+                    return (
+                        availableItem.includes(recipeIngredient) ||
+                        recipeIngredient.includes(availableItem)
+                    );
+                })
+            );
+        });
+
+        // A variável 'correspondingRecipes' agora contém apenas as receitas com ingredientes disponíveis.
+
+        console.log(correspondingRecipes);
+        setRecipes(correspondingRecipes);
     }
 
     async function getRecipesByCategory() {
@@ -100,35 +126,47 @@ const ExploreRecipesScreen = () => {
 
         setRecipes(data);
         setAllRecipes(data);
+
+        
     }
 
     const handleSearch = (query: string) => {
-        setSearch(query)
+        setSearch(query);
         const formattedQuery = query.toLowerCase();
         const formattedData = filter(allRecipes, (recipe: recipe) => {
             return recipe.receita.toLowerCase().includes(formattedQuery);
-        })
+        });
 
         setRecipes(formattedData);
+    };
+
+    const fetchData = async () => {
+        if (activeFilters.includes("all")) await getRecipes(20);
+        else await getRecipesByCategory();
+
+        if(onlyAvailable) await getRecipesByAvailableItems();
     }
 
     useEffect(() => {
-        if (activeFilters.includes("all")) getRecipes(20);
-        else getRecipesByCategory();
-    }, [activeFilters]);
+        fetchData();
+        
+    }, [activeFilters, onlyAvailable]);
 
     useEffect(() => {
-        setSearch('');
-        getRecipes(20);
+        setSearch("");
+        fetchData();
     }, [selectedTab]);
 
-    useEffect(() => {
-        if (onlyAvailable) getRecipesByAvailableItems();
-    }, [onlyAvailable]);
+    // useEffect(() => {
+    //     if (onlyAvailable) {
+    //         console.log('buscando recitas com ingredientes disponíveis...')
+    //         getRecipesByAvailableItems()
+    //     };
+    // }, [onlyAvailable, activeFilters]);
 
-    useEffect(() => {
-        console.log("receitas mudaram");
-    }, [recipes]);
+    // useEffect(() => {
+    //     console.log("receitas mudaram");
+    // }, [recipes]);
 
     useFocusEffect(
         useCallback(() => {
@@ -137,7 +175,7 @@ const ExploreRecipesScreen = () => {
             setCategory(params.category);
             getRecipesByCategory();
             return () => {
-                console.log('resetar coisas')
+                console.log("resetar coisas");
             };
         }, [])
     );
@@ -155,6 +193,7 @@ const ExploreRecipesScreen = () => {
 
     return (
         <>
+            {/* transformar em flatlist */}
             <ScrollView>
                 <View style={styles.contentContainer}>
                     {/* 2. Tabs (Salvas / Explorar) */}
@@ -206,7 +245,6 @@ const ExploreRecipesScreen = () => {
                             placeholderTextColor="#999"
                             value={search}
                             onChangeText={handleSearch}
-                            
                         />
                         <MaterialIcons
                             name="search"
@@ -221,6 +259,7 @@ const ExploreRecipesScreen = () => {
                         text="Somente ingredientes disponíveis"
                         onPress={() => {
                             setOnlyAvailable((prev) => !prev);
+                            
                         }}
                         isActive={onlyAvailable}
                     />
@@ -329,7 +368,7 @@ const ExploreRecipesScreen = () => {
                                     weekDay={params.weekDay as string}
                                 />
                             ))}
-                        {recipes.length === 0  && (
+                        {recipes.length === 0 && (
                             <Text>Nenhuma receita encontrada</Text>
                         )}
                     </View>
@@ -406,7 +445,7 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 8,
         fontSize: 16,
-        color: 'black'
+        color: "black",
     },
     // --- 5. Filtro ---
     filterButton: {
