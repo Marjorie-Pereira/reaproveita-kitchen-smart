@@ -38,14 +38,14 @@ import { subDays } from "date-fns";
 import filter from "lodash.filter";
 
 const Inventory = () => {
-    const { group } = useLocalSearchParams();
+    const { group, scanning, addingItem } = useLocalSearchParams();
 
     const [isLoading, setIsLoading] = useState(false);
     const [location, setLocation] = useState<string>("Geladeira");
     const [foodList, setFoodList] = useState<foodItem[]>([]);
     const [queryFoodList, setQueryFoodList] = useState<foodItem[]>([]);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [isScannerOpen, setIsScannerOpen] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(addingItem ? true : false);
+    const [isScannerOpen, setIsScannerOpen] = useState<boolean>(scanning ? true  : false);
     const [scannedItem, setScannedItem] = useState<productType | undefined>(
         undefined
     );

@@ -2,10 +2,10 @@ import AntDesign from "@expo/vector-icons/AntDesign";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import * as ImagePicker from "expo-image-picker";
 import {
-  RelativePathString,
-  router,
-  useFocusEffect,
-  useLocalSearchParams,
+    RelativePathString,
+    router,
+    useFocusEffect,
+    useLocalSearchParams,
 } from "expo-router";
 import { useCallback, useRef } from "react";
 import { Button, Pressable, StyleSheet, Text, View } from "react-native";
@@ -57,11 +57,11 @@ export default function CameraTest() {
     });
 
     if (!result.canceled) {
-      router.navigate({
+      router.replace({
         pathname: params.path as RelativePathString,
         params: { ...params, uri: result.assets[0].uri },
       });
-      router.setParams({});
+     
     }
   };
 

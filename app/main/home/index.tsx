@@ -36,15 +36,19 @@ export default function WelcomeScreen() {
             label: "Cadastrar",
             icon: <FontAwesome6 name="keyboard" size={20} color="black" />,
             onPress: () =>
-                router.navigate({
-                    pathname: "/main/home/forms/newFoodItem",
-                    params: { backToPath: path },
+                router.push({
+                    pathname: "/main/home/items",
+                    params: { group: 'all', addingItem: "true" },
                 }),
         },
         {
             label: "Escanear",
             icon: <Ionicons name="barcode-sharp" size={24} color="black" />,
-            onPress: () => router.push("/main/home/forms/barCodeScanner"),
+            onPress: () =>
+                router.push({
+                    pathname: "/main/home/items",
+                    params: { group: 'all', scanning: "true" },
+                }),
         },
     ];
 
@@ -285,7 +289,7 @@ export default function WelcomeScreen() {
                 </ScrollView>
             </View>
             <SearchItemsModal
-                groupedInventory={groupedInventory}
+                groupedInventory={Object.entries(groupedInventory)}
                 onClose={() => setIsSearchModalOpen(false)}
                 onItemPress={() => {}}
                 isVisible={isSearchModalOpen}

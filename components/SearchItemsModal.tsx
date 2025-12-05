@@ -24,7 +24,7 @@ export interface FoodItem {
 interface SearchItemsModalProps {
     isVisible: boolean;
     onClose: () => void;
-    groupedInventory: Record<string, FoodItem[]>;
+    groupedInventory: [string, FoodItem[]][];
     onItemPress: (id: string) => void;
     searchBarPlaceholder?: string;
 }
@@ -37,28 +37,32 @@ const SearchItemsModal: React.FC<SearchItemsModalProps> = ({
 
     groupedInventory,
 }) => {
+    const [search, setSearch] = useState("");
+    const [items, setItems] = useState(groupedInventory);
+
     useEffect(() => {
         setSearch("");
-        setItems(Object.entries(groupedInventory));
+        setItems(groupedInventory);
     }, [isVisible]);
 
-    const [search, setSearch] = useState("");
-    const [items, setItems] = useState(Object.entries(groupedInventory));
-    const [allItems, setAllItems] = useState(Object.entries(groupedInventory));
+    type InventoryGroup = [string, FoodItem[]];
 
     const handleSearch = (query: string) => {
         setSearch(query);
         const formattedQuery = query.toLowerCase();
 
-        const filteredData = filter(allItems, ([location, foodItems]) => {
-            const matchingFoodItems = filter(foodItems, (item) => {
-                return item.nome.toLowerCase().includes(formattedQuery);
-            });
+        const mappedAndFilteredData = (groupedInventory as InventoryGroup[])
+            .map(([location, foodItems]) => {
+                const matchingFoodItems = filter(foodItems, (item) => {
+                    return item.nome.toLowerCase().includes(formattedQuery);
+                });
 
-            return matchingFoodItems.length > 0;
-        });
+                return [location, matchingFoodItems] as InventoryGroup;
+            })
 
-        setItems(filteredData);
+            .filter(([, foodItems]) => foodItems.length > 0);
+
+        setItems(mappedAndFilteredData);
     };
 
     return (
@@ -131,7 +135,6 @@ const SearchItemsModal: React.FC<SearchItemsModalProps> = ({
                                                             "flex-start",
                                                     }}
                                                 >
-                                                    
                                                     <Image
                                                         source={item.imagem}
                                                         contentFit="cover"
@@ -140,7 +143,11 @@ const SearchItemsModal: React.FC<SearchItemsModalProps> = ({
                                                             height: 80,
                                                         }}
                                                     />
-                                                    <View style={{marginLeft: 10}}>
+                                                    <View
+                                                        style={{
+                                                            marginLeft: 10,
+                                                        }}
+                                                    >
                                                         <Text
                                                             style={
                                                                 modalStyles.itemName

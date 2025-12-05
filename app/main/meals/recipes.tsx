@@ -287,6 +287,7 @@ const ExploreRecipesScreen = () => {
             fetchData();
             return () => {
                 console.log("resetar coisas");
+                setSearch('')
             };
         }, [])
     );
