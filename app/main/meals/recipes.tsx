@@ -1,3 +1,4 @@
+import Loading from "@/components/Loading";
 import { RecipeCard } from "@/components/RecipeCard";
 import RecipeFilter from "@/components/RecipeFilter";
 import { supabase } from "@/lib/supabase";
@@ -36,6 +37,7 @@ const ExploreRecipesScreen = () => {
 
     const [activeFilters, setActiveFilters] = useState<string[]>([]);
     const [search, setSearch] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
 
     async function getRecipes(limit: number) {
         const tableToQueryFrom =
@@ -148,6 +150,7 @@ const ExploreRecipesScreen = () => {
         }
 
         if (onlyAvailable) await getRecipesByAvailableItems(data!);
+        setIsLoading(false);
     };
 
     useEffect(() => {
@@ -160,6 +163,7 @@ const ExploreRecipesScreen = () => {
     }, [selectedTab]);
 
     useEffect(() => {
+        setIsLoading(true);
         fetchData();
     }, []);
 
@@ -310,6 +314,7 @@ const ExploreRecipesScreen = () => {
                     {/* 7. Lista de Receitas (FlatList) */}
                     {/* 7. Lista de Receitas (Substituída por View e map) */}
                     <View style={styles.recipeGrid}>
+                        {isLoading && <Loading />}
                         {recipes &&
                             recipes.map((recipe: recipe) => (
                                 <RecipeCard
