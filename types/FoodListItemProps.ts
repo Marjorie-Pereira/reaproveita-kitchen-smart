@@ -5,7 +5,7 @@ export type FoodListItemProps = {
   category: string;
   volume: string;
   expiresIn: string
- 
+    onItemPress: () => void
 };
 
 export type foodItem = {

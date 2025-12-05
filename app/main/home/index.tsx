@@ -18,7 +18,7 @@ import {
     Ionicons,
     MaterialCommunityIcons,
 } from "@expo/vector-icons";
-import { router, useFocusEffect, usePathname } from "expo-router";
+import { useFocusEffect, usePathname, useRouter } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
 import {
     Keyboard,
@@ -31,6 +31,7 @@ import {
 
 export default function WelcomeScreen() {
     const path = usePathname();
+    const router = useRouter();
     const FLOATING_BUTTON_ACTIONS: buttonActionsObject[] = [
         {
             label: "Cadastrar",
@@ -118,10 +119,12 @@ export default function WelcomeScreen() {
             .from("Alimentos")
             .select(
                 "id, nome, marca,  categoria,  quantidade,unidade_medida,imagem, data_validade"
-            ).limit(5).order('data_validade', {ascending: true});
+            )
+            .limit(5)
+            .order("data_validade", { ascending: true });
 
         if (error) throw new Error(error.message);
-       
+
         setOrderedItems(data);
     };
 
@@ -266,20 +269,24 @@ export default function WelcomeScreen() {
                         </View>
 
                         <View>
-                            
-                            {orderedItems.map((item) => 
+                            {orderedItems.map((item) => (
                                 <FoodListItem
-                                key={item.id}
-                                name={item.nome}
-                                brand={item.marca}
-                                category={item.categoria}
-                                volume={`${item.quantidade} ${item.unidade_medida}`}
-                                expiresIn={item.data_validade}
-                                
-                                
-                                imageUri={item.imagem}
-                            />
-                            )}
+                                    key={item.id}
+                                    name={item.nome}
+                                    brand={item.marca}
+                                    category={item.categoria}
+                                    volume={`${item.quantidade} ${item.unidade_medida}`}
+                                    expiresIn={item.data_validade}
+                                    imageUri={item.imagem}
+                                    onItemPress={() =>
+                                        router.push({
+                                            pathname:
+                                                "/main/home/items/itemView",
+                                            params: { itemId: item.id },
+                                        })
+                                    }
+                                />
+                            ))}
                         </View>
                     </View>
                 </ScrollView>

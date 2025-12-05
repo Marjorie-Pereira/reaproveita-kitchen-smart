@@ -1,11 +1,17 @@
-import { labelColor } from "@/constants/status.colors";
 import { FoodListItemProps } from "@/types/FoodListItemProps";
-import { labelColorMap } from "@/types/statusColorMap";
 import { MaterialIcons } from "@expo/vector-icons";
 import { differenceInDays, formatDate } from "date-fns";
 import React, { useEffect, useState } from "react";
-import { Image, Platform, StyleSheet, Text, View } from "react-native";
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+const badgeColor = {
+    Vencendo: "#FEF9C2",
+    Vencido: "#FFE3E2",
+};
 
+const badgeTextColor = {
+    Vencendo: "#B7950B",
+    Vencido: "#9E2B35",
+};
 const FoodListItem = ({
     imageUri,
     name,
@@ -13,6 +19,7 @@ const FoodListItem = ({
     category,
     volume,
     expiresIn,
+    onItemPress,
 }: FoodListItemProps) => {
     const expiringDays = 7;
     const expirationDate = new Date(expiresIn);
@@ -34,51 +41,65 @@ const FoodListItem = ({
     }, [expiresIn]);
 
     return (
-        <View style={styles.container}>
-            {/* Imagem do Produto */}
-            <Image
-                source={{ uri: imageUri }}
-                style={styles.productImage}
-                resizeMode="contain"
-            />
+        <TouchableOpacity onPress={onItemPress}>
+            <View style={styles.container}>
+                {/* Imagem do Produto */}
+                <Image
+                    source={{ uri: imageUri }}
+                    style={styles.productImage}
+                    resizeMode="contain"
+                />
 
-            <View style={styles.detailsContainer}>
-                <Text style={styles.productName}>{name}</Text>
-                <Text style={styles.productBrand}>{brand}</Text>
-                <Text style={styles.productCategory}>{category}</Text>
-                <Text style={styles.productVolume}>{volume}</Text>
-            </View>
+                <View style={styles.detailsContainer}>
+                    <Text style={styles.productName}>{name}</Text>
+                    <Text style={styles.productBrand}>{brand}</Text>
+                    <Text style={styles.productCategory}>{category}</Text>
+                    <Text style={styles.productVolume}>{volume}</Text>
+                </View>
 
-            <View style={styles.expirationDateContainer}>
-                {status ? (
-                    <View style={{ flex: 1 }}>
-                        <View
-                            style={[
-                                styles.statusBadge,
-                                {
-                                    backgroundColor:
-                                        labelColor[
-                                            status as keyof labelColorMap
-                                        ],
-                                },
-                            ]}
-                        >
-                            <Text style={styles.statusText}>{status}</Text>
+                <View style={styles.expirationDateContainer}>
+                    {status ? (
+                        <View style={{ flex: 1 }}>
+                            <View
+                                style={[
+                                    styles.statusBadge,
+                                    {
+                                        backgroundColor:
+                                            badgeColor[
+                                                status as keyof typeof badgeColor
+                                            ],
+                                            borderRadius: 8
+                                    },
+                                ]}
+                            >
+                                <Text
+                                    style={[
+                                        styles.statusText,
+                                        {
+                                            color: badgeTextColor[
+                                                status as keyof typeof badgeTextColor
+                                            ],
+                                        },
+                                    ]}
+                                >
+                                    {status}
+                                </Text>
+                            </View>
                         </View>
+                    ) : (
+                        <View style={{ flex: 1 }}></View>
+                    )}
+                    <View style={{ flexDirection: "row", gap: 10 }}>
+                        <MaterialIcons
+                            name="calendar-today"
+                            size={18}
+                            color="#555"
+                        />
+                        <Text>{formatDate(expirationDate, "dd/MM/yyyy")}</Text>
                     </View>
-                ) : (
-                    <View style={{ flex: 1 }}></View>
-                )}
-                <View style={{ flexDirection: "row", gap: 10 }}>
-                    <MaterialIcons
-                        name="calendar-today"
-                        size={18}
-                        color="#555"
-                    />
-                    <Text>{formatDate(expirationDate, "dd/MM/yyyy")}</Text>
                 </View>
             </View>
-        </View>
+        </TouchableOpacity>
     );
 };
 
@@ -90,18 +111,8 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         padding: 15,
         marginVertical: 8,
-        ...Platform.select({
-            ios: {
-                shadowColor: "#000",
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.1,
-                shadowRadius: 4,
-            },
-            android: {
-                elevation: 3,
-            },
-        }),
         width: "100%",
+        elevation: 3,
     },
     productImage: {
         width: 60,
