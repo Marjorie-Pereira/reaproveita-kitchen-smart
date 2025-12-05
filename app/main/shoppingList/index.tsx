@@ -8,20 +8,20 @@ import { buttonActionsObject } from "@/types/buttonActionsObject";
 import { productType } from "@/types/openFoodApiResponse";
 import { Feather, Ionicons } from "@expo/vector-icons";
 import {
-  useFocusEffect,
-  useLocalSearchParams,
-  useRootNavigationState,
-  useRouter,
+    useFocusEffect,
+    useLocalSearchParams,
+    useRootNavigationState,
+    useRouter,
 } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import {
-  Alert,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    Alert,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 
 // --- Interfaces ---
@@ -110,7 +110,7 @@ function ShoppingList() {
   };
 
   const fetchItemsFromInventory = async () => {
-    const { data, error } = await supabase.from("Alimentos").select("*");
+    const { data, error } = await supabase.from("Alimentos").select("*").eq('id_usuario', user.id);
 
     if (error) throw new Error(error.message);
     setInventoryItems(data);

@@ -45,6 +45,16 @@ const SearchItemsModal: React.FC<SearchItemsModalProps> = ({
         setItems(groupedInventory);
     }, [isVisible]);
 
+    useEffect(() => {
+        console.log(groupedInventory)
+    }, [items])
+
+    useEffect(() => {
+       
+       console.log('isVisible', isVisible)
+       if(isVisible) setItems(groupedInventory);
+    }, []);
+
     type InventoryGroup = [string, FoodItem[]];
 
     const handleSearch = (query: string) => {

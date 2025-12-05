@@ -34,10 +34,12 @@ const groupMap = {
 };
 
 import Loading from "@/components/Loading";
+import { useAuth } from "@/contexts/AuthContext";
 import { subDays } from "date-fns";
 import filter from "lodash.filter";
 
 const Inventory = () => {
+    const {user} = useAuth();
     const { group, scanning, addingItem } = useLocalSearchParams();
 
     const [isLoading, setIsLoading] = useState(false);
@@ -98,13 +100,12 @@ const Inventory = () => {
         ];
     };
 
-    const getLeftovers = (items: foodItem[]) => {
-        return [];
-    };
+  ;
 
     async function handleAddItem(item: foodItem) {
+       
         const { error } = await supabase.from("Alimentos").insert({
-            ...item,
+            ...item, id_usuario: user.id
         });
 
         if (error) {
@@ -127,7 +128,7 @@ const Inventory = () => {
             .from("Alimentos")
             .select("*")
             .eq("id_ambiente", id)
-            .eq(field, value);
+            .eq(field, value).eq('id_usuario', user.id);
 
         if (error) {
             throw Error(error.message);
@@ -136,33 +137,7 @@ const Inventory = () => {
         return data;
     }
 
-    async function getByGroup(
-        group: string,
-        items: foodItem[],
-        location: string
-    ) {
-        if (!location) return;
-        console.log("getting by the group of", group);
-        const { id } = await getLocationId(location);
-        switch (group) {
-            case "open":
-                const openItems = getOpenItems(items, id);
-                return openItems;
-
-            case "expiring":
-                const expiringItems = getExpiringItems(items, id);
-                return expiringItems;
-
-            case "expired":
-                const expiredItems = getExpiredItems(items, id);
-                return expiredItems;
-
-            case "leftovers":
-                break;
-            default:
-                break;
-        }
-    }
+ 
 
     function getFilteredByGroup(group: string, items: foodItem[], id: string) {
         switch (group) {
@@ -211,7 +186,7 @@ const Inventory = () => {
         useCallback(() => {
             setIsLoading(true);
             let isActive = true; // previne crash quando a tela desmonta
-
+           
             const load = async () => {
                 try {
                     // 1) Pegue o ID da location uma única vez

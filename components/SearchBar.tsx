@@ -8,13 +8,15 @@ interface SearchBarProps {
   placeholder?: string;
   onPress?: () => void;
   ref?: React.RefObject<TextInput | null>
+  editable?: boolean
 }
 const SearchBar = ({
   value,
   onChangeText,
   placeholder = "Buscar...",
   onPress = () => null,
-  ref
+  ref,
+  editable = true
  
 }: SearchBarProps) => {
   
@@ -30,6 +32,7 @@ const SearchBar = ({
         ref={ref}
         clearButtonMode="always"
         autoCapitalize="none"
+        editable={editable}
       />
 
       <Feather name="search" size={22} color="#333" />

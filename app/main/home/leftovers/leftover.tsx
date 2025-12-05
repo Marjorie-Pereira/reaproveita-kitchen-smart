@@ -1,5 +1,4 @@
 import Button from "@/components/Button";
-import NumberRaiseInput from "@/components/NumberRaiseInput";
 import { supabase } from "@/lib/supabase";
 import { mealObject } from "@/types/mealObject.type";
 import { Feather } from "@expo/vector-icons";
@@ -9,12 +8,12 @@ import { Image } from "expo-image";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
-  Alert,
-  KeyboardAvoidingView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
+    Alert,
+    KeyboardAvoidingView,
+    ScrollView,
+    StyleSheet,
+    Text,
+    View,
 } from "react-native";
 
 export default function MealViewScreen() {
@@ -144,13 +143,13 @@ export default function MealViewScreen() {
 
             <View style={styles.cardSectionOptions}>
               <View style={styles.cardSectionActions}>
-                <View style={styles.portionsContainer}>
+                {/* <View style={styles.portionsContainer}>
                   <Text style={styles.h2}>Porções:</Text>
                   <NumberRaiseInput
                     initialValue={leftoverPortions!}
                     onChange={(val) => setLeftoverPortions(val)}
                   />
-                </View>
+                </View> */}
                 <Button
                   onPress={() => {
                     router.push("/main/home/leftovers/recipesLeftovers");

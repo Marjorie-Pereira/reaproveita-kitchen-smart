@@ -3,13 +3,13 @@ import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { useRouter } from "expo-router";
 import { useRef, useState } from "react";
 import {
-  Alert,
-  Pressable,
-  StyleProp,
-  StyleSheet,
-  Text,
-  View,
-  ViewStyle,
+    Alert,
+    Pressable,
+    StyleProp,
+    StyleSheet,
+    Text,
+    View,
+    ViewStyle,
 } from "react-native";
 
 import Button from "@/components/Button";
@@ -102,7 +102,7 @@ const SignUp = () => {
               type="password"
               secureTextEntry={eyeIcon === "hide" ? true : false}
             />
-            <Text style={styles.forgotPassword}>Esqueceu a senha?</Text>
+            {/* <Text style={styles.forgotPassword}>Esqueceu a senha?</Text> */}
             <Button
               loading={loading}
               onPress={onSubmit}

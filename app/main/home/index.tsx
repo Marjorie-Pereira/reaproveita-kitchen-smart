@@ -4,6 +4,7 @@ import FoodListItem from "@/components/FoodListItem";
 import SearchBar from "@/components/SearchBar";
 import SearchItemsModal, { FoodItem } from "@/components/SearchItemsModal";
 import { labelTextColor } from "@/constants/status.colors";
+import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
 import { buttonActionsObject } from "@/types/buttonActionsObject";
 import {
@@ -18,7 +19,7 @@ import {
     Ionicons,
     MaterialCommunityIcons,
 } from "@expo/vector-icons";
-import { useFocusEffect, usePathname, useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
 import {
     Keyboard,
@@ -30,8 +31,8 @@ import {
 } from "react-native";
 
 export default function WelcomeScreen() {
-    const path = usePathname();
     const router = useRouter();
+    const { user } = useAuth();
     const FLOATING_BUTTON_ACTIONS: buttonActionsObject[] = [
         {
             label: "Cadastrar",
@@ -60,9 +61,13 @@ export default function WelcomeScreen() {
     const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
     const [inventoryItems, setInventoryItems] = useState<any[]>([]);
     const [orderedItems, setOrderedItems] = useState<any[]>([]);
+    const [groupedInventory, setGroupedIventory] = useState<Record<string, FoodItem[]>>();
 
     async function getItemsCount() {
-        const { data, error } = await supabase.from("Alimentos").select("*");
+        const { data, error } = await supabase
+            .from("Alimentos")
+            .select("*")
+            .eq("id_usuario", user.id);
 
         if (error) {
             throw Error(error.message);
@@ -84,7 +89,8 @@ export default function WelcomeScreen() {
         const { data, error } = await supabase
             .from("Refeicoes")
             .select("*")
-            .eq("tem_sobras", true);
+            .eq("tem_sobras", true)
+            .eq("id_usuario", user.id);
 
         if (error) {
             console.error(error);
@@ -97,7 +103,8 @@ export default function WelcomeScreen() {
     const fetchItemsFromInventory = async () => {
         const { data, error } = await supabase
             .from("Alimentos")
-            .select("*, Ambientes(nome)");
+            .select("*, Ambientes(nome)")
+            .eq("id_usuario", user.id);
 
         if (error) throw new Error(error.message);
         const items = data.map((r) => {
@@ -120,6 +127,7 @@ export default function WelcomeScreen() {
             .select(
                 "id, nome, marca,  categoria,  quantidade,unidade_medida,imagem, data_validade"
             )
+            .eq("id_usuario", user.id)
             .limit(5)
             .order("data_validade", { ascending: true });
 
@@ -152,14 +160,6 @@ export default function WelcomeScreen() {
     useEffect(() => {
         fetchItemsByExpirationDate();
     }, []);
-
-    const groupedInventory = inventoryItems.reduce((acc, item) => {
-        if (!acc[item.location]) {
-            acc[item.location] = [];
-        }
-        acc[item.location].push(item);
-        return acc;
-    }, {} as Record<string, FoodItem[]>);
 
     return (
         <>
@@ -236,13 +236,29 @@ export default function WelcomeScreen() {
                         />
                     </View>
 
-                    <SearchBar
-                        value=""
-                        onChangeText={() => {}}
+                    <TouchableOpacity
                         onPress={() => {
+                            const groupedInventory = inventoryItems.reduce(
+                                (acc, item) => {
+                                    if (!acc[item.location]) {
+                                        acc[item.location] = [];
+                                    }
+                                    acc[item.location].push(item);
+                                    return acc;
+                                },
+                                {} as Record<string, FoodItem[]>
+                            );
+
+                            setGroupedIventory(groupedInventory);
                             setIsSearchModalOpen(true);
                         }}
-                    />
+                    >
+                        <SearchBar
+                            value=""
+                            onChangeText={() => {}}
+                            editable={false}
+                        />
+                    </TouchableOpacity>
 
                     {/* Section: Todos os itens */}
                     <View style={styles.itemsList}>
@@ -292,7 +308,7 @@ export default function WelcomeScreen() {
                 </ScrollView>
             </View>
             <SearchItemsModal
-                groupedInventory={Object.entries(groupedInventory)}
+                groupedInventory={Object.entries(groupedInventory ?? {})}
                 onClose={() => setIsSearchModalOpen(false)}
                 onItemPress={() => {}}
                 isVisible={isSearchModalOpen}
