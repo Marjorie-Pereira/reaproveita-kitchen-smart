@@ -1,4 +1,5 @@
 import Loading from "@/components/Loading";
+import { COLORS } from "@/constants/theme";
 import { supabase } from "@/lib/supabase";
 import { foodItem } from "@/types/FoodListItemProps";
 import { capitalizeFirstLetter } from "@/utils/capitalizeString";
@@ -305,9 +306,18 @@ const FoodItemView = () => {
                                     itemData?.data_validade!
                                 )}
                             />
+                            <InfoRow
+                                iconName="attach-money"
+                                label="Preço"
+                                value={`R$ ${
+                                    itemData?.preco?.toFixed(2) ?? "Sem dados"
+                                }`}
+                            />
                         </View>
                     </View>
-
+                    <View style={styles.statusLabel}>
+                        <Text style={styles.statusLabelText}>{itemData?.status}</Text>
+                    </View>
                     {/* Botões de Ação */}
                     <View style={styles.buttonContainer}>
                         <TouchableOpacity
@@ -388,7 +398,7 @@ const styles = StyleSheet.create({
     infoContainer: {
         flexDirection: "row",
         justifyContent: "space-between",
-        marginBottom: 24,
+        marginBottom: 0,
     },
     infoColumn: {
         flex: 1,
@@ -439,6 +449,20 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: "bold",
     },
+    statusLabel: {
+        backgroundColor: COLORS.secondaryLight,
+        padding: 12,
+        borderRadius: 8,
+        alignItems: 'center',
+        borderWidth: 1,
+        borderStyle: 'solid',
+        borderColor: COLORS.seconday
+    },
+    statusLabelText: {
+        color: COLORS.seconday,
+        fontWeight: '500',
+        fontSize: 15
+    }
 });
 
 export default FoodItemView;
