@@ -6,7 +6,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
 import { recipe } from "@/types/recipeType";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
-import filter from "lodash.filter";
 import React, { useCallback, useEffect, useState } from "react";
 import {
     FlatList,
@@ -20,6 +19,12 @@ const categoryMap = {
     breakfast: "Café da Manhã",
     lunch: "Almoço",
     dinner: "Janta",
+};
+
+const reverseCategoryMap = {
+    "Café da Manhã": "breakfast",
+    Almoço: "lunch",
+    Janta: "dinner",
 };
 
 interface RecipeListHeaderProps {
@@ -142,27 +147,15 @@ const ExploreRecipesScreen = () => {
     const [selectedTab, setSelectedTab] = useState<"Salvas" | "Explorar">(
         "Explorar"
     );
-    const [recipes, setRecipes] = useState<recipe[] | undefined>([]);
-    const [allRecipes, setAllRecipes] = useState<recipe[] | undefined>([]);
+    const [recipes, setRecipes] = useState<any[]>([]);
+    const [allRecipes, setAllRecipes] = useState<any[]>([]);
 
     const [category, setCategory] = useState(params.category);
-    const [onlyAvailable, setOnlyAvailable] = useState(true);
+    const [onlyAvailable, setOnlyAvailable] = useState(false);
 
     const [activeFilters, setActiveFilters] = useState<string[]>([]);
     const [search, setSearch] = useState("");
     const [isLoading, setIsLoading] = useState(false);
-
-    async function getRecipes() {
-        const tableToQueryFrom =
-            selectedTab === "Explorar" ? "ReceitasCompletas" : "ReceitasSalvas";
-        const { data, error } = await supabase
-            .from(tableToQueryFrom)
-            .select("*");
-
-        if (error) throw Error(error.message);
-
-        return data;
-    }
 
     async function getFoodItems() {
         const { data, error } = await supabase
@@ -177,24 +170,21 @@ const ExploreRecipesScreen = () => {
         }
     }
 
-    async function getRecipesByAvailableItems(recipes: recipe[]) {
+    async function getRecipesByAvailableItems(recipes: any[]) {
         const availableItems: string[] = await getFoodItems();
 
         if (!recipes) return;
         const correspondingRecipes: recipe[] = recipes.filter((recipe) => {
-            // 1. Unificar a obtenção e limpeza dos ingredientes da receita
             let recipeIngredients: string[];
 
             if (
                 recipe.ingredientes_base &&
                 recipe.ingredientes_base.length > 0
             ) {
-                // Se existe o array 'ingredientes_base', use-o
-                recipeIngredients = recipe.ingredientes_base.map((ingredient) =>
-                    ingredient.toLowerCase()
+                recipeIngredients = recipe.ingredientes_base.map(
+                    (ingredient: string) => ingredient.toLowerCase()
                 );
             } else if (typeof recipe.ingredientes === "string") {
-                // Se 'ingredientes' é uma string, faça a divisão
                 const separator = recipe.ingredientes.includes(",")
                     ? ", "
                     : "| ";
@@ -202,16 +192,11 @@ const ExploreRecipesScreen = () => {
                     .toLowerCase()
                     .split(separator);
             } else {
-                // Caso não tenha ingredientes válidos (ou seja null/undefined)
                 return false;
             }
 
-            // 2. Usar Set e flat() é desnecessário aqui, basta o array limpo
-
-            // 3. Verifica se **algum** item disponível corresponde a **algum** ingrediente da receita
             return recipeIngredients.some((recipeIngredient) =>
                 availableItems.some((availableItem) => {
-                    // Correspondência por Substring (mesma lógica que você usou)
                     return (
                         availableItem.includes(recipeIngredient) ||
                         recipeIngredient.includes(availableItem)
@@ -220,90 +205,110 @@ const ExploreRecipesScreen = () => {
             );
         });
 
-        // A variável 'correspondingRecipes' agora contém apenas as receitas com ingredientes disponíveis.
-
-        setRecipes(correspondingRecipes);
+        return correspondingRecipes;
     }
 
-    async function getRecipesByCategory() {
-        if (activeFilters.includes("all")) return;
-        const tableToQueryFrom =
-            selectedTab === "Explorar" ? "ReceitasCompletas" : "ReceitasSalvas";
+    const filterRecipes = (dataToFilter: recipe[] | undefined): recipe[] => {
+        if (!dataToFilter) return [];
+        let currentRecipes = dataToFilter;
 
-        const categories = activeFilters.map(
-            (filter) => categoryMap[filter as keyof typeof categoryMap]
-        );
-
-        const { data, error } = await supabase
-            .from(tableToQueryFrom)
-            .select("*")
-            .in("categoria", [...categories, category]);
-        if (error) throw new Error(error.message);
-
-        return data;
-    }
-
-    const handleSearch = (query: string) => {
-        setSearch(query);
-        const formattedQuery = query.toLowerCase();
-        const formattedData = filter(allRecipes, (recipe: recipe) => {
-            return recipe.receita.toLowerCase().includes(formattedQuery);
-        });
-
-        setRecipes(formattedData);
-    };
-
-    const fetchData = async () => {
-        let data;
-        if (activeFilters.includes("all")) {
-            data = await getRecipes();
-            setRecipes(data);
-            setAllRecipes(data);
-        } else {
-            data = await getRecipesByCategory();
-            setRecipes(data);
-            setAllRecipes(data);
+        if (activeFilters.length > 0 && !activeFilters.includes("all")) {
+            console.log("buscando pelas categorias", activeFilters);
+            const mappedFilters = activeFilters.map(
+                (filter) => categoryMap[filter as keyof typeof categoryMap]
+            );
+            currentRecipes = currentRecipes.filter((recipe) => {
+                return [...mappedFilters, category].includes(recipe.categoria);
+            });
         }
 
-        if (onlyAvailable) await getRecipesByAvailableItems(data!);
-        setIsLoading(false);
+        if (search) {
+            const formattedQuery = search.toLowerCase();
+            currentRecipes = currentRecipes.filter((recipe) =>
+                recipe.receita.toLowerCase().includes(formattedQuery)
+            );
+        }
+
+        return currentRecipes;
     };
 
     useEffect(() => {
-        fetchData();
-    }, [activeFilters, onlyAvailable]);
+        const loadRecipes = async () => {
+            setIsLoading(true);
+            try {
+                const tableToQueryFrom =
+                    selectedTab === "Explorar"
+                        ? "ReceitasCompletas"
+                        : "ReceitasSalvas";
 
-    useEffect(() => {
-        setSearch("");
-        fetchData();
+                const { data, error } = await supabase
+                    .from(tableToQueryFrom)
+                    .select("*");
+
+                if (error) throw Error(error.message);
+
+                setAllRecipes(data as recipe[]);
+                setRecipes(data as recipe[]);
+            } catch (e) {
+                console.error(e);
+                setAllRecipes([]);
+                setRecipes([]);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        loadRecipes();
     }, [selectedTab]);
 
     useEffect(() => {
-        setIsLoading(true);
-        fetchData();
-    }, []);
+        if (isLoading || !allRecipes || allRecipes.length === 0) return;
+
+        let filtered = filterRecipes(allRecipes);
+        if (onlyAvailable) {
+            const applyAvailabilityFilter = async () => {
+                const finalRecipes = await getRecipesByAvailableItems(filtered);
+                setRecipes(finalRecipes ?? []);
+            };
+            applyAvailabilityFilter();
+        } else {
+            setRecipes(filtered);
+        }
+    }, [allRecipes, activeFilters, search, onlyAvailable]);
 
     useFocusEffect(
         useCallback(() => {
-            // Do something when the screen is focused
+            console.log("entrou na tela");
 
             setCategory(params.category);
-            fetchData();
+            setActiveFilters([
+                reverseCategoryMap[category as keyof typeof reverseCategoryMap],
+            ]);
+
             return () => {
                 setSearch("");
             };
-        }, [])
+        }, [params.category])
     );
 
-    function toggleCategory(category: string) {
-        setCategory("");
-        const filtered = activeFilters.filter((active) => active != "all");
-        if (activeFilters.includes(category)) {
-            if (activeFilters.length <= 1) return;
-            const newValue = filtered.filter((active) => active != category);
-            setActiveFilters(newValue);
+    function toggleCategory(newCategory: string) {
+        const isCategoryActive = activeFilters.includes(newCategory);
+
+        if (isCategoryActive) {
+            const newFilters = activeFilters.filter(
+                (active) => active !== newCategory && active !== "all"
+            );
+
+            if (newFilters.length === 0) {
+                setActiveFilters(["all"]);
+            } else {
+                setActiveFilters(newFilters);
+            }
         } else {
-            setActiveFilters([...filtered, category]);
+            const newFilters = activeFilters.filter(
+                (active) => active !== "all"
+            );
+            setActiveFilters([...newFilters, newCategory]);
         }
     }
 
@@ -312,7 +317,7 @@ const ExploreRecipesScreen = () => {
             <View style={{ margin: 20 }}>
                 <SearchBar
                     value={search}
-                    onChangeText={handleSearch}
+                    onChangeText={setSearch}
                     placeholder="Buscar receitas..."
                 />
             </View>
@@ -377,25 +382,24 @@ const ExploreRecipesScreen = () => {
 
 export default ExploreRecipesScreen;
 
-// --- Estilos ---
 const styles = StyleSheet.create({
     safeArea: {
         flex: 1,
         backgroundColor: "#fff",
         padding: 0,
-        margin: 0, // Fundo claro geral
+        margin: 0,
     },
     contentContainer: {
         paddingHorizontal: 16,
         paddingTop: 10,
     },
-    // --- 2. Tabs ---
+
     tabContainer: {
         flexDirection: "row",
         height: 40,
         borderRadius: 20,
         overflow: "hidden",
-        marginTop: 10, // Para mover a aba para cima (sobrepondo o header)
+        marginTop: 10,
         marginHorizontal: 40,
         marginBottom: 10,
     },
@@ -423,7 +427,7 @@ const styles = StyleSheet.create({
         marginVertical: 10,
         marginTop: 0,
     },
-    // --- 4. Barra de Pesquisa ---
+
     searchBarContainer: {
         flexDirection: "row",
         alignItems: "center",
@@ -441,15 +445,15 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: "black",
     },
-    // --- 5. Filtro ---
+
     filterButton: {
         flexDirection: "row",
         alignItems: "center",
-        backgroundColor: "#8a4d7d", // Cor principal do filtro (Roxo)
+        backgroundColor: "#8a4d7d",
         paddingVertical: 6,
         paddingHorizontal: 12,
         borderRadius: 20,
-        alignSelf: "flex-start", // Ocupa apenas o espaço necessário
+        alignSelf: "flex-start",
         marginVertical: 8,
         marginLeft: 4,
     },
@@ -459,7 +463,7 @@ const styles = StyleSheet.create({
         fontWeight: "600",
         fontSize: 14,
     },
-    // --- 6. Tags de Refeição ---
+
     mealTagContainer: {
         flexDirection: "row",
         flexWrap: "wrap",
@@ -468,7 +472,7 @@ const styles = StyleSheet.create({
     mealTag: {
         flexDirection: "row",
         alignItems: "center",
-        backgroundColor: "#f5dee7", // Cor de fundo das tags (Rosa Claro)
+        backgroundColor: "#f5dee7",
         paddingVertical: 6,
         paddingHorizontal: 10,
         borderRadius: 20,
@@ -476,20 +480,19 @@ const styles = StyleSheet.create({
         marginBottom: 8,
     },
     mealTagSelected: {
-        backgroundColor: "#8a4d7d", // Cor de fundo da tag selecionada (Roxo)
+        backgroundColor: "#8a4d7d",
     },
     mealTagText: {
-        color: "#8a4d7d", // Cor do texto das tags
+        color: "#8a4d7d",
         fontWeight: "600",
     },
     mealTagTextSelected: {
-        color: "#fff", // Cor do texto da tag selecionada
+        color: "#fff",
         marginLeft: 4,
     },
 
     recipeCardContainer: {
-        // Ajustado para o novo layout de View + wrap
-        width: "40%", // Pouco menos de 1/3 para deixar margem
+        width: "40%",
         margin: 5,
         backgroundColor: "#dce1dcff",
         borderRadius: 8,
