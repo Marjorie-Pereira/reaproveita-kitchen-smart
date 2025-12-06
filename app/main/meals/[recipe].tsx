@@ -46,7 +46,7 @@ const IngredientItem = ({ name, checked, onPress }: any) => (
 );
 
 const RecipeView = () => {
-    const { recipeId, weekDay } = useLocalSearchParams();
+    const { recipeId, weekDay, mealType } = useLocalSearchParams();
     const { user } = useAuth();
 
     const [recipeData, setRecipeData] = useState<recipeType>();
@@ -161,7 +161,7 @@ const RecipeView = () => {
         if (!recipeData) return;
         const { error } = await supabase.from("Refeicoes").insert({
             id_receita: recipeId,
-            tipo: recipeData.category,
+            tipo: mealType,
             dia_da_semana: weekDay,
         });
         if (error) console.error(error);
@@ -174,6 +174,8 @@ const RecipeView = () => {
         useCallback(() => {
             fetchRecipeData();
             checkIsRecipeSaved();
+            console.log('weekDay', weekDay)
+            console.log('mealType', mealType)
         }, [])
     );
 
