@@ -97,40 +97,77 @@ const FoodItemView = () => {
 
     async function fetchItemData() {
         setIsLoading(true);
-        if (!itemId) return;
-        const { data, error } = await supabase
-            .from("Alimentos")
-            .select("*")
-            .eq("id", itemId);
-        if (error) throw new Error(error.message);
 
-        const locationName = await getLocationById(data[0].id_ambiente);
-        setLocation(locationName);
+        if (!itemId) {
+            setItemData(undefined);
+            setIsLoading(false);
+            return;
+        }
 
-        setItemData(data[0] as foodItem);
-        setStatusLabel(data[0]);
-        setIsLoading(false);
+        try {
+            const { data, error } = await supabase
+                .from("Alimentos")
+                .select("*")
+                .eq("id", itemId)
+                .single();
+
+            if (error || !data) {
+                throw new Error(error?.message || "Item não encontrado.");
+            }
+
+            const locationName = await getLocationById(data.id_ambiente);
+            setLocation(locationName);
+
+            const item = data as foodItem;
+            setItemData(item);
+            setStatusLabel(item);
+        } catch (err) {
+            console.error("Erro ao carregar dados do item:", err);
+
+            setItemData(undefined);
+            Alert.alert("Erro", "Não foi possível carregar o item.");
+            router.back();
+        } finally {
+            setIsLoading(false);
+        }
     }
 
     const setStatusLabel = (itemData: foodItem) => {
-        const expiringDate = new Date(itemData?.data_validade!);
-        const currentDate = new Date();
-        const yearsDifference =
-            expiringDate.getFullYear() - currentDate.getFullYear();
-        const expiringDays = 7;
-        const daysDifference = expiringDate.getDate() - currentDate.getDate();
-       
+        if (!itemData || !itemData.data_validade) {
+            setStatusBadge(undefined);
+            setBannerMessage(undefined);
+            return;
+        }
 
-        if (expiringDate.getTime() < currentDate.getTime()) {
+        const expiringDate = new Date(itemData.data_validade + "T00:00:00");
+        const currentDate = new Date();
+
+        expiringDate.setHours(0, 0, 0, 0);
+        currentDate.setHours(0, 0, 0, 0);
+
+        const oneDay = 1000 * 60 * 60 * 24;
+
+        const diffTime = expiringDate.getTime() - currentDate.getTime();
+
+        const diffDays = Math.round(diffTime / oneDay);
+
+        const expiringThresholdDays = 7;
+
+        if (diffDays < 0) {
             setStatusBadge("Vencido");
-            setBannerMessage(`Vencido há ${currentDate.getDate() - expiringDate.getDate()} dias`)
-        } else if (yearsDifference === 0 && daysDifference <= expiringDays) {
+            setBannerMessage(`Vencido há ${Math.abs(diffDays)} dias`);
+        } else if (diffDays >= 0 && diffDays <= expiringThresholdDays) {
             setStatusBadge("Vencendo");
-            setBannerMessage(daysDifference === 0 ? 'Vence hoje!' : `Vence em ${daysDifference} - use em breve!`)
+            setBannerMessage(
+                diffDays === 0
+                    ? "Vence hoje!"
+                    : `Vence em ${diffDays} dias - use em breve!`
+            );
+        } else {
+            setStatusBadge(undefined);
+            setBannerMessage(undefined);
         }
     };
-
-    
 
     useFocusEffect(
         useCallback(() => {
@@ -264,9 +301,9 @@ const FoodItemView = () => {
                             <InfoRow
                                 iconName="calendar-today"
                                 label="Validade"
-                                value={
-                                    formatExpirationDate(itemData?.data_validade!)
-                                }
+                                value={formatExpirationDate(
+                                    itemData?.data_validade!
+                                )}
                             />
                         </View>
                     </View>
