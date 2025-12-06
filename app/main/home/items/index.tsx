@@ -16,7 +16,7 @@ import {
     useFocusEffect,
     useLocalSearchParams,
 } from "expo-router";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import {
     Alert,
     Modal,
@@ -39,7 +39,7 @@ import { subDays } from "date-fns";
 import filter from "lodash.filter";
 
 const Inventory = () => {
-    const {user} = useAuth();
+    const { user } = useAuth();
     const { group, scanning, addingItem } = useLocalSearchParams();
 
     const [isLoading, setIsLoading] = useState(false);
@@ -50,10 +50,11 @@ const Inventory = () => {
     const [isScannerOpen, setIsScannerOpen] = useState<boolean>(
         scanning ? true : false
     );
+    const [refreshKey, setRefreshKey] = useState(0);
     const [scannedItem, setScannedItem] = useState<productType | undefined>(
         undefined
     );
-    const [buttonGroupValue, setButtonGroupValue] = useState(location);
+
     const [search, setSearch] = useState("");
     const FLOATING_BUTTON_ACTIONS: buttonActionsObject[] = [
         {
@@ -100,12 +101,10 @@ const Inventory = () => {
         ];
     };
 
-  ;
-
     async function handleAddItem(item: foodItem) {
-       
         const { error } = await supabase.from("Alimentos").insert({
-            ...item, id_usuario: user.id
+            ...item,
+            id_usuario: user.id,
         });
 
         if (error) {
@@ -113,7 +112,7 @@ const Inventory = () => {
         } else {
             Alert.alert("Alimento Adicionado");
             setIsModalOpen(false);
-            fetchItemsFromLocation();
+            setRefreshKey((prev) => prev + 1);
         }
     }
 
@@ -121,14 +120,13 @@ const Inventory = () => {
         field: string = "",
         value: string = ""
     ) {
-        console.log("Buscando itens de", location ?? "Geladeira");
-
         const { id } = await getLocationId(location ?? "Geladeira");
         const { data, error } = await supabase
             .from("Alimentos")
             .select("*")
             .eq("id_ambiente", id)
-            .eq(field, value).eq('id_usuario', user.id);
+            .eq(field, value)
+            .eq("id_usuario", user.id);
 
         if (error) {
             throw Error(error.message);
@@ -136,8 +134,6 @@ const Inventory = () => {
 
         return data;
     }
-
- 
 
     function getFilteredByGroup(group: string, items: foodItem[], id: string) {
         switch (group) {
@@ -155,115 +151,6 @@ const Inventory = () => {
         }
     }
 
-    const load = async () => {
-        try {
-            // 1) Pegue o ID da location uma única vez
-            const { id } = await getLocationId(location ?? "Geladeira");
-
-            // 2) Busque todos os itens dessa location
-            let items = await fetchItemsFromLocation("id_ambiente", id);
-
-            // 3) Aplique filtros localmente (somente em memória)
-            if (group && group !== "all") {
-                items = getFilteredByGroup(group as string, items, id) || [];
-            }
-
-            // 4) Atualize o estado uma única vez no final
-            setFoodList(items);
-            setQueryFoodList(items);
-            setIsLoading(false);
-        } catch (err) {
-            console.error("Erro no carregamento da tela:", err);
-            setIsLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        if(!isModalOpen) load()
-    }, [isModalOpen])
-
-    useFocusEffect(
-        useCallback(() => {
-            setIsLoading(true);
-            let isActive = true; // previne crash quando a tela desmonta
-           
-            const load = async () => {
-                try {
-                    // 1) Pegue o ID da location uma única vez
-                    const { id } = await getLocationId(location ?? "Geladeira");
-                    if (!isActive) return;
-
-                    // 2) Busque todos os itens dessa location
-                    let items = await fetchItemsFromLocation("id_ambiente", id);
-                    if (!isActive) return;
-
-                    // 3) Aplique filtros localmente (somente em memória)
-                    if (group && group !== "all") {
-                        items =
-                            getFilteredByGroup(group as string, items, id) ||
-                            [];
-                        if (!isActive) return;
-                    }
-
-                    // 4) Atualize o estado uma única vez no final
-                    setFoodList(items);
-                    setQueryFoodList(items);
-                    setIsLoading(false);
-                } catch (err) {
-                    console.error("Erro no carregamento da tela:", err);
-                    setIsLoading(false);
-                }
-            };
-
-            load();
-
-            // cleanup → cancela promessas se a tela perder o foco
-            return () => {
-                isActive = false;
-            };
-        }, [group, location])
-    );
-
-    // useEffect(() => {
-    //   setButtonGroupValue(location);
-    //   fetchItemsFromLocation();
-    // }, [location]);
-
-    // useEffect(() => {
-    //   if (isModalOpen) return;
-    // }, [isModalOpen]);
-
-    // useEffect(() => {
-    //   console.log("Remontando");
-    // }, [foodList]);
-
-    // useEffect(() => {
-    //   fetchItems()
-    // }, [])
-
-    // useFocusEffect(
-    //   useCallback(() => {
-    //     // if (!location) setLocation("Geladeira");
-
-    //     fetchItemsFromLocation();
-
-    //     return () => {};
-    //   }, [location])
-    // );
-
-    // useFocusEffect(
-    //   useCallback(() => {
-    //     // if (!location) setLocation("Geladeira");
-
-    //     console.log("grupo", group);
-
-    //     fetchItemsFromLocation();
-    //     getByGroup(group as string, foodList);
-
-    //     return () => {};
-    //   }, [group, location])
-    // );
-
     const handleScanned = (scannedItem: productType) => {
         setScannedItem(scannedItem);
         setIsScannerOpen(false);
@@ -280,6 +167,42 @@ const Inventory = () => {
 
         setFoodList(filteredData);
     };
+
+    const loadData = useCallback(async () => {
+        console.log("carregando dados no callback");
+        setIsLoading(true);
+
+        try {
+            const { id } = await getLocationId(location ?? "Geladeira");
+
+            let items = await fetchItemsFromLocation("id_ambiente", id);
+
+            if (group && group !== "all") {
+                items = getFilteredByGroup(group as string, items, id) || [];
+            }
+
+            setFoodList(items);
+            setQueryFoodList(items);
+        } catch (err) {
+            console.error("Erro no carregamento da tela:", err);
+        }
+    }, [group, location, refreshKey]);
+
+    useFocusEffect(
+        useCallback(() => {
+            let isActive = true;
+
+            loadData().finally(() => {
+                if (isActive) {
+                    setIsLoading(false);
+                }
+            });
+
+            return () => {
+                isActive = false;
+            };
+        }, [loadData])
+    );
 
     return (
         <>
