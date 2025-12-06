@@ -2,8 +2,8 @@ import Loading from "@/components/Loading";
 import { RecipeCard } from "@/components/RecipeCard";
 import RecipeFilter from "@/components/RecipeFilter";
 import SearchBar from "@/components/SearchBar";
+import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
-import { mealType } from "@/types/mealTypeEnum";
 import { recipe } from "@/types/recipeType";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import filter from "lodash.filter";
@@ -13,7 +13,7 @@ import {
     StyleSheet,
     Text,
     TouchableOpacity,
-    View
+    View,
 } from "react-native";
 
 const categoryMap = {
@@ -138,6 +138,7 @@ const RecipeListHeader = ({
 const ExploreRecipesScreen = () => {
     const params = useLocalSearchParams();
     const router = useRouter();
+    const { user } = useAuth();
     const [selectedTab, setSelectedTab] = useState<"Salvas" | "Explorar">(
         "Explorar"
     );
@@ -156,8 +157,7 @@ const ExploreRecipesScreen = () => {
             selectedTab === "Explorar" ? "ReceitasCompletas" : "ReceitasSalvas";
         const { data, error } = await supabase
             .from(tableToQueryFrom)
-            .select("*")
-           
+            .select("*");
 
         if (error) throw Error(error.message);
 
@@ -165,15 +165,19 @@ const ExploreRecipesScreen = () => {
     }
 
     async function getFoodItems() {
-        const { data, error } = await supabase.from("Alimentos").select("nome");
-        if (error) throw new Error(error.message);
-
-        return data.map(({ nome }) => nome.toLowerCase() as string);
+        const { data, error } = await supabase
+            .from("Alimentos")
+            .select("nome")
+            .eq("id_usuario", user.id);
+        if (error) {
+            console.error(error);
+            return [];
+        } else {
+            return data.map(({ nome }) => nome.toLowerCase() as string);
+        }
     }
 
     async function getRecipesByAvailableItems(recipes: recipe[]) {
-        console.log("bucando receitas com os ingredientes disponivbeiw");
-        console.log(recipes?.length);
         const availableItems: string[] = await getFoodItems();
 
         if (!recipes) return;
@@ -286,14 +290,12 @@ const ExploreRecipesScreen = () => {
             setCategory(params.category);
             fetchData();
             return () => {
-                console.log("resetar coisas");
-                setSearch('')
+                setSearch("");
             };
         }, [])
     );
 
     function toggleCategory(category: string) {
-        console.log("selected", category);
         setCategory("");
         const filtered = activeFilters.filter((active) => active != "all");
         if (activeFilters.includes(category)) {
@@ -302,18 +304,19 @@ const ExploreRecipesScreen = () => {
             setActiveFilters(newValue);
         } else {
             setActiveFilters([...filtered, category]);
-            console.log(filtered);
-            console.log("filtrosa tivos", activeFilters);
         }
     }
 
     return (
         <>
-           
-           <View style={{margin: 20}}>
-           <SearchBar value={search} onChangeText={handleSearch} placeholder="Buscar receitas..." />
-           </View>
-            
+            <View style={{ margin: 20 }}>
+                <SearchBar
+                    value={search}
+                    onChangeText={handleSearch}
+                    placeholder="Buscar receitas..."
+                />
+            </View>
+
             <FlatList
                 data={recipes}
                 contentContainerStyle={styles.contentContainer}
@@ -326,19 +329,27 @@ const ExploreRecipesScreen = () => {
                         time={item.tempo_preparo}
                         id={item.id}
                         imageUri={item.link_imagem}
-                        instructions={item.modo_preparo}
-                        ingredients={item.ingredientes.split("| ")}
-                        mealType={category as mealType}
-                        isSaved={selectedTab === "Salvas"}
-                        weekDay={params.weekDay as string}
                         style={styles.recipeCardContainer}
+                        onPress={() =>
+                            router.navigate({
+                                pathname: "/main/meals/[recipe]",
+                                //@ts-ignore
+                                params: {
+                                    recipeId:
+                                        selectedTab === "Explorar"
+                                            ? item.id
+                                            : item.id_receita,
+                                    weekDay: params.weekDay,
+                                    mealType: params.category,
+                                },
+                            })
+                        }
                     />
                 )}
                 ListHeaderComponent={() => (
                     <RecipeListHeader
                         activeFilters={activeFilters}
                         onSelectAll={() => {
-                            console.log("limpando...");
                             setActiveFilters(["all"]);
                             setCategory("");
                         }}
@@ -354,12 +365,16 @@ const ExploreRecipesScreen = () => {
                 )}
                 ListFooterComponent={isLoading ? <Loading /> : null}
                 onEndReachedThreshold={0.2}
+                ListEmptyComponent={() => (
+                    <View>
+                        <Text>Nenhuma receita encontada</Text>
+                    </View>
+                )}
             />
         </>
     );
 };
 
-// Se você estiver no Expo, exporte o componente para exibição
 export default ExploreRecipesScreen;
 
 // --- Estilos ---
