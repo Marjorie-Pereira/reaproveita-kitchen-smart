@@ -2,6 +2,7 @@ import Loading from "@/components/Loading";
 import { supabase } from "@/lib/supabase";
 import { foodItem } from "@/types/FoodListItemProps";
 import { capitalizeFirstLetter } from "@/utils/capitalizeString";
+import { formatExpirationDate } from "@/utils/dateFormat";
 import { getLocationById } from "@/utils/locationUtils";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
@@ -128,6 +129,8 @@ const FoodItemView = () => {
             setBannerMessage(daysDifference === 0 ? 'Vence hoje!' : `Vence em ${daysDifference} - use em breve!`)
         }
     };
+
+    
 
     useFocusEffect(
         useCallback(() => {
@@ -261,9 +264,9 @@ const FoodItemView = () => {
                             <InfoRow
                                 iconName="calendar-today"
                                 label="Validade"
-                                value={new Date(
-                                    itemData?.data_validade as string
-                                ).toLocaleDateString()}
+                                value={
+                                    formatExpirationDate(itemData?.data_validade!)
+                                }
                             />
                         </View>
                     </View>

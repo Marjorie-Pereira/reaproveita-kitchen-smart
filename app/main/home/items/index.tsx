@@ -253,9 +253,7 @@ const Inventory = () => {
                                             brand={item.marca}
                                             quantity={item.quantidade}
                                             measureUnit={item.unidade_medida}
-                                            expirationDate={
-                                                new Date(item.data_validade)
-                                            }
+                                            expirationDate={item.data_validade}
                                             category={item.categoria}
                                         />
                                     </TouchableOpacity>

@@ -1,6 +1,7 @@
 import { FoodListItemProps } from "@/types/FoodListItemProps";
+import { formatExpirationDate } from "@/utils/dateFormat";
 import { MaterialIcons } from "@expo/vector-icons";
-import { differenceInDays, formatDate } from "date-fns";
+import { differenceInDays } from "date-fns";
 import React, { useEffect, useState } from "react";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 const badgeColor = {
@@ -95,7 +96,7 @@ const FoodListItem = ({
                             size={18}
                             color="#555"
                         />
-                        <Text>{formatDate(expirationDate, "dd/MM/yyyy")}</Text>
+                        <Text>{formatExpirationDate(expiresIn)}</Text>
                     </View>
                 </View>
             </View>

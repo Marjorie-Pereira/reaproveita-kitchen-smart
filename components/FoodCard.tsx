@@ -1,3 +1,4 @@
+import { formatExpirationDate } from "@/utils/dateFormat";
 import Feather from "@expo/vector-icons/Feather";
 import React from "react";
 import { Image, StyleSheet, Text, View } from "react-native";
@@ -9,7 +10,7 @@ type FoodCardProps = {
   category: string;
   quantity: number;
   measureUnit: string;
-  expirationDate: Date;
+  expirationDate: string;
 };
 
 const FoodCard = (props: FoodCardProps) => {
@@ -22,6 +23,9 @@ const FoodCard = (props: FoodCardProps) => {
     measureUnit,
     expirationDate,
   } = props;
+  
+  
+ 
   return (
     <View style={styles.foodContainer}>
       <Image
@@ -54,7 +58,7 @@ const FoodCard = (props: FoodCardProps) => {
       <View style={styles.expiresIn}>
         <Feather name="calendar" size={20} color="#49454F" />
         <Text style={styles.foodText}>
-          {expirationDate.toLocaleDateString()}
+          {formatExpirationDate(expirationDate)}
         </Text>
       </View>
     </View>
