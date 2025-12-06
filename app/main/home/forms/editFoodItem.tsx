@@ -5,6 +5,7 @@ import { foodItem } from "@/types/FoodListItemProps";
 import { getLocationById, getLocationId } from "@/utils/locationUtils";
 import { FontAwesome, Ionicons } from "@expo/vector-icons";
 import { Picker } from "@react-native-picker/picker";
+import { formatDate } from "date-fns";
 import { Image } from "expo-image";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
@@ -32,7 +33,7 @@ const OPCOES_UNIDADE = ["Kg", "g", "L", "ml", "Unidade(s)"];
 
 const OPCOES_STATUS = ["Aberto", "Fechado"];
 
-export default function AddFoodScreen() {
+export default function EditFoodItem() {
     const params = useLocalSearchParams();
     const [name, setName] = useState<string>();
     const [brand, setBrand] = useState<string>();
@@ -47,18 +48,34 @@ export default function AddFoodScreen() {
     const [imageUri, setImageUri] = useState<string>();
     const [status, setStatus] = useState<string>();
 
+ 
+
     async function fetchItemData() {
         if (!params.itemId) return;
+
+        // Use .single() se você espera apenas um registro
         const { data, error } = await supabase
             .from("Alimentos")
             .select("*")
-            .eq("id", params.itemId);
+            .eq("id", params.itemId)
+            .single(); // Adicione .single() para tipagem e resultado mais limpos
+
         if (error) throw new Error(error.message);
 
-        const locationName = await getLocationById(data[0].id_ambiente);
+        // ✅ Proteção 1: Verifica se o dado foi encontrado
+        if (!data) {
+            console.warn(`Item com ID ${params.itemId} não encontrado.`);
+            // Limpar ou definir estados de erro aqui é uma boa prática
+            setItemData(undefined);
+            setLocation(undefined);
+            return;
+        }
+
+        // Se encontrou, data é o objeto, não um array (graças ao .single())
+        const locationName = await getLocationById(data.id_ambiente);
         setLocation(locationName);
 
-        setItemData(data[0] as foodItem);
+        setItemData(data as foodItem);
     }
 
     useEffect(() => {
@@ -69,17 +86,28 @@ export default function AddFoodScreen() {
         setCategory(itemData?.categoria);
         setUnit(itemData?.unidade_medida);
         setImageUri(itemData?.imagem);
+        setPrice(itemData?.preco?.toString());
+        setQuantity(itemData?.quantidade?.toString());
     }, [itemData]);
 
     useFocusEffect(
         useCallback(() => {
-            console.log("params form", params);
             fetchItemData();
         }, [])
     );
 
     async function handleEditItem() {
-        const { id } = await getLocationId(location as string);
+        if (!location) {
+            Alert.alert(
+                "Aviso",
+                "Aguarde o carregamento dos dados ou selecione uma localização."
+            );
+            return;
+        }
+
+        // const formattedExpirationDate = formatDate(expirationDate ?? new Date(), 'yyy-MM-dd')
+
+        const { id } = await getLocationId(location);
         const { data, error } = await supabase
             .from("Alimentos")
             .update({
@@ -87,8 +115,8 @@ export default function AddFoodScreen() {
                 marca: brand,
                 data_validade: expirationDate,
                 categoria: category,
-                preco: price,
-                quantidade: quantity,
+                preco: price ? parseFloat(price) : null,
+                quantidade: quantity ? parseInt(quantity, 10) : null,
                 unidade_medida: unit,
                 status,
                 id_ambiente: id,
@@ -97,7 +125,8 @@ export default function AddFoodScreen() {
             .eq("id", params.itemId);
 
         if (error) {
-            Alert.alert("Erro", error.message);
+            console.error(error);
+            
         } else {
             Alert.alert("Alimento Editado!");
             setName("");
@@ -135,7 +164,7 @@ export default function AddFoodScreen() {
                     <View style={styles.inputWrapper}>
                         <TextInput
                             style={styles.textInput}
-                            value={name as string}
+                            value={name ?? ""}
                             onChangeText={setName}
                             placeholder="Ex: Tomate"
                         />
@@ -157,7 +186,7 @@ export default function AddFoodScreen() {
                     <View style={styles.inputWrapper}>
                         <TextInput
                             style={styles.textInput}
-                            value={brand as string}
+                            value={brand ?? ""}
                             onChangeText={setBrand}
                             placeholder="Ex: Heinz"
                         />
@@ -166,8 +195,11 @@ export default function AddFoodScreen() {
 
                 <DatePickerInput
                     label="Data de validade"
-                    value={expirationDate ? new Date(expirationDate) : undefined}
-                    onChange={(date) => setExpirationDate(date.toString())}
+                    value={expirationDate}
+                    onChange={(date) => {
+                        const formatted = formatDate(date, 'yyy-MM-dd')
+                        setExpirationDate(formatted)
+                    }}
                 />
 
                 <Text style={styles.label}>Categoria</Text>
@@ -177,7 +209,7 @@ export default function AddFoodScreen() {
                         onValueChange={(itemValue, itemIndex) =>
                             setCategory(itemValue)
                         }
-                        style={{ backgroundColor: "white", color: 'black' }}
+                        style={{ backgroundColor: "white", color: "black" }}
                     >
                         <Picker.Item label="Grãos" value="Grãos" />
                         <Picker.Item label="Frutas" value="Frutas" />
@@ -187,6 +219,7 @@ export default function AddFoodScreen() {
                         <Picker.Item label="Bebidas" value="Bebidas" />
                         <Picker.Item label="Outros" value="Outros" />
                     </Picker>
+                    {/* opção para digitar a categoria */}
                 </View>
 
                 <View style={styles.row}>
@@ -197,7 +230,7 @@ export default function AddFoodScreen() {
                             <Text style={styles.prefix}>R$</Text>
                             <TextInput
                                 style={[styles.textInput, { paddingLeft: 5 }]}
-                                value={String(price ? price : "")}
+                                value={price}
                                 onChangeText={setPrice}
                                 placeholder="0,00"
                                 keyboardType="numeric"
@@ -211,7 +244,7 @@ export default function AddFoodScreen() {
                         <View style={styles.inputWrapper}>
                             <TextInput
                                 style={styles.textInput}
-                                value={String(quantity ? quantity : "")}
+                                value={quantity}
                                 onChangeText={setQuantity}
                                 placeholder="1"
                                 keyboardType="numeric"
@@ -227,7 +260,7 @@ export default function AddFoodScreen() {
                         onValueChange={(itemValue, itemIndex) =>
                             setUnit(itemValue)
                         }
-                        style={{ backgroundColor: "white", color: 'black' }}
+                        style={{ backgroundColor: "white", color: "black" }}
                     >
                         {OPCOES_UNIDADE.map((option, index) => (
                             <Picker.Item
@@ -246,7 +279,7 @@ export default function AddFoodScreen() {
                         onValueChange={(itemValue, itemIndex) =>
                             setStatus(itemValue)
                         }
-                        style={{ backgroundColor: "white", color: 'black' }}
+                        style={{ backgroundColor: "white", color: "black" }}
                     >
                         {OPCOES_STATUS.map((option, index) => (
                             <Picker.Item
@@ -265,7 +298,7 @@ export default function AddFoodScreen() {
                         onValueChange={(itemValue, itemIndex) =>
                             setLocation(itemValue)
                         }
-                        style={{ backgroundColor: "white", color: 'black' }}
+                        style={{ backgroundColor: "white", color: "black" }}
                     >
                         <Picker.Item label="Geladeira" value="Geladeira" />
                         <Picker.Item label="Freezer" value="Freezer" />
