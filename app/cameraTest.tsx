@@ -4,10 +4,9 @@ import * as ImagePicker from "expo-image-picker";
 import {
     RelativePathString,
     router,
-    useFocusEffect,
-    useLocalSearchParams,
+    useLocalSearchParams
 } from "expo-router";
-import { useCallback, useRef } from "react";
+import { useRef } from "react";
 import { Button, Pressable, StyleSheet, Text, View } from "react-native";
 
 export default function CameraTest() {
@@ -15,11 +14,7 @@ export default function CameraTest() {
   const ref = useRef<CameraView>(null);
   const params = useLocalSearchParams();
 
-  useFocusEffect(
-    useCallback(() => {
-      console.log("params camera: ", params);
-    }, [])
-  );
+ 
 
   if (!permission) {
     return null;

@@ -50,7 +50,7 @@ const Index = () => {
       .eq("id_usuario", user.id);
     if (error) throw new Error(error.message);
 
-    console.log("restrictions", data);
+   
 
     setFoodRestrictions(data);
   };
@@ -64,18 +64,16 @@ const Index = () => {
 
     if (error) throw new Error(error.message);
 
-    console.log("restrictions", data);
+  
     setDescription("");
 
     fetchFoodRestrictions();
   };
 
   useEffect(() => {
-    console.log("user data effect");
   }, [userData, foodRestrictions]);
 
   useEffect(() => {
-    console.log("fecthing again");
     fetchUserData();
   }, [user, foodRestrictions]);
 

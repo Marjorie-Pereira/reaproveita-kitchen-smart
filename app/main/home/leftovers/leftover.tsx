@@ -61,7 +61,6 @@ export default function MealViewScreen() {
     }
     const portionsToSave = portionsRef.current ?? 0; // Garantia final de que é um número
 
-    console.log("new portions value", portionsToSave);
 
     // A validação de null/undefined se torna redundante, pois já foi tratada
     // pelos hooks de estado/ref, garantindo um 0 ou o valor real.
@@ -80,8 +79,7 @@ export default function MealViewScreen() {
       fetchLeftoverMeal(Number(mealId));
 
       return () => {
-        console.log("saindo", leftoverPortions);
-        updateLeftoverPortions();
+        // updateLeftoverPortions();
       };
     }, [])
   );

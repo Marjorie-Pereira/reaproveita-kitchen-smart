@@ -39,7 +39,7 @@ export default function BarCodeScanner(props: { backToPath?: string }) {
     if (result.status === 0) {
       alert(`Produto com código ${data} não encontrado.`);
     } else {
-      console.log("fetch", result);
+     
       router.push({
         pathname:
           (backToPath as ExternalPathString) || "/main/home/forms/newFoodItem",

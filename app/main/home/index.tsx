@@ -22,12 +22,11 @@ import {
 import { useFocusEffect, useRouter } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
 import {
-    Keyboard,
     ScrollView,
     StyleSheet,
     Text,
     TouchableOpacity,
-    View,
+    View
 } from "react-native";
 
 export default function WelcomeScreen() {
@@ -151,10 +150,7 @@ export default function WelcomeScreen() {
 
     useEffect(() => {
         if (isSearchModalOpen) fetchItemsFromInventory();
-        else {
-            console.log("desfocando input");
-            Keyboard.dismiss();
-        }
+        
     }, [isSearchModalOpen, fetchItemsFromInventory]);
 
     useEffect(() => {

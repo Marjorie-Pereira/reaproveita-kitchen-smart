@@ -3,7 +3,7 @@ import SearchBar from "@/components/SearchBar";
 import { supabase } from "@/lib/supabase";
 import { getLocationId } from "@/utils/locationUtils";
 import { useFocusEffect, useRouter } from "expo-router";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
 
 import { MealCard } from "@/components/MealCard";
@@ -18,7 +18,7 @@ const Leftovers = () => {
   const router = useRouter();
 
   async function fetchLeftoversFromLocation(location: "Geladeira" | "Freezer") {
-    console.log("Buscando itens de", location);
+ 
     const { id } = await getLocationId(location);
 
     const { data, error } = await supabase
@@ -40,9 +40,7 @@ const Leftovers = () => {
     }, [location])
   );
 
-  useEffect(() => {
-    console.log(leftovers.length);
-  }, [leftovers]);
+  
 
   return (
     <>
