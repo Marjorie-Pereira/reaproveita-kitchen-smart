@@ -5,6 +5,7 @@ import { productType } from "@/types/openFoodApiResponse";
 import { getLocationById, getLocationId } from "@/utils/locationUtils";
 import { FontAwesome, Ionicons } from "@expo/vector-icons";
 import { Picker } from "@react-native-picker/picker";
+import { formatDate } from "date-fns";
 import { Image } from "expo-image";
 import React, { useEffect, useState } from "react";
 import {
@@ -77,7 +78,6 @@ export default function ItemForm(props: ItemFormProps) {
         setStatus("Fechado");
         setLocation("Geladeira");
         setImageUri(undefined);
-        
     }
 
     async function submitForm() {
@@ -102,7 +102,7 @@ export default function ItemForm(props: ItemFormProps) {
             Alert.alert("Por favor preencha todos os campos");
             return;
         }
-        
+
         onSubmit(itemData);
         resetForm();
     }
@@ -165,9 +165,11 @@ export default function ItemForm(props: ItemFormProps) {
                 <DatePickerInput
                     label="Data de validade"
                     value={expirationDate}
-                    onChange={(newDate: Date) =>
-                        setExpirationDate(newDate.toISOString())
-                    }
+                    onChange={(date) => {
+                        const formatted = formatDate(date, "yyyy-MM-dd");
+                       
+                        setExpirationDate(formatted);
+                    }}
                 />
 
                 <Text style={styles.label}>Categoria</Text>

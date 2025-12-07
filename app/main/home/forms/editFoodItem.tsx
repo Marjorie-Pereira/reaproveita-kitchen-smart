@@ -10,12 +10,14 @@ import { Image } from "expo-image";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
 import {
-    Alert, Keyboard, ScrollView,
+    Alert,
+    Keyboard,
+    ScrollView,
     StyleSheet,
     Text,
     TextInput,
     TouchableOpacity,
-    View
+    View,
 } from "react-native";
 
 const COLORS = {
@@ -43,7 +45,7 @@ export default function EditFoodItem() {
     const [category, setCategory] = useState<string>();
     const [price, setPrice] = useState<string>();
     const [quantity, setQuantity] = useState<string>();
-    const [unit, setUnit] = useState<string>();
+    const [unit, setUnit] = useState<string>("Selecione");
     const [imageUri, setImageUri] = useState<string>();
     const [status, setStatus] = useState<string>();
 
@@ -148,7 +150,7 @@ export default function EditFoodItem() {
         setStatus(itemData?.status);
         setExpirationDate(itemData?.data_validade);
         setCategory(itemData?.categoria);
-        setUnit(itemData?.unidade_medida);
+        setUnit(itemData?.unidade_medida ?? "Selecione");
         setImageUri(itemData?.imagem);
         setPrice(itemData?.preco?.toString());
         setQuantity(itemData?.quantidade?.toString());
@@ -178,7 +180,7 @@ export default function EditFoodItem() {
                 setPrice(undefined);
                 setQuantity(undefined);
                 setCategory(undefined);
-                setUnit(undefined);
+                setUnit("Selecione");
                 setStatus(undefined);
                 setLocation(undefined);
             };
@@ -231,7 +233,10 @@ export default function EditFoodItem() {
                     label="Data de validade"
                     value={expirationDate}
                     onChange={(date) => {
-                        const formatted = formatDate(date, "yyy-MM-dd");
+                       
+                        const formatted = formatDate(date, "yyyy-MM-dd")
+                       
+                        
                         setExpirationDate(formatted);
                     }}
                 />
@@ -295,16 +300,19 @@ export default function EditFoodItem() {
                         onValueChange={(itemValue, itemIndex) =>
                             setUnit(itemValue)
                         }
-                        style={{ backgroundColor: "white", color: "black" }}
-                        dropdownIconColor={"#000"}
+                        style={{ backgroundColor: "white", color: COLORS.text }}
+                        dropdownIconColor={COLORS.text}
+                        mode="dropdown"
                     >
-                        {OPCOES_UNIDADE.map((option, index) => (
-                            <Picker.Item
-                                label={option}
-                                value={option}
-                                key={index}
-                            />
-                        ))}
+                        <Picker.Item label={unit} value={unit} />
+                        <Picker.Item
+                            label={"Unidade(s)"}
+                            value={"Unidade(s)"}
+                        />
+                        <Picker.Item label={"ml"} value={"ml"} />
+                        <Picker.Item label={"kg"} value={"kg"} />
+                        <Picker.Item label={"g"} value={"g"} />
+                        <Picker.Item label={"litro(s)"} value={"litro(s)"} />
                     </Picker>
                 </View>
 
@@ -315,16 +323,12 @@ export default function EditFoodItem() {
                         onValueChange={(itemValue, itemIndex) =>
                             setStatus(itemValue)
                         }
-                        style={{ backgroundColor: "white", color: "black" }}
-                        dropdownIconColor={"#000"}
+                        style={{ backgroundColor: "white", color: COLORS.text }}
+                        dropdownIconColor={COLORS.text}
+                        mode="dropdown"
                     >
-                        {OPCOES_STATUS.map((option, index) => (
-                            <Picker.Item
-                                label={option}
-                                value={option}
-                                key={index}
-                            />
-                        ))}
+                        <Picker.Item label="Aberto" value="Aberto" />
+                        <Picker.Item label="Fechado" value="Fechado" />
                     </Picker>
                 </View>
 
@@ -335,8 +339,9 @@ export default function EditFoodItem() {
                         onValueChange={(itemValue, itemIndex) =>
                             setLocation(itemValue)
                         }
-                        style={{ backgroundColor: "white", color: "black" }}
-                        dropdownIconColor={"#000"}
+                        style={{ backgroundColor: "white", color: COLORS.text }}
+                        dropdownIconColor={COLORS.text}
+                        mode="dropdown"
                     >
                         <Picker.Item label="Geladeira" value="Geladeira" />
                         <Picker.Item label="Freezer" value="Freezer" />

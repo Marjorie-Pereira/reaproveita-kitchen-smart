@@ -12,3 +12,12 @@ export const formatExpirationDate = (date?: string) => {
     const formatted = formatDate(daysAdded, "dd/MM/yyyy");
     return formatted;
 };
+
+export function toIsoString(dateString: string) {
+    
+    const isoUtcString = dateString + "T00:00:00.000Z";
+
+    const dateObj = new Date(isoUtcString);
+
+    return dateObj.toISOString();
+}

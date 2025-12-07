@@ -1,9 +1,9 @@
-import { formatExpirationDate } from "@/utils/dateFormat";
 import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker, {
     DateTimePickerEvent,
 } from "@react-native-community/datetimepicker";
-import React, { useState } from "react";
+import { format } from "date-fns";
+import React, { useEffect, useState } from "react";
 import {
     Platform,
     StyleSheet,
@@ -27,10 +27,10 @@ interface DatePickerInputProps {
 }
 const DatePickerInput = ({ label, value, onChange }: DatePickerInputProps) => {
     const [showPicker, setShowPicker] = useState(false);
+    const [localDateTime, setLocalDateTime] = useState<Date>();
 
     const onDateChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
         if (selectedDate) {
-            console.log('data selecionada', selectedDate.toLocaleDateString())
             onChange(selectedDate);
         }
 
@@ -38,6 +38,17 @@ const DatePickerInput = ({ label, value, onChange }: DatePickerInputProps) => {
             setShowPicker(false);
         }
     };
+
+    useEffect(() => {
+        if (value) {
+            const dataString = value;
+
+            const dataComHorarioLocal = dataString + "T00:00:00";
+
+            const dataLocalCorreta = new Date(dataComHorarioLocal);
+            setLocalDateTime(dataLocalCorreta);
+        }
+    }, [value]);
 
     return (
         <View style={styles.inputGroup}>
@@ -54,7 +65,9 @@ const DatePickerInput = ({ label, value, onChange }: DatePickerInputProps) => {
                         !value && styles.placeholderText,
                     ]}
                 >
-                    {value ? formatExpirationDate(value) : 'dd/mm/aaaa'}
+                    {localDateTime
+                        ? format(localDateTime, "dd/MM/yyyy")
+                        : "dd/mm/aaaa"}
                 </Text>
                 <Ionicons
                     name="calendar-outline"
@@ -66,12 +79,13 @@ const DatePickerInput = ({ label, value, onChange }: DatePickerInputProps) => {
             {showPicker && (
                 <DateTimePicker
                     testID="dateTimePicker"
-                    value={value ? new Date(value)  : new Date()}
+                    value={localDateTime ?? new Date()}
                     mode="date"
                     is24Hour={true}
                     display="default"
                     onChange={onDateChange}
-                    locale="pt-BR"
+                    locale="pt-br"
+                    timeZoneName="Brazil/East"
                 />
             )}
         </View>
