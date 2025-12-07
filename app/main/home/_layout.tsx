@@ -41,29 +41,11 @@ export default function Layout() {
           title: "Editar Informações",
         }}
       />
-      <Stack.Screen
-        name="leftovers/index"
+      
+       <Stack.Screen
+        name="leftovers"
         options={{
-          title: "Sobras de refeições",
-        }}
-      />
-      <Stack.Screen
-        name="leftovers/leftover"
-        options={{
-          title: "Detalhes da sobra",
-        }}
-      />
-      <Stack.Screen
-        name="leftovers/recipesLeftovers"
-        options={{
-          title: "Receitas para Reaproveitar",
-        }}
-      />
-
-      <Stack.Screen
-        name="forms/barCodeScanner"
-        options={{
-          title: "Escanear Código de Barras",
+          headerShown: false
         }}
       />
     </Stack>

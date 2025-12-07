@@ -1,5 +1,3 @@
-import { COLORS } from "@/constants/theme";
-import { Feather } from "@expo/vector-icons";
 import { Stack } from "expo-router";
 import React from "react";
 
@@ -20,20 +18,21 @@ const _layout = () => {
             <Stack.Screen
                 name="index"
                 options={{
-                    title: "Lista de Compras",
-                    headerLeft: () => (
-                        <Feather
-                            name="shopping-cart"
-                            size={24}
-                            color={COLORS.white}
-                            style={{ marginRight: 10 }}
-                        />
-                    ),
+                    title: "Sobras de refeições",
+                    headerShown: true,
                 }}
             />
             <Stack.Screen
-                name="scanBarCode"
-                options={{ title: "Escanear Código de Barras" }}
+                name="leftover"
+                options={{
+                    title: "Detalhes da sobra",
+                }}
+            />
+            <Stack.Screen
+                name="recipesLeftovers"
+                options={{
+                    title: "Receitas para Reaproveitar",
+                }}
             />
         </Stack>
     );
