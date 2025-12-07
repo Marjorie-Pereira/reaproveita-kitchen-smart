@@ -65,7 +65,7 @@ export default function WelcomeScreen() {
         const { data, error } = await supabase
             .from("Alimentos")
             .select("*")
-            .eq("id_usuario", user.id);
+            .eq("id_usuario", user?.id);
 
         if (error) {
             throw Error(error.message);
@@ -88,7 +88,7 @@ export default function WelcomeScreen() {
             .from("Refeicoes")
             .select("*")
             .eq("tem_sobras", true)
-            .eq("id_usuario", user.id);
+            .eq("id_usuario", user?.id);
 
         if (error) {
             console.error(error);
@@ -102,12 +102,12 @@ export default function WelcomeScreen() {
         const { data, error } = await supabase
             .from("Alimentos")
             .select("*, Ambientes(nome)")
-            .eq("id_usuario", user.id);
+            .eq("id_usuario", user?.id);
 
         if (error) throw new Error(error.message);
         const items = data.map((r) => {
             const foodItem = {
-                id: r.id,
+                id: r?.id,
                 nome: r.nome,
                 categoria: r.categoria,
                 imagem: r.imagem,
@@ -125,7 +125,7 @@ export default function WelcomeScreen() {
             .select(
                 "id, nome, marca,  categoria,  quantidade,unidade_medida,imagem, data_validade"
             )
-            .eq("id_usuario", user.id)
+            .eq("id_usuario", user?.id)
             .limit(5)
             .order("data_validade", { ascending: true });
 
@@ -287,7 +287,7 @@ export default function WelcomeScreen() {
                         <View>
                             {orderedItems.map((item) => (
                                 <FoodListItem
-                                    key={item.id}
+                                    key={item?.id}
                                     name={item.nome}
                                     brand={item.marca}
                                     category={item.categoria}
@@ -298,7 +298,7 @@ export default function WelcomeScreen() {
                                         router.push({
                                             pathname:
                                                 "/main/home/items/itemView",
-                                            params: { itemId: item.id },
+                                            params: { itemId: item?.id },
                                         })
                                     }
                                 />
