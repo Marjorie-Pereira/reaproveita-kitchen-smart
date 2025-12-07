@@ -36,9 +36,9 @@ export default function Layout() {
       />
      
       <Stack.Screen
-        name="forms/newFoodItem"
+        name="forms/editFoodItem"
         options={{
-          title: "Cadastrar novo item",
+          title: "Editar Informações",
         }}
       />
       <Stack.Screen
