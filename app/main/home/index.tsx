@@ -20,13 +20,13 @@ import {
     MaterialCommunityIcons,
 } from "@expo/vector-icons";
 import { useFocusEffect, useRouter } from "expo-router";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
     ScrollView,
     StyleSheet,
     Text,
     TouchableOpacity,
-    View
+    View,
 } from "react-native";
 
 export default function WelcomeScreen() {
@@ -60,7 +60,6 @@ export default function WelcomeScreen() {
     const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
     const [inventoryItems, setInventoryItems] = useState<any[]>([]);
     const [orderedItems, setOrderedItems] = useState<any[]>([]);
-    const [groupedInventory, setGroupedIventory] = useState<Record<string, FoodItem[]>>();
 
     async function getItemsCount() {
         const { data, error } = await supabase
@@ -150,12 +149,28 @@ export default function WelcomeScreen() {
 
     useEffect(() => {
         if (isSearchModalOpen) fetchItemsFromInventory();
-        
     }, [isSearchModalOpen, fetchItemsFromInventory]);
 
     useEffect(() => {
         fetchItemsByExpirationDate();
     }, []);
+
+    const groupedInventoryMap = useMemo(() => {
+        if (!inventoryItems || inventoryItems.length === 0) return {};
+
+        return inventoryItems.reduce((acc, item) => {
+            if (!acc[item.location]) {
+                acc[item.location] = [];
+            }
+            acc[item.location].push(item);
+            return acc;
+        }, {} as Record<string, FoodItem[]>);
+    }, [inventoryItems]);
+
+    // 🌟 2. Converta o Map para o Array de Entries (formato que o modal espera)
+    const groupedInventoryEntries = useMemo(() => {
+        return Object.entries(groupedInventoryMap);
+    }, [groupedInventoryMap]);
 
     return (
         <>
@@ -234,18 +249,7 @@ export default function WelcomeScreen() {
 
                     <TouchableOpacity
                         onPress={() => {
-                            const groupedInventory = inventoryItems.reduce(
-                                (acc, item) => {
-                                    if (!acc[item.location]) {
-                                        acc[item.location] = [];
-                                    }
-                                    acc[item.location].push(item);
-                                    return acc;
-                                },
-                                {} as Record<string, FoodItem[]>
-                            );
-
-                            setGroupedIventory(groupedInventory);
+                            
                             setIsSearchModalOpen(true);
                         }}
                     >
@@ -304,7 +308,8 @@ export default function WelcomeScreen() {
                 </ScrollView>
             </View>
             <SearchItemsModal
-                groupedInventory={Object.entries(groupedInventory ?? {})}
+            //@ts-ignore
+                groupedInventory={groupedInventoryEntries}
                 onClose={() => setIsSearchModalOpen(false)}
                 onItemPress={() => {}}
                 isVisible={isSearchModalOpen}

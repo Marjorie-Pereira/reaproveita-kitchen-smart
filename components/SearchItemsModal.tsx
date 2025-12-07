@@ -38,20 +38,20 @@ const SearchItemsModal: React.FC<SearchItemsModalProps> = ({
     groupedInventory,
 }) => {
     const [search, setSearch] = useState("");
-    const [items, setItems] = useState(groupedInventory);
+    const [items, setItems] = useState(groupedInventory || []);
 
+    
     useEffect(() => {
-        setSearch("");
-        setItems(groupedInventory);
-    }, [isVisible]);
+        
+        if (isVisible) {
+            
+            setSearch("");
 
-    useEffect(() => {
-    }, [items])
-
-    useEffect(() => {
-       
-       if(isVisible) setItems(groupedInventory);
-    }, []);
+           
+            setItems(groupedInventory || []);
+        }
+        
+    }, [isVisible, groupedInventory]);
 
     type InventoryGroup = [string, FoodItem[]];
 
@@ -59,7 +59,9 @@ const SearchItemsModal: React.FC<SearchItemsModalProps> = ({
         setSearch(query);
         const formattedQuery = query.toLowerCase();
 
-        const mappedAndFilteredData = (groupedInventory as InventoryGroup[])
+        const sourceData = groupedInventory || [];
+
+        const mappedAndFilteredData = (sourceData as InventoryGroup[])
             .map(([location, foodItems]) => {
                 const matchingFoodItems = filter(foodItems, (item) => {
                     return item.nome.toLowerCase().includes(formattedQuery);
