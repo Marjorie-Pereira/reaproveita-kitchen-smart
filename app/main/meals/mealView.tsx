@@ -3,26 +3,25 @@ import Button from "@/components/Button";
 import Input from "@/components/Input";
 import SwitchBtn from "@/components/SwitchBtn";
 import { supabase } from "@/lib/supabase";
-import { recipeParamType } from "@/types/params";
 import { recipe } from "@/types/recipeType";
 import { Feather } from "@expo/vector-icons";
 import { useHeaderHeight } from "@react-navigation/elements";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
-  Alert,
-  Image,
-  KeyboardAvoidingView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
+    Alert,
+    Image,
+    KeyboardAvoidingView,
+    ScrollView,
+    StyleSheet,
+    Text,
+    View,
 } from "react-native";
 
 export default function MealViewScreen() {
-  const { meal: mealId, recipe: recipeId } = useLocalSearchParams();
+  const { meal: mealId, recipeId} = useLocalSearchParams();
   const [meal, setMeal] = useState<any>();
-  const [recipe, setRecipe] = useState<recipe>();
+  const [recipeData, setRecipeData] = useState<recipe>();
   const [isConsumed, setIsConsumed] = useState(false);
   const [hasLeftovers, setHasLeftovers] = useState(false);
   const [keyboardAvoid, setKeyboardAvoid] = useState(false);
@@ -31,24 +30,14 @@ export default function MealViewScreen() {
   const height = useHeaderHeight();
 
   function seeRecipe() {
-    if (recipe) {
-      const ingredients = recipe.ingredientes.split("| ");
-      const recipeIngredients = ingredients.map((ing, index) => {
-        const item = { id: index, ingredient: ing, checked: false };
-        return item;
-      });
-      const recipeParam: recipeParamType = {
-        id: recipe.id,
-        title: recipe.receita,
-        time: recipe.tempo_preparo,
-        imageUri: recipe.link_imagem,
-        instructions: recipe.modo_preparo,
-        recipeIngredients,
-      };
+    if (recipeData) {
+     
+      
 
       router.navigate({
         pathname: "/main/meals/[recipe]",
-        params: { recipe: JSON.stringify(recipeParam) },
+        //@ts-ignore
+        params: { recipeId},
       });
     }
   }
@@ -67,12 +56,14 @@ export default function MealViewScreen() {
   }
 
   async function fetchRecipe() {
+    if(!recipeId) return
+    console.log(recipeId);
     const { data, error } = await supabase
       .from("ReceitasCompletas")
       .select("*")
-      .eq("id", recipeId);
-    if (error) throw new Error(error.message);
-    setRecipe(data[0]);
+      .eq("id", parseInt(recipeId as string)).single();
+    if (error) console.error(error);
+    else setRecipeData(data)
   }
 
   async function updateMealState(
@@ -133,7 +124,7 @@ export default function MealViewScreen() {
               resizeMode="cover"
               source={{
                 uri:
-                  recipe?.link_imagem ??
+                  recipeData?.link_imagem ??
                   "https://gnesjjmiiharouctxukk.supabase.co/storage/v1/object/public/app_bucket_public/placeholder.png",
               }}
               style={{
@@ -145,7 +136,7 @@ export default function MealViewScreen() {
             />
             {/* Recipe Name */}
             <View style={styles.cardSection}>
-              <Text style={styles.h2}>{recipe?.receita}</Text>
+              <Text style={styles.h2}>{recipeData?.receita}</Text>
 
               <View style={styles.detailsRow}>
                 <Badge mealType={meal?.tipo} />

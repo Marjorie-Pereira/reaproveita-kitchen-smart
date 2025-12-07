@@ -4,18 +4,18 @@ import { supabase } from "@/lib/supabase";
 import { mealType } from "@/types/mealTypeEnum";
 import { weekDaysMap } from "@/utils/weekDaysMap";
 import {
-  useFocusEffect,
-  useLocalSearchParams,
-  useRootNavigationState,
-  useRouter,
+    useFocusEffect,
+    useLocalSearchParams,
+    useRootNavigationState,
+    useRouter,
 } from "expo-router";
 import React, { useCallback, useState } from "react";
 import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 
 const daysOfWeek = [
@@ -108,13 +108,11 @@ const PlanWeeklyMeals = () => {
     setLunch(lunchMeals);
     setDinner(dinnerMeals);
 
-    console.log(breakfast, lunch, dinner);
   }
 
   useFocusEffect(
     useCallback(() => {
       // Do something when the screen is focused
-      console.log("params de meals", params);
       setMeals();
 
       return () => {

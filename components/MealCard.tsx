@@ -5,13 +5,13 @@ import { Feather } from "@expo/vector-icons";
 import { useRootNavigationState, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
-  Image,
-  StyleProp,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-  ViewStyle,
+    Image,
+    StyleProp,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+    ViewStyle,
 } from "react-native";
 
 export interface Meal {
@@ -56,13 +56,10 @@ export const MealCard: React.FC<Meal> = ({
     <TouchableOpacity
       style={[styles.recipeCardContainer, style]}
       onPress={() => {
-        if (onPress) {
-          onPress();
-          return;
-        }
+        console.log('recipeId', recipeId)
         router.navigate({
           pathname: "/main/meals/mealView",
-          params: { recipe: recipeId, meal: id },
+          params: { recipeId: recipeId, meal: id },
         });
       }}
     >
