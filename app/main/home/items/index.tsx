@@ -102,6 +102,7 @@ const Inventory = () => {
     };
 
     async function handleAddItem(item: foodItem) {
+        setScannedItem(undefined);
         const { error } = await supabase.from("Alimentos").insert({
             ...item,
             id_usuario: user.id,
@@ -274,7 +275,10 @@ const Inventory = () => {
                 <ItemForm
                     variant="new"
                     onSubmit={handleAddItem}
-                    onCancel={() => setIsModalOpen(false)}
+                    onCancel={() => {
+                        setScannedItem(undefined)
+                        setIsModalOpen(false)
+                    }}
                     scanned={scannedItem}
                 />
             </Modal>

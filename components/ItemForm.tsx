@@ -70,12 +70,14 @@ export default function ItemForm(props: ItemFormProps) {
         setName("");
         setBrand("");
         setExpirationDate(undefined);
-        setCategory("Grãos");
+        setCategory("");
         setPrice(undefined);
         setQuantity(undefined);
         setUnit("Selecione");
         setStatus("Fechado");
         setLocation("Geladeira");
+        setImageUri(undefined);
+        
     }
 
     async function submitForm() {
@@ -100,8 +102,9 @@ export default function ItemForm(props: ItemFormProps) {
             Alert.alert("Por favor preencha todos os campos");
             return;
         }
-        resetForm();
+        
         onSubmit(itemData);
+        resetForm();
     }
 
     const renderPicture = (uri: string) => {
@@ -154,7 +157,7 @@ export default function ItemForm(props: ItemFormProps) {
                             value={brand as string}
                             onChangeText={setBrand}
                             placeholder="Ex: Heinz"
-                             placeholderTextColor={COLORS.placeholder}
+                            placeholderTextColor={COLORS.placeholder}
                         />
                     </View>
                 </View>
@@ -174,7 +177,7 @@ export default function ItemForm(props: ItemFormProps) {
                         value={category}
                         onChangeText={setCategory}
                         placeholder="Bebidas, Grãos, Massas etc..."
-                         placeholderTextColor={COLORS.placeholder}
+                        placeholderTextColor={COLORS.placeholder}
                     />
                 </View>
 
@@ -221,11 +224,14 @@ export default function ItemForm(props: ItemFormProps) {
                         mode="dropdown"
                     >
                         <Picker.Item label={unit} value={unit} />
-                        <Picker.Item label={'Unidade(s)'} value={'Unidade(s)'} />
-                        <Picker.Item label={'ml'} value={'ml'} />
-                        <Picker.Item label={'kg'} value={'kg'} />
-                        <Picker.Item label={'g'} value={'g'} />
-                        <Picker.Item label={'litro(s)'} value={'litro(s)'} />
+                        <Picker.Item
+                            label={"Unidade(s)"}
+                            value={"Unidade(s)"}
+                        />
+                        <Picker.Item label={"ml"} value={"ml"} />
+                        <Picker.Item label={"kg"} value={"kg"} />
+                        <Picker.Item label={"g"} value={"g"} />
+                        <Picker.Item label={"litro(s)"} value={"litro(s)"} />
                     </Picker>
                 </View>
 
@@ -301,7 +307,10 @@ export default function ItemForm(props: ItemFormProps) {
 
                 <TouchableOpacity
                     style={[styles.addButton, styles.cancelButton]}
-                    onPress={onCancel}
+                    onPress={() => {
+                        resetForm();
+                        onCancel();
+                    }}
                 >
                     <Ionicons name="close" size={24} color={COLORS.primary} />
                     <Text
