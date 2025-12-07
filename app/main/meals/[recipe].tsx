@@ -163,6 +163,7 @@ const RecipeView = () => {
             id_receita: recipeId,
             tipo: mealType,
             dia_da_semana: weekDay,
+            id_usuario: user.id
         });
         if (error) console.error(error);
         else {
