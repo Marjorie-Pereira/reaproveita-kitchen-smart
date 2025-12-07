@@ -18,8 +18,6 @@ import {
 } from "react-native";
 import CameraModal from "./CameraModal";
 
-const OPCOES_UNIDADE = ["Kg", "g", "L", "ml", "Unidade(s)"];
-
 interface ItemFormProps {
     productData?: foodItem;
     scanned?: productType;
@@ -39,7 +37,7 @@ export default function ItemForm(props: ItemFormProps) {
     // user input states
     const [price, setPrice] = useState<number | undefined>(undefined);
     const [quantity, setQuantity] = useState<number | undefined>(undefined);
-    const [unit, setUnit] = useState(OPCOES_UNIDADE[0]);
+    const [unit, setUnit] = useState<string>("Selecione");
     const [status, setStatus] = useState("Fechado");
     const [location, setLocation] = useState("Geladeira");
     const [isCameraOpen, setIsCameraOpen] = useState(false);
@@ -75,7 +73,7 @@ export default function ItemForm(props: ItemFormProps) {
         setCategory("Grãos");
         setPrice(undefined);
         setQuantity(undefined);
-        setUnit(OPCOES_UNIDADE[0]);
+        setUnit("Selecione");
         setStatus("Fechado");
         setLocation("Geladeira");
     }
@@ -133,6 +131,7 @@ export default function ItemForm(props: ItemFormProps) {
                             value={name as string}
                             onChangeText={setName}
                             placeholder="Ex: Tomate"
+                            placeholderTextColor={COLORS.placeholder}
                         />
                         {name?.length > 0 && (
                             <TouchableOpacity onPress={() => setName("")}>
@@ -155,38 +154,28 @@ export default function ItemForm(props: ItemFormProps) {
                             value={brand as string}
                             onChangeText={setBrand}
                             placeholder="Ex: Heinz"
+                             placeholderTextColor={COLORS.placeholder}
                         />
                     </View>
                 </View>
 
                 <DatePickerInput
                     label="Data de validade"
-                    value={
-                        expirationDate 
-                    }
+                    value={expirationDate}
                     onChange={(newDate: Date) =>
                         setExpirationDate(newDate.toISOString())
                     }
                 />
 
                 <Text style={styles.label}>Categoria</Text>
-                <View style={[styles.pickerWrapper]}>
-                    <Picker
-                        selectedValue={category}
-                        onValueChange={(itemValue, itemIndex) =>
-                            setCategory(itemValue)
-                        }
-                        style={{ backgroundColor: "white", color: COLORS.text }}
-                    >
-                        {/* TODO - Implementar Array.map */}
-                        <Picker.Item label="Grãos" value="Grãos" />
-                        <Picker.Item label="Frutas" value="Frutas" />
-                        <Picker.Item label="Vegetais" value="Vegetais" />
-                        <Picker.Item label="Laticínios" value="Laticínios" />
-                        <Picker.Item label="Carnes" value="Carnes" />
-                        <Picker.Item label="Bebidas" value="Bebidas" />
-                        <Picker.Item label="Outros" value="Outros" />
-                    </Picker>
+                <View style={[styles.inputWrapper]}>
+                    <TextInput
+                        style={[styles.textInput, { paddingLeft: 5 }]}
+                        value={category}
+                        onChangeText={setCategory}
+                        placeholder="Bebidas, Grãos, Massas etc..."
+                         placeholderTextColor={COLORS.placeholder}
+                    />
                 </View>
 
                 <View style={styles.row}>
@@ -228,14 +217,15 @@ export default function ItemForm(props: ItemFormProps) {
                             setUnit(itemValue)
                         }
                         style={{ backgroundColor: "white", color: COLORS.text }}
+                        dropdownIconColor={COLORS.text}
+                        mode="dropdown"
                     >
-                        {OPCOES_UNIDADE.map((option, index) => (
-                            <Picker.Item
-                                label={option}
-                                value={option}
-                                key={index}
-                            />
-                        ))}
+                        <Picker.Item label={unit} value={unit} />
+                        <Picker.Item label={'Unidade(s)'} value={'Unidade(s)'} />
+                        <Picker.Item label={'ml'} value={'ml'} />
+                        <Picker.Item label={'kg'} value={'kg'} />
+                        <Picker.Item label={'g'} value={'g'} />
+                        <Picker.Item label={'litro(s)'} value={'litro(s)'} />
                     </Picker>
                 </View>
 
@@ -247,6 +237,8 @@ export default function ItemForm(props: ItemFormProps) {
                             setStatus(itemValue)
                         }
                         style={{ backgroundColor: "white", color: COLORS.text }}
+                        dropdownIconColor={COLORS.text}
+                        mode="dropdown"
                     >
                         <Picker.Item label="Aberto" value="Aberto" />
                         <Picker.Item label="Fechado" value="Fechado" />
@@ -261,6 +253,8 @@ export default function ItemForm(props: ItemFormProps) {
                             setLocation(itemValue)
                         }
                         style={{ backgroundColor: "white", color: COLORS.text }}
+                        dropdownIconColor={COLORS.text}
+                        mode="dropdown"
                     >
                         <Picker.Item label="Geladeira" value="Geladeira" />
                         <Picker.Item label="Freezer" value="Freezer" />
