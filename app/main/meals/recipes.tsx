@@ -232,65 +232,6 @@ const ExploreRecipesScreen = () => {
         return currentRecipes;
     };
 
-    useEffect(() => {
-        const loadRecipes = async () => {
-            setIsLoading(true);
-            try {
-                const tableToQueryFrom =
-                    selectedTab === "Explorar"
-                        ? "ReceitasCompletas"
-                        : "ReceitasSalvas";
-
-                const { data, error } = await supabase
-                    .from(tableToQueryFrom)
-                    .select("*");
-
-                if (error) throw Error(error.message);
-
-                setAllRecipes(data as recipe[]);
-                setRecipes(data as recipe[]);
-            } catch (e) {
-                console.error(e);
-                setAllRecipes([]);
-                setRecipes([]);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        loadRecipes();
-    }, [selectedTab]);
-
-    useEffect(() => {
-        if (isLoading || !allRecipes || allRecipes.length === 0) return;
-
-        let filtered = filterRecipes(allRecipes);
-        if (onlyAvailable) {
-            const applyAvailabilityFilter = async () => {
-                const finalRecipes = await getRecipesByAvailableItems(filtered);
-                setRecipes(finalRecipes ?? []);
-            };
-            applyAvailabilityFilter();
-        } else {
-            setRecipes(filtered);
-        }
-    }, [allRecipes, activeFilters, search, onlyAvailable]);
-
-    useFocusEffect(
-        useCallback(() => {
-            console.log("entrou na tela");
-
-            setCategory(params.category);
-            setActiveFilters([
-                reverseCategoryMap[category as keyof typeof reverseCategoryMap],
-            ]);
-
-            return () => {
-                setSearch("");
-            };
-        }, [params.category])
-    );
-
     function toggleCategory(newCategory: string) {
         const isCategoryActive = activeFilters.includes(newCategory);
 
@@ -311,6 +252,86 @@ const ExploreRecipesScreen = () => {
             setActiveFilters([...newFilters, newCategory]);
         }
     }
+
+    const loadRecipes = useCallback(
+        async (tab: "Explorar" | "Salvas") => {
+            if (tab === "Salvas" && tab !== selectedTab) return;
+
+            if (!user.id && tab === "Salvas") {
+                setAllRecipes([]);
+                setRecipes([]);
+                return;
+            }
+
+            setIsLoading(true);
+            try {
+                const tableToQueryFrom =
+                    tab === "Explorar" ? "ReceitasCompletas" : "ReceitasSalvas";
+
+                let query = supabase.from(tableToQueryFrom).select("*");
+
+                if (tab === "Salvas") {
+                    query = query.eq("id_usuario", user.id);
+                }
+
+                const { data, error } = await query;
+
+                if (error) throw Error(error.message);
+
+                setAllRecipes(data as recipe[]);
+                setRecipes(data as recipe[]);
+            } catch (e) {
+                console.error(e);
+                setAllRecipes([]);
+                setRecipes([]);
+            } finally {
+                setIsLoading(false);
+            }
+        },
+        [user.id, selectedTab]
+    );
+
+    useEffect(() => {
+        loadRecipes(selectedTab);
+    }, [selectedTab, loadRecipes]);
+
+    useEffect(() => {
+        if (isLoading || !allRecipes || allRecipes.length === 0) return;
+
+        let filtered = filterRecipes(allRecipes);
+        if (onlyAvailable) {
+            const applyAvailabilityFilter = async () => {
+                const finalRecipes = await getRecipesByAvailableItems(filtered);
+                setRecipes(finalRecipes ?? []);
+            };
+            applyAvailabilityFilter();
+        } else {
+            setRecipes(filtered);
+        }
+    }, [allRecipes, activeFilters, search, onlyAvailable, isLoading]);
+
+    useFocusEffect(
+        useCallback(() => {
+            console.log("entrou na tela");
+
+            if (selectedTab === "Salvas") {
+                loadRecipes("Salvas");
+            }
+
+            if (params?.category) {
+                setCategory(params.category);
+                setActiveFilters([
+                    reverseCategoryMap[
+                        params.category as keyof typeof reverseCategoryMap
+                    ],
+                ]);
+            }
+
+            return () => {
+                setSearch("");
+            };
+        }, [selectedTab, loadRecipes, params.category])
+    );
 
     return (
         <>
