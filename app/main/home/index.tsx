@@ -2,7 +2,7 @@ import Card from "@/components/Card";
 import FloatingButton from "@/components/FloatingButton";
 import FoodListItem from "@/components/FoodListItem";
 import SearchBar from "@/components/SearchBar";
-import SearchItemsModal, { FoodItem } from "@/components/SearchItemsModal";
+import SearchItemsModal from "@/components/SearchItemsModal";
 import { labelTextColor } from "@/constants/status.colors";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
@@ -20,7 +20,7 @@ import {
     MaterialCommunityIcons,
 } from "@expo/vector-icons";
 import { useFocusEffect, useRouter } from "expo-router";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
     ScrollView,
     StyleSheet,
@@ -58,7 +58,7 @@ export default function WelcomeScreen() {
     const [expiringCount, setExpiringCount] = useState(0);
     const [expiredCount, setExpiredCount] = useState(0);
     const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
-    const [inventoryItems, setInventoryItems] = useState<any[]>([]);
+
     const [orderedItems, setOrderedItems] = useState<any[]>([]);
 
     async function getItemsCount() {
@@ -98,27 +98,6 @@ export default function WelcomeScreen() {
         setLeftoversCount(data?.length || 0);
     }
 
-    const fetchItemsFromInventory = async () => {
-        const { data, error } = await supabase
-            .from("Alimentos")
-            .select("*, Ambientes(nome)")
-            .eq("id_usuario", user?.id);
-
-        if (error) throw new Error(error.message);
-        const items = data.map((r) => {
-            const foodItem = {
-                id: r?.id,
-                nome: r.nome,
-                categoria: r.categoria,
-                imagem: r.imagem,
-                location: r["Ambientes"].nome,
-            };
-
-            return foodItem;
-        });
-        setInventoryItems(items);
-    };
-
     const fetchItemsByExpirationDate = async () => {
         const { data, error } = await supabase
             .from("Alimentos")
@@ -148,30 +127,10 @@ export default function WelcomeScreen() {
     );
 
     useEffect(() => {
-        if (isSearchModalOpen) fetchItemsFromInventory();
-    }, [isSearchModalOpen, fetchItemsFromInventory]);
-
-    useEffect(() => {
         fetchItemsByExpirationDate();
     }, []);
 
-    const groupedInventoryMap = useMemo(() => {
-        if (!inventoryItems || inventoryItems.length === 0) return {};
-
-        return inventoryItems.reduce((acc, item) => {
-            if (!acc[item.location]) {
-                acc[item.location] = [];
-            }
-            acc[item.location].push(item);
-            return acc;
-        }, {} as Record<string, FoodItem[]>);
-    }, [inventoryItems]);
-
-    // 🌟 2. Converta o Map para o Array de Entries (formato que o modal espera)
-    const groupedInventoryEntries = useMemo(() => {
-        return Object.entries(groupedInventoryMap);
-    }, [groupedInventoryMap]);
-
+   
     return (
         <>
             <View style={styles.container}>
@@ -248,10 +207,7 @@ export default function WelcomeScreen() {
                     </View>
 
                     <TouchableOpacity
-                        onPress={() => {
-                            
-                            setIsSearchModalOpen(true);
-                        }}
+                        onPress={() => setIsSearchModalOpen(true)}
                     >
                         <SearchBar
                             value=""
@@ -308,8 +264,6 @@ export default function WelcomeScreen() {
                 </ScrollView>
             </View>
             <SearchItemsModal
-            //@ts-ignore
-                groupedInventory={groupedInventoryEntries}
                 onClose={() => setIsSearchModalOpen(false)}
                 onItemPress={() => {}}
                 isVisible={isSearchModalOpen}

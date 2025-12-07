@@ -1,4 +1,6 @@
 import { COLORS, globalStyles } from "@/constants/theme";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/lib/supabase";
 import { Feather } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import filter from "lodash.filter";
@@ -12,58 +14,139 @@ import {
     View,
 } from "react-native";
 import Button from "./Button";
+import Loading from "./Loading";
 import SearchBar from "./SearchBar";
-export interface FoodItem {
+
+// 2. PROCESSAMENTO (AGRUPAMENTO) DOS DADOS
+type RawFoodItem = {
     id: string;
     nome: string;
+    imagem: string;
     categoria: string;
-    imagem?: string;
-    local: string;
-}
+    Ambientes: {
+        nome: string;
+    }[];
+};
+
+type FoodItem = Omit<RawFoodItem, "Ambientes"> & {
+    location: string;
+};
 
 interface SearchItemsModalProps {
     isVisible: boolean;
     onClose: () => void;
-    groupedInventory: [string, FoodItem[]][];
     onItemPress: (id: string) => void;
     searchBarPlaceholder?: string;
 }
+
+type InventoryGroup = [string, FoodItem[]];
 
 const SearchItemsModal: React.FC<SearchItemsModalProps> = ({
     isVisible,
     onClose,
     onItemPress,
     searchBarPlaceholder,
-
-    groupedInventory,
 }) => {
     const [search, setSearch] = useState("");
-    const [items, setItems] = useState(groupedInventory || []);
+    const [items, setItems] = useState<[string, FoodItem[]][]>([]);
+    const [initialItems, setInitialItems] = useState<[string, FoodItem[]][]>(
+        []
+    );
+    const [isLoading, setIsLoading] = useState(false);
+    const { user } = useAuth();
 
-    
-    useEffect(() => {
-        
-        if (isVisible) {
-            
-            setSearch("");
-
-           
-            setItems(groupedInventory || []);
+    const groupInventoryByLocation = (
+        data: any[]
+    ): Record<string, FoodItem[]> => {
+        if (!data || data.length === 0) {
+            console.log("nao tem dados");
+            return {};
         }
-        
-    }, [isVisible, groupedInventory]);
 
-    type InventoryGroup = [string, FoodItem[]];
+        const groupedMap: Record<string, FoodItem[]> = data.reduce(
+            (acc, rawItem) => {
+                const { nome: locationName } = rawItem["Ambientes"];
+
+                if (!locationName) {
+                    return acc;
+                }
+
+                if (!acc[locationName]) {
+                    acc[locationName] = [];
+                }
+
+                const { Ambientes, ...itemWithoutAmbientes } = rawItem;
+
+                const itemForLocation: FoodItem = {
+                    ...itemWithoutAmbientes,
+                    location: locationName,
+                };
+
+                acc[locationName].push(itemForLocation);
+
+                return acc;
+            },
+            {} as Record<string, FoodItem[]>
+        );
+
+        return groupedMap;
+    };
+
+    const fetchAndProcessInventory = async () => {
+        setIsLoading(true);
+        try {
+            const { data, error } = await supabase
+                .from("Alimentos")
+                .select("id, nome, categoria, imagem, Ambientes(nome)")
+                .eq("id_usuario", user?.id);
+
+            if (error) throw error;
+
+            console.log(data.length);
+
+            const groupedInventoryEntries = Object.entries(
+                groupInventoryByLocation(data)
+            );
+
+            console.log(groupedInventoryEntries);
+
+            // Armazena a fonte de dados completa
+            setInitialItems(groupedInventoryEntries);
+            // Atualiza a lista exibida (items)
+            setItems(groupedInventoryEntries);
+        } catch (error) {
+            console.error("Erro ao buscar inventário:", error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        if (isVisible && items.length === 0) {
+            fetchAndProcessInventory();
+        }
+
+        if (!isVisible) {
+            setSearch("");
+            setItems([]);
+        }
+    }, [isVisible]);
 
     const handleSearch = (query: string) => {
         setSearch(query);
-        const formattedQuery = query.toLowerCase();
 
-        const sourceData = groupedInventory || [];
+        if (query.length === 0) {
+            setItems(initialItems);
+            return;
+        }
+        const formattedQuery = query.toLowerCase().trim();
 
-        const mappedAndFilteredData = (sourceData as InventoryGroup[])
+        const mappedAndFilteredData = (items as InventoryGroup[])
             .map(([location, foodItems]) => {
                 const matchingFoodItems = filter(foodItems, (item) => {
+                    if (!item || typeof item.nome !== "string") {
+                        return false;
+                    }
                     return item.nome.toLowerCase().includes(formattedQuery);
                 });
 
@@ -121,66 +204,71 @@ const SearchItemsModal: React.FC<SearchItemsModalProps> = ({
                     </View>
 
                     {/* LISTA DE ITENS */}
-                    <View style={{ gap: 20, marginBottom: 40 }}>
-                        {items.map(([location, items]) => (
-                            <View key={location}>
-                                <Text style={modalStyles.locationTitle}>
-                                    {location}
-                                </Text>
-                                <View style={{ gap: 8 }}>
-                                    {items.map((item) => {
-                                        return (
-                                            <TouchableOpacity
-                                                key={item.id}
-                                                onPress={() =>
-                                                    onItemPress(item.id)
-                                                }
-                                                style={modalStyles.foodItem}
-                                            >
-                                                <View
-                                                    style={{
-                                                        flex: 1,
-                                                        flexDirection: "row",
-                                                        alignItems:
-                                                            "flex-start",
-                                                    }}
+                    {isLoading ? (
+                        <Loading />
+                    ) : (
+                        <View style={{ gap: 20, marginBottom: 40 }}>
+                            {items.map(([location, items]) => (
+                                <View key={location}>
+                                    <Text style={modalStyles.locationTitle}>
+                                        {location}
+                                    </Text>
+                                    <View style={{ gap: 8 }}>
+                                        {items.map((item) => {
+                                            return (
+                                                <TouchableOpacity
+                                                    key={item.id}
+                                                    onPress={() =>
+                                                        onItemPress(item.id)
+                                                    }
+                                                    style={modalStyles.foodItem}
                                                 >
-                                                    <Image
-                                                        source={item.imagem}
-                                                        contentFit="cover"
-                                                        style={{
-                                                            width: 80,
-                                                            height: 80,
-                                                        }}
-                                                    />
                                                     <View
                                                         style={{
-                                                            marginLeft: 10,
+                                                            flex: 1,
+                                                            flexDirection:
+                                                                "row",
+                                                            alignItems:
+                                                                "flex-start",
                                                         }}
                                                     >
-                                                        <Text
-                                                            style={
-                                                                modalStyles.itemName
-                                                            }
+                                                        <Image
+                                                            source={item.imagem}
+                                                            contentFit="cover"
+                                                            style={{
+                                                                width: 80,
+                                                                height: 80,
+                                                            }}
+                                                        />
+                                                        <View
+                                                            style={{
+                                                                marginLeft: 10,
+                                                            }}
                                                         >
-                                                            {item.nome}
-                                                        </Text>
-                                                        <Text
-                                                            style={
-                                                                modalStyles.itemCategory
-                                                            }
-                                                        >
-                                                            {item.categoria}
-                                                        </Text>
+                                                            <Text
+                                                                style={
+                                                                    modalStyles.itemName
+                                                                }
+                                                            >
+                                                                {item.nome}
+                                                            </Text>
+                                                            <Text
+                                                                style={
+                                                                    modalStyles.itemCategory
+                                                                }
+                                                            >
+                                                                {item.categoria}
+                                                            </Text>
+                                                        </View>
                                                     </View>
-                                                </View>
-                                            </TouchableOpacity>
-                                        );
-                                    })}
+                                                </TouchableOpacity>
+                                            );
+                                        })}
+                                    </View>
                                 </View>
-                            </View>
-                        ))}
-                    </View>
+                            ))}
+                        </View>
+                    )}
                 </ScrollView>
 
                 {/* Modal Footer */}
