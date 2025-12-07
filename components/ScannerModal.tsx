@@ -48,7 +48,6 @@ const ScannerModal: React.FC<ScannerModalProps> = ({
     if (result.status === 0) {
       alert(`Produto com código ${data} não encontrado.`);
     } else {
-      console.log("fetch", result);
       onScan(result.product);
     }
   };

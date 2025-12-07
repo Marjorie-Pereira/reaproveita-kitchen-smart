@@ -46,12 +46,10 @@ const SearchItemsModal: React.FC<SearchItemsModalProps> = ({
     }, [isVisible]);
 
     useEffect(() => {
-        console.log(groupedInventory)
     }, [items])
 
     useEffect(() => {
        
-       console.log('isVisible', isVisible)
        if(isVisible) setItems(groupedInventory);
     }, []);
 

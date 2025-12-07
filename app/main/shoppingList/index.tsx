@@ -117,23 +117,19 @@ function ShoppingList() {
   };
 
   useEffect(() => {
-    console.log("shopping list changed");
   }, [shoppingList]);
 
   useFocusEffect(
     useCallback(() => {
-      console.log(params);
       if (params.scannedProduct) {
         const scannedProduct: productType = JSON.parse(
           params?.scannedProduct as string
         );
         setItemName(scannedProduct.product_name);
-        console.log(scannedProduct);
       }
       fetchShoppingListItems();
       fetchItemsFromInventory();
       return () => {
-        console.log("saiu");
       };
     }, [])
   );
@@ -149,7 +145,6 @@ function ShoppingList() {
         checked: false,
       };
 
-      console.log("shopping list", listId);
       const { error } = await supabase.from("ItensListaCompras").insert({
         item: newItem.name,
         quantidade: newItem.quantity,

@@ -1,8 +1,8 @@
+import { formatExpirationDate } from "@/utils/dateFormat";
 import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker, {
     DateTimePickerEvent,
 } from "@react-native-community/datetimepicker";
-import { formatDate } from "date-fns";
 import React, { useState } from "react";
 import {
     Platform,
@@ -54,7 +54,7 @@ const DatePickerInput = ({ label, value, onChange }: DatePickerInputProps) => {
                         !value && styles.placeholderText,
                     ]}
                 >
-                    {value ? formatDate(new Date(value), "dd/MM/yyyy") : 'dd/mm/aaaa'}
+                    {value ? formatExpirationDate(value) : 'dd/mm/aaaa'}
                 </Text>
                 <Ionicons
                     name="calendar-outline"
