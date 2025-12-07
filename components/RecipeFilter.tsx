@@ -13,7 +13,6 @@ const RecipeFilter = (props: RecipeFilterProps) => {
   const [isSelected, setIsSelected] = useState(isActive);
 
   useEffect(() => {
-    console.log(`is ${text}`, isActive);
     setIsSelected(isActive ?? false);
   }, [isActive]);
 

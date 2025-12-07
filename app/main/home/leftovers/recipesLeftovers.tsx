@@ -3,15 +3,15 @@ import RecipeFilter from "@/components/RecipeFilter";
 import { supabase } from "@/lib/supabase";
 import { recipe } from "@/types/recipeType";
 import { MaterialIcons } from "@expo/vector-icons";
-import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
-import React, { useCallback, useEffect, useState } from "react";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import React, { useEffect, useState } from "react";
 import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 
 const ExploreRecipesScreen = () => {
@@ -79,24 +79,11 @@ const ExploreRecipesScreen = () => {
     else getRecipesByCategory();
   }, [selectedTab]);
 
-  useEffect(() => {
-    if (onlyAvailable) console.log("fetching for available");
-  }, [onlyAvailable]);
 
-  useEffect(() => {
-    console.log("receitas mudaram");
-  }, [recipes]);
 
-  useFocusEffect(
-    useCallback(() => {
-      // Do something when the screen is focused
 
-      console.log(leftoverId);
-      return () => {
-        // Do something when the screen is unfocused
-      };
-    }, [])
-  );
+
+
 
   // function toggleCategory(category: string) {
   //   if (!selectedCategories.includes(category)) {
@@ -252,9 +239,8 @@ const ExploreRecipesScreen = () => {
                   time={recipe.tempo_preparo}
                   id={recipe.id}
                   imageUri={recipe.link_imagem}
-                  instructions={recipe.modo_preparo}
-                  ingredients={recipe.ingredientes.split("| ")}
-                  isSaved={selectedTab === "Salvas"}
+                  
+                  onPress={() => console.log('ir para info da receita')}
                 />
               ))}
             {recipes.length === 0 && selectedTab === "Salvas" && (
