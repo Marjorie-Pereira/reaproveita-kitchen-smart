@@ -1,4 +1,5 @@
 import Loading from "@/components/Loading";
+import { fallbackImg } from "@/constants/fallbackImage";
 import { COLORS } from "@/constants/theme";
 import { supabase } from "@/lib/supabase";
 import { foodItem } from "@/types/FoodListItemProps";
@@ -6,6 +7,7 @@ import { capitalizeFirstLetter } from "@/utils/capitalizeString";
 import { formatExpirationDate } from "@/utils/dateFormat";
 import { getLocationById } from "@/utils/locationUtils";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { Image } from "expo-image";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import React, { useCallback, useState } from "react";
 import {
@@ -237,12 +239,12 @@ const FoodItemView = () => {
                     </View>
 
                     {/* Imagem do Produto */}
-                    {/* <Image
+                    <Image
                         source={{
                             uri: itemData?.imagem ?? fallbackImg,
                         }}
                         style={styles.image}
-                    /> */}
+                    />
 
                     {/* Banner de Aviso */}
                     {statusBadge && (
@@ -391,7 +393,7 @@ const styles = StyleSheet.create({
     image: {
         width: "100%",
         height: 250,
-        resizeMode: "contain",
+        
         alignSelf: "center",
         marginBottom: 16,
         borderRadius: 8,

@@ -1,3 +1,4 @@
+import CameraModal from "@/components/CameraModal";
 import DatePickerInput from "@/components/DatePicker";
 import { supabase } from "@/lib/supabase";
 import { foodItem } from "@/types/FoodListItemProps";
@@ -365,7 +366,7 @@ export default function EditFoodItem() {
                     </TouchableOpacity>
                 </View>
                 <View style={styles.imageContainer}>
-                    {/* {imageUri && renderPicture(imageUri as string)} */}
+                    {imageUri && renderPicture(imageUri as string)}
                 </View>
             </ScrollView>
 
@@ -377,11 +378,11 @@ export default function EditFoodItem() {
                     <Text style={styles.addButtonText}>Salvar Alterações</Text>
                 </TouchableOpacity>
             </View>
-            {/* <CameraModal
+            <CameraModal
                 isVisible={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 onSubmit={setImageUri}
-            /> */}
+            />
         </>
     );
 }
