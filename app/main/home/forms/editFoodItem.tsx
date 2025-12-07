@@ -1,4 +1,3 @@
-import CameraModal from "@/components/CameraModal";
 import DatePickerInput from "@/components/DatePicker";
 import { supabase } from "@/lib/supabase";
 import { foodItem } from "@/types/FoodListItemProps";
@@ -10,13 +9,12 @@ import { Image } from "expo-image";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
 import {
-    Alert,
-    ScrollView,
+    Alert, Keyboard, ScrollView,
     StyleSheet,
     Text,
     TextInput,
     TouchableOpacity,
-    View,
+    View
 } from "react-native";
 
 const COLORS = {
@@ -48,53 +46,40 @@ export default function EditFoodItem() {
     const [imageUri, setImageUri] = useState<string>();
     const [status, setStatus] = useState<string>();
 
- 
-
-    async function fetchItemData() {
+    async function fetchItemData(isActive: { value: boolean }) {
         if (!params.itemId) return;
 
-        // Use .single() se você espera apenas um registro
-        const { data, error } = await supabase
-            .from("Alimentos")
-            .select("*")
-            .eq("id", params.itemId)
-            .single(); // Adicione .single() para tipagem e resultado mais limpos
+        try {
+            const { data, error } = await supabase
+                .from("Alimentos")
+                .select("*")
+                .eq("id", params.itemId)
+                .single();
 
-        if (error) throw new Error(error.message);
+            if (error) throw new Error(error.message);
 
-        // ✅ Proteção 1: Verifica se o dado foi encontrado
-        if (!data) {
-            console.warn(`Item com ID ${params.itemId} não encontrado.`);
-            // Limpar ou definir estados de erro aqui é uma boa prática
-            setItemData(undefined);
-            setLocation(undefined);
-            return;
+            // Verifica se o dado foi encontrado
+            if (!data) {
+                console.warn(`Item com ID ${params.itemId} não encontrado.`);
+                if (isActive.value) {
+                    // Protege o setState
+                    setItemData(undefined);
+                    setLocation(undefined);
+                }
+                return;
+            }
+
+            // ⚠️ MOVEMOS A CHAMADA PARA DENTRO DA PROTEÇÃO 'isActive'
+            if (isActive.value) {
+                const locationName = await getLocationById(data.id_ambiente);
+                setLocation(locationName);
+                setItemData(data as foodItem);
+            }
+        } catch (e) {
+            // Relança a exceção para ser capturada pelo loadData
+            throw e;
         }
-
-        // Se encontrou, data é o objeto, não um array (graças ao .single())
-        const locationName = await getLocationById(data.id_ambiente);
-        setLocation(locationName);
-
-        setItemData(data as foodItem);
     }
-
-    useEffect(() => {
-        setName(itemData?.nome);
-        setBrand(itemData?.marca);
-        setStatus(itemData?.status);
-        setExpirationDate(itemData?.data_validade);
-        setCategory(itemData?.categoria);
-        setUnit(itemData?.unidade_medida);
-        setImageUri(itemData?.imagem);
-        setPrice(itemData?.preco?.toString());
-        setQuantity(itemData?.quantidade?.toString());
-    }, [itemData]);
-
-    useFocusEffect(
-        useCallback(() => {
-            fetchItemData();
-        }, [])
-    );
 
     async function handleEditItem() {
         if (!location) {
@@ -105,30 +90,31 @@ export default function EditFoodItem() {
             return;
         }
 
-        // const formattedExpirationDate = formatDate(expirationDate ?? new Date(), 'yyy-MM-dd')
+        try {
+            const { id } = await getLocationId(location);
+            const { data, error } = await supabase
+                .from("Alimentos")
+                .update({
+                    nome: name,
+                    marca: brand,
+                    data_validade: expirationDate,
+                    categoria: category,
+                    preco: price ? parseFloat(price) : null,
+                    quantidade: quantity ? parseInt(quantity, 10) : null,
+                    unidade_medida: unit,
+                    status,
+                    id_ambiente: id,
+                    imagem: imageUri,
+                })
+                .eq("id", params.itemId);
 
-        const { id } = await getLocationId(location);
-        const { data, error } = await supabase
-            .from("Alimentos")
-            .update({
-                nome: name,
-                marca: brand,
-                data_validade: expirationDate,
-                categoria: category,
-                preco: price ? parseFloat(price) : null,
-                quantidade: quantity ? parseInt(quantity, 10) : null,
-                unidade_medida: unit,
-                status,
-                id_ambiente: id,
-                imagem: imageUri,
-            })
-            .eq("id", params.itemId);
-
-        if (error) {
-            console.error(error);
-            
-        } else {
+            if (error) {
+                console.error(error);
+                Alert.alert("Erro na Edição", error.message); // Avisar o usuário é importante
+                return;
+            }
             Alert.alert("Alimento Editado!");
+            Keyboard.dismiss();
             setName("");
             setBrand("");
             setExpirationDate(undefined);
@@ -137,6 +123,9 @@ export default function EditFoodItem() {
             setCategory("Grãos");
 
             router.back();
+        } catch (error) {
+            console.error("Erro fatal ao editar item:", error);
+            Alert.alert("Erro", "Falha na comunicação com o servidor.");
         }
     }
 
@@ -152,12 +141,56 @@ export default function EditFoodItem() {
         );
     };
 
+    useEffect(() => {
+        setName(itemData?.nome);
+        setBrand(itemData?.marca);
+        setStatus(itemData?.status);
+        setExpirationDate(itemData?.data_validade);
+        setCategory(itemData?.categoria);
+        setUnit(itemData?.unidade_medida);
+        setImageUri(itemData?.imagem);
+        setPrice(itemData?.preco?.toString());
+        setQuantity(itemData?.quantidade?.toString());
+    }, [itemData]);
+
+    useFocusEffect(
+        useCallback(() => {
+            const isActive = { value: true };
+
+            // Use try/catch para evitar crashes não capturados
+            const loadData = async () => {
+                try {
+                    await fetchItemData(isActive);
+                } catch (error) {
+                    console.error("Erro ao carregar item para edição:", error);
+                }
+            };
+
+            loadData();
+
+            // Limpeza essencial: Desativar a permissão para setState
+            return () => {
+                isActive.value = false;
+                setName(undefined);
+                setBrand(undefined);
+                setExpirationDate(undefined);
+                setPrice(undefined);
+                setQuantity(undefined);
+                setCategory(undefined);
+                setUnit(undefined);
+                setStatus(undefined);
+                setLocation(undefined);
+            };
+        }, [params.itemId])
+    );
+
     return (
         <>
             <ScrollView
                 style={styles.container}
                 contentContainerStyle={styles.scrollContainer}
                 keyboardShouldPersistTaps="handled"
+                removeClippedSubviews={false}
             >
                 <View style={styles.inputGroup}>
                     <Text style={styles.label}>Nome</Text>
@@ -197,8 +230,8 @@ export default function EditFoodItem() {
                     label="Data de validade"
                     value={expirationDate}
                     onChange={(date) => {
-                        const formatted = formatDate(date, 'yyy-MM-dd')
-                        setExpirationDate(formatted)
+                        const formatted = formatDate(date, "yyy-MM-dd");
+                        setExpirationDate(formatted);
                     }}
                 />
 
@@ -210,6 +243,7 @@ export default function EditFoodItem() {
                             setCategory(itemValue)
                         }
                         style={{ backgroundColor: "white", color: "black" }}
+                        dropdownIconColor={"#000"}
                     >
                         <Picker.Item label="Grãos" value="Grãos" />
                         <Picker.Item label="Frutas" value="Frutas" />
@@ -261,6 +295,7 @@ export default function EditFoodItem() {
                             setUnit(itemValue)
                         }
                         style={{ backgroundColor: "white", color: "black" }}
+                        dropdownIconColor={"#000"}
                     >
                         {OPCOES_UNIDADE.map((option, index) => (
                             <Picker.Item
@@ -280,6 +315,7 @@ export default function EditFoodItem() {
                             setStatus(itemValue)
                         }
                         style={{ backgroundColor: "white", color: "black" }}
+                        dropdownIconColor={"#000"}
                     >
                         {OPCOES_STATUS.map((option, index) => (
                             <Picker.Item
@@ -299,6 +335,7 @@ export default function EditFoodItem() {
                             setLocation(itemValue)
                         }
                         style={{ backgroundColor: "white", color: "black" }}
+                        dropdownIconColor={"#000"}
                     >
                         <Picker.Item label="Geladeira" value="Geladeira" />
                         <Picker.Item label="Freezer" value="Freezer" />
@@ -328,7 +365,7 @@ export default function EditFoodItem() {
                     </TouchableOpacity>
                 </View>
                 <View style={styles.imageContainer}>
-                    {imageUri && renderPicture(imageUri as string)}
+                    {/* {imageUri && renderPicture(imageUri as string)} */}
                 </View>
             </ScrollView>
 
@@ -340,11 +377,11 @@ export default function EditFoodItem() {
                     <Text style={styles.addButtonText}>Salvar Alterações</Text>
                 </TouchableOpacity>
             </View>
-            <CameraModal
+            {/* <CameraModal
                 isVisible={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 onSubmit={setImageUri}
-            />
+            /> */}
         </>
     );
 }
@@ -443,6 +480,7 @@ const styles = StyleSheet.create({
         flex: 1,
         alignItems: "center",
         justifyContent: "center",
+        marginTop: 20,
     },
     image: {
         width: 200,

@@ -10,7 +10,6 @@ import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import React, { useCallback, useState } from "react";
 import {
     Alert,
-    Image,
     ScrollView,
     StyleSheet,
     Text,
@@ -80,7 +79,7 @@ const FoodItemView = () => {
                             .eq("id", itemId);
 
                         if (error) {
-                            Alert.alert(error.message);
+                            console.error(error);
                         } else {
                             Alert.alert("Deletado com sucesso!");
                             router.back();
@@ -96,12 +95,15 @@ const FoodItemView = () => {
         );
     }
 
-    async function fetchItemData() {
+    async function fetchItemData(isActive: { value: boolean }) {
         setIsLoading(true);
 
         if (!itemId) {
-            setItemData(undefined);
-            setIsLoading(false);
+            if (isActive.value) {
+                // Verifica se ainda está ativa
+                setItemData(undefined);
+                setIsLoading(false);
+            }
             return;
         }
 
@@ -116,20 +118,25 @@ const FoodItemView = () => {
                 throw new Error(error?.message || "Item não encontrado.");
             }
 
-            const locationName = await getLocationById(data.id_ambiente);
-            setLocation(locationName);
+            if (isActive.value) {
+                const locationName = await getLocationById(data.id_ambiente);
 
-            const item = data as foodItem;
-            setItemData(item);
-            setStatusLabel(item);
+                const item = data as foodItem;
+                setLocation(locationName);
+                setItemData(item);
+                setStatusLabel(item);
+            }
         } catch (err) {
             console.error("Erro ao carregar dados do item:", err);
 
-            setItemData(undefined);
-            Alert.alert("Erro", "Não foi possível carregar o item.");
-            router.back();
+            if (isActive.value) {
+                setItemData(undefined);
+                Alert.alert("Erro", "Não foi possível carregar o item.");
+            }
         } finally {
-            setIsLoading(false);
+            if (isActive.value) {
+                setIsLoading(false);
+            }
         }
     }
 
@@ -170,12 +177,20 @@ const FoodItemView = () => {
         }
     };
 
+    // --- useFocusEffect Corrigido ---
     useFocusEffect(
         useCallback(() => {
-            fetchItemData();
+            // 1. Cria a variável de controle usando uma referência mutável (objeto)
+            const isActive = { value: true };
 
-            return () => {};
-        }, [])
+            // 2. Chama a função, passando a referência
+            fetchItemData(isActive);
+
+            // 3. Função de Cleanup: Roda no desfoque/desmontagem
+            return () => {
+                isActive.value = false; // Desativa a permissão para setState
+            };
+        }, [itemId]) // Garanta que o itemId esteja na dependência
     );
 
     return (
@@ -222,12 +237,12 @@ const FoodItemView = () => {
                     </View>
 
                     {/* Imagem do Produto */}
-                    <Image
+                    {/* <Image
                         source={{
-                            uri: itemData?.imagem as string,
+                            uri: itemData?.imagem ?? fallbackImg,
                         }}
                         style={styles.image}
-                    />
+                    /> */}
 
                     {/* Banner de Aviso */}
                     {statusBadge && (
@@ -316,7 +331,9 @@ const FoodItemView = () => {
                         </View>
                     </View>
                     <View style={styles.statusLabel}>
-                        <Text style={styles.statusLabelText}>{itemData?.status}</Text>
+                        <Text style={styles.statusLabelText}>
+                            {itemData?.status}
+                        </Text>
                     </View>
                     {/* Botões de Ação */}
                     <View style={styles.buttonContainer}>
@@ -453,16 +470,16 @@ const styles = StyleSheet.create({
         backgroundColor: COLORS.secondaryLight,
         padding: 12,
         borderRadius: 8,
-        alignItems: 'center',
+        alignItems: "center",
         borderWidth: 1,
-        borderStyle: 'solid',
-        borderColor: COLORS.seconday
+        borderStyle: "solid",
+        borderColor: COLORS.seconday,
     },
     statusLabelText: {
         color: COLORS.seconday,
-        fontWeight: '500',
-        fontSize: 15
-    }
+        fontWeight: "500",
+        fontSize: 15,
+    },
 });
 
 export default FoodItemView;
