@@ -1,4 +1,5 @@
 import Button from "@/components/Button";
+import { fallbackImg } from "@/constants/fallbackImage";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
 import { recipe, recipeCategory } from "@/types/recipeType";
@@ -191,7 +192,7 @@ const RecipeView = () => {
                             source={{
                                 uri:
                                     recipeData?.imageUri ??
-                                    "https://swiftbr.vteximg.com.br/arquivos/ids/208740/618283-pizza-artesanal-calabresa_inn.jpg?v=638870725352100000",
+                                    fallbackImg,
                             }}
                             style={styles.imagePlaceholder}
                         />
