@@ -6,6 +6,7 @@ import { fallbackImg } from "@/constants/fallbackImage";
 import { COLORS } from "@/constants/theme";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
+import { normalizeString } from "@/utils/capitalizeString";
 import { Entypo, Feather } from "@expo/vector-icons";
 import { useFocusEffect } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
@@ -57,10 +58,11 @@ const Index = () => {
 
   const addRestriction = async () => {
     if (!user || description.trim() === '') return;
+    const normalizedDesc = normalizeString(description)
 
     const { data, error } = await supabase
       .from("RestricoesAlimentares")
-      .insert({ descricao: description, id_usuario: user.id });
+      .insert({ descricao: normalizedDesc, id_usuario: user.id });
 
     if (error) throw new Error(error.message);
 
