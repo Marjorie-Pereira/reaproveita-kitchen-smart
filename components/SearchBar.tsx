@@ -1,74 +1,74 @@
 import { Feather } from "@expo/vector-icons";
 import React from "react";
-import { Platform, StyleSheet, TextInput, View } from "react-native";
+import { Platform, StyleProp, StyleSheet, TextInput, View, ViewStyle } from "react-native";
 
 interface SearchBarProps {
-  value: string;
-  onChangeText: (text: string) => void;
-  placeholder?: string;
-  onPress?: () => void;
-  ref?: React.RefObject<TextInput | null>
-  editable?: boolean
+    value: string;
+    onChangeText: (text: string) => void;
+    placeholder?: string;
+    onPress?: () => void;
+    ref?: React.RefObject<TextInput | null>;
+    editable?: boolean;
+    style?: StyleProp<ViewStyle>;
 }
 const SearchBar = ({
-  value,
-  onChangeText,
-  placeholder = "Buscar...",
-  onPress = () => null,
-  ref,
-  editable = true
- 
+    value,
+    onChangeText,
+    placeholder = "Buscar...",
+    onPress = () => null,
+    ref,
+    editable = true,
+    style,
 }: SearchBarProps) => {
-  
-  return (
-    <View style={styles.container}>
-      <TextInput
-        style={styles.input}
-        value={value}
-        onChangeText={onChangeText}
-        placeholder={placeholder}
-        placeholderTextColor="#688067"
-        onPress={onPress}
-        ref={ref}
-        clearButtonMode="always"
-        autoCapitalize="none"
-        editable={editable}
-      />
+    return (
+        <View style={[styles.container, style]}>
+            <TextInput
+                style={styles.input}
+                value={value}
+                onChangeText={onChangeText}
+                placeholder={placeholder}
+                placeholderTextColor="#688067"
+                onPress={onPress}
+                ref={ref}
+                clearButtonMode="always"
+                autoCapitalize="none"
+                editable={editable}
+            />
 
-      <Feather name="search" size={22} color="#333" />
-    </View>
-  );
+            <Feather name="search" size={22} color="#333" />
+        </View>
+    );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flexDirection: "row",
-    alignItems: "center",
+    container: {
+        flexDirection: "row",
+        alignItems: "center",
 
-    backgroundColor: "#e0ebe0ff",
-    borderRadius: 30,
+        backgroundColor: "#e0ebe0ff",
+        borderRadius: 30,
 
-    paddingHorizontal: 20,
-    height: 50,
+        paddingHorizontal: 20,
+        height: 50,
 
-    ...Platform.select({
-      ios: {
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.1,
-        shadowRadius: 2,
-      },
-      android: {
-        elevation: 3,
-      },
-    }),
-  },
-  input: {
-    flex: 1,
-    fontSize: 16,
-    color: "#000",
-    marginRight: 10,
-  },
+        ...Platform.select({
+            ios: {
+                shadowColor: "#000",
+                shadowOffset: { width: 0, height: 1 },
+                shadowOpacity: 0.1,
+                shadowRadius: 2,
+            },
+            android: {
+                elevation: 3,
+            },
+        }),
+    },
+    input: {
+        flex: 1,
+        fontSize: 16,
+        color: "#000",
+        marginRight: 10,
+    },
 });
 
 export default SearchBar;
