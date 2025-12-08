@@ -241,9 +241,12 @@ const ExploreRecipesScreen = () => {
     };
 
     function toggleCategory(newCategory: string) {
-        const isCategoryActive = activeFilters.includes(newCategory);
+        const isCategoryActive =
+            activeFilters.includes(newCategory) ||
+            category === categoryMap[newCategory as keyof typeof categoryMap];
 
         if (isCategoryActive) {
+            setCategory("")
             const newFilters = activeFilters.filter(
                 (active) => active !== newCategory && active !== "all"
             );
