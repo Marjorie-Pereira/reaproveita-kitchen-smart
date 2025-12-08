@@ -156,6 +156,7 @@ const ExploreRecipesScreen = () => {
     const [activeFilters, setActiveFilters] = useState<string[]>([]);
     const [search, setSearch] = useState("");
     const [isLoading, setIsLoading] = useState(false);
+    const [foodRestrictions, setFoodRestrictions] = useState<string[]>();
 
     async function getFoodItems() {
         const { data, error } = await supabase
@@ -168,6 +169,22 @@ const ExploreRecipesScreen = () => {
         } else {
             return data.map(({ nome }) => nome.toLowerCase() as string);
         }
+    }
+
+    async function getFoodRestrictions() {
+        const { data, error } = await supabase
+            .from("RestricoesAlimentares")
+            .select("descricao")
+            .eq("id_usuario", user?.id);
+
+        if (error) {
+            console.error(error);
+            return;
+        }
+
+        const restrictions = data?.map((rest) => rest?.descricao as string);
+        setFoodRestrictions(restrictions);
+        return restrictions;
     }
 
     async function getRecipesByAvailableItems(recipes: any[]) {
@@ -246,7 +263,7 @@ const ExploreRecipesScreen = () => {
             category === categoryMap[newCategory as keyof typeof categoryMap];
 
         if (isCategoryActive) {
-            setCategory("")
+            setCategory("");
             const newFilters = activeFilters.filter(
                 (active) => active !== newCategory && active !== "all"
             );
@@ -265,7 +282,7 @@ const ExploreRecipesScreen = () => {
     }
 
     const loadRecipes = useCallback(
-        async (tab: "Explorar" | "Salvas") => {
+        async (tab: "Explorar" | "Salvas", userRestrictions?: string[]) => {
             if (tab === "Salvas" && tab !== selectedTab) return;
 
             if (!user.id && tab === "Salvas") {
@@ -275,6 +292,8 @@ const ExploreRecipesScreen = () => {
             }
 
             setIsLoading(true);
+            const restrictions = userRestrictions ?? foodRestrictions;
+            console.log("use restrictios", restrictions);
             try {
                 const tableToQueryFrom =
                     tab === "Explorar" ? "ReceitasCompletas" : "ReceitasSalvas";
@@ -289,8 +308,35 @@ const ExploreRecipesScreen = () => {
 
                 if (error) throw Error(error.message);
 
-                setAllRecipes(data as recipe[]);
-                setRecipes(data as recipe[]);
+                if (
+                    restrictions &&
+                    restrictions.length > 0 &&
+                    selectedTab === "Explorar"
+                ) {
+                    const filteredData = data.filter((recipe) => {
+                        const recipeRestrictions: string[] =
+                            recipe.restricoes.split(", ");
+
+                        const notAllowed = recipeRestrictions.some((item) =>
+                            restrictions.includes(item)
+                        );
+
+                        console.log(
+                            "recipe rest",
+                            recipeRestrictions,
+                            notAllowed
+                        );
+
+                        return !notAllowed;
+                    });
+
+                    console.log("filtered data", filteredData.length);
+                    setAllRecipes(filteredData as recipe[]);
+                    setRecipes(filteredData as recipe[]);
+                } else {
+                    setAllRecipes(data as recipe[]);
+                    setRecipes(data as recipe[]);
+                }
             } catch (e) {
                 console.error(e);
                 setAllRecipes([]);
@@ -323,25 +369,46 @@ const ExploreRecipesScreen = () => {
 
     useFocusEffect(
         useCallback(() => {
-            console.log("entrou na tela");
+            let isActive = true;
 
-            if (selectedTab === "Salvas") {
-                loadRecipes("Salvas");
-            }
+            const initScreen = async () => {
+                console.log("entrou na tela");
 
-            if (params?.category) {
-                setCategory(params.category);
-                setActiveFilters([
-                    reverseCategoryMap[
-                        params.category as keyof typeof reverseCategoryMap
-                    ],
-                ]);
-            }
+                if (params?.category) {
+                    setCategory(params.category);
+                    setActiveFilters([
+                        reverseCategoryMap[
+                            params.category as keyof typeof reverseCategoryMap
+                        ],
+                    ]);
+                }
+
+                if (selectedTab === "Salvas") {
+                    if (isActive) {
+                        loadRecipes("Salvas");
+                    }
+                } else {
+                    try {
+                        const freshRestrictions = await getFoodRestrictions();
+
+                        if (isActive) {
+                            loadRecipes(selectedTab, freshRestrictions);
+                        }
+                    } catch (error) {
+                        console.error("Erro ao carregar restrições", error);
+
+                        if (isActive) loadRecipes(selectedTab, []);
+                    }
+                }
+            };
+
+            initScreen();
 
             return () => {
+                isActive = false;
                 setSearch("");
             };
-        }, [selectedTab, loadRecipes, params.category])
+        }, [selectedTab, loadRecipes, params.category]) 
     );
 
     return (
