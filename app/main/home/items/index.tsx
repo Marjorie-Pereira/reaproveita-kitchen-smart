@@ -163,7 +163,7 @@ const Inventory = () => {
         const formattedQuery = query.toLowerCase();
 
         const filteredData = filter(queryFoodList, (foodItem: foodItem) => {
-            return foodItem.nome.toLowerCase().includes(formattedQuery);
+            return foodItem.nome.toLowerCase().includes(formattedQuery) || foodItem.marca.toLowerCase().includes(formattedQuery);
         });
 
         setFoodList(filteredData);
@@ -172,6 +172,7 @@ const Inventory = () => {
     const loadData = useCallback(async () => {
         console.log("carregando dados no callback");
         setIsLoading(true);
+        setSearch('');
 
         try {
             const { id } = await getLocationId(location ?? "Geladeira");
