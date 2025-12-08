@@ -67,8 +67,7 @@ export const MealCard: React.FC<Meal> = ({
                 }
             }}
         >
-            <View>
-                <Image
+            <Image
                     resizeMode="cover"
                     source={{
                         uri:
@@ -81,7 +80,7 @@ export const MealCard: React.FC<Meal> = ({
                         marginBottom: 5,
                     }}
                 />
-                <View style={{ gap: 8, padding: 5 }}>
+                <View style={{padding: 5, justifyContent: 'space-evenly', flex: 1 }}>
                     <Text style={styles.recipeCardName}>{recipe?.receita}</Text>
                     <View style={styles.timeInfoContainer}>
                         {leftoverDate ? (
@@ -115,7 +114,6 @@ export const MealCard: React.FC<Meal> = ({
                         )}
                     </View>
                 </View>
-            </View>
         </TouchableOpacity>
     );
 };

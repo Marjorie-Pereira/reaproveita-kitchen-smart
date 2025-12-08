@@ -37,7 +37,7 @@ const MealPlannerItem = ({
     mealId: number;
     recipeId: number;
     type: mealType;
-}) => <MealCard id={mealId} recipeId={recipeId} type={type} />;
+}) => <MealCard id={mealId} recipeId={recipeId} type={type} style={{marginRight: 15}} />;
 
 const PlanWeeklyMeals = () => {
     const router = useRouter();
@@ -273,6 +273,7 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         height: 270,
         width: "100%",
+        
     },
     mealTypeText: {
         fontSize: 18,

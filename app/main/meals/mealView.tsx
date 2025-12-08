@@ -72,7 +72,7 @@ export default function MealViewScreen() {
   ) {
     const { error } = await supabase
       .from("Refeicoes")
-      .update({ tem_sobras: newLeftoversValue })
+      .update({ tem_sobras: newLeftoversValue, data_sobras: new Date() })
       .eq("id", mealId);
     const { error: secondError } = await supabase
       .from("Refeicoes")
