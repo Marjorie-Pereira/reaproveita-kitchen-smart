@@ -26,7 +26,7 @@ const SignUp = () => {
   const [eyeIcon, setEyeIcon] = useState("hide");
 
   const onSubmit = async () => {
-    if (!emailRef.current || !passwordRef.current) {
+    if (!emailRef.current || !passwordRef.current || !nameRef.current) {
       Alert.alert("Por favor preencha todos os campos");
       return;
     }
@@ -51,8 +51,21 @@ const SignUp = () => {
     setLoading(false);
 
     if (error) {
-      Alert.alert("Sign Up", error.message);
-      console.error(error);
+      
+      switch(error.code) {
+        case 'weak_password':
+            Alert.alert('Erro Cadastro', 'Senha deve ter pelo menos 6 caracteres')
+            break
+        case 'validation_failed':
+            Alert.alert('Erro Cadastro', 'E-mail Inválido')
+            break;
+        case 'user_already_exists':
+            Alert.alert('Erro Cadastro', 'O email já possui cadastro')
+            break
+        default:
+            Alert.alert('Erro Cadastro', 'Erro inesperado')
+            break;
+      }
     }
   };
   return (
