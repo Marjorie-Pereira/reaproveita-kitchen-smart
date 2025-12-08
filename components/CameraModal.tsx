@@ -2,7 +2,7 @@ import { COLORS } from "@/constants/theme";
 import { AntDesign, Ionicons } from "@expo/vector-icons";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import * as ImagePicker from "expo-image-picker";
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
 import Button from "./Button";
 
@@ -14,6 +14,7 @@ interface CameraModalProps {
 const CameraModal: React.FC<CameraModalProps> = (props) => {
     const { isVisible, onClose, onSubmit } = props;
     const [permission, requestPermission] = useCameraPermissions();
+    const [pictureTaken, setPictureTaken] = useState(false);
     const ref = useRef<CameraView>(null);
 
     if (!permission) {
@@ -50,40 +51,34 @@ const CameraModal: React.FC<CameraModalProps> = (props) => {
     }
 
     const takePicture = async () => {
-        // ⚠️ GARANTIR que a referência existe antes de chamar a função
+        setPictureTaken(true);
+
         if (!ref.current) {
             console.error("Camera reference is null/undefined.");
-            // Pode ser útil chamar onClose() aqui para fechar o modal
-            // e evitar que o usuário tente novamente sem a câmera estar pronta.
+
             onClose();
+            setPictureTaken(false);
             return;
         }
 
         try {
-            // Agora podemos usar a referência sem o optional chaining,
-            // mas é sempre bom envolver em try/catch para capturar erros de hardware/permissão.
             const photo = await ref.current.takePictureAsync({
-                quality: 0.5, // Reduz a qualidade do JPEG para 50%
+                quality: 0.5,
                 base64: false,
             });
 
             if (photo?.uri) {
-                // 💡 Sequência de execução crucial:
-                // 1. Envie a URI para a tela principal (onSubmit)
                 onClose();
                 onSubmit(photo.uri);
-
-                // 2. Feche o modal DEPOIS de enviar os dados.
-                // Se o crash estiver acontecendo por causa de race condition
-                // ou desalocação, manter esta ordem é vital.
             } else {
                 console.warn("Photo captured, but URI is missing or invalid.");
-                // Não faça nada ou exiba uma mensagem de erro leve.
             }
         } catch (error) {
             console.error("Error taking picture:", error);
-            // Tratar o erro (exibir mensagem ao usuário e fechar o modal)
+
             onClose();
+        } finally {
+            setPictureTaken(false);
         }
     };
 
@@ -123,7 +118,9 @@ const CameraModal: React.FC<CameraModalProps> = (props) => {
                     <Pressable onPress={pickImage}>
                         <AntDesign name="picture" size={32} color="white" />
                     </Pressable>
-                    <Pressable onPress={takePicture}>
+                    <Pressable
+                        onPress={pictureTaken ? () => null : takePicture}
+                    >
                         {({ pressed }) => (
                             <View
                                 style={[
