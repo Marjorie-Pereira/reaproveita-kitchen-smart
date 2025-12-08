@@ -526,7 +526,6 @@ const styles = StyleSheet.create({
         backgroundColor: "#dce1dcff",
         borderRadius: 8,
         alignItems: "flex-start",
-        overflow: "hidden",
         flex: 1,
     },
 });

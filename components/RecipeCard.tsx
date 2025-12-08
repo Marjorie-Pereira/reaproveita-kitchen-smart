@@ -31,8 +31,7 @@ export const RecipeCard: React.FC<Recipe> = ({
             style={[styles.recipeCardContainer, style]}
             onPress={onPress}
         >
-            <View>
-                <Image
+             <Image
                     resizeMode="cover"
                     source={{
                         uri:
@@ -57,7 +56,6 @@ export const RecipeCard: React.FC<Recipe> = ({
                     />
                     <Text style={styles.recipeCardTime}>{time}</Text>
                 </View>
-            </View>
         </TouchableOpacity>
     );
 };
@@ -71,6 +69,7 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         alignItems: "flex-start",
         overflow: "hidden",
+        justifyContent: 'space-evenly'
     },
     recipeCardImagePlaceholder: {
         width: "100%",
@@ -85,6 +84,7 @@ const styles = StyleSheet.create({
         color: "#333",
         paddingHorizontal: 8,
         marginTop: 4,
+        
     },
     recipeCardTime: {
         fontSize: 12,
