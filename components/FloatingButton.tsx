@@ -1,11 +1,12 @@
 import { buttonActionsObject } from "@/types/buttonActionsObject";
-import React from "react";
+import { useFocusEffect } from "expo-router";
+import React, { useCallback } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 import Animated, {
-  interpolate,
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
+    interpolate,
+    useAnimatedStyle,
+    useSharedValue,
+    withTiming,
 } from "react-native-reanimated";
 import FloatingActionButton from "./FloatingActionButton";
 
@@ -34,6 +35,15 @@ const FloatingButton = ({ actions }: FloatingButtonProps) => {
       ],
     };
   });
+
+  useFocusEffect(
+    useCallback(() => {
+        return () => {
+            console.log('fechando botão')
+            isExpanded.value = false
+        }
+    }, [])
+  )
   return (
     <View style={styles.buttonContainer}>
       <AnimatedPressable
