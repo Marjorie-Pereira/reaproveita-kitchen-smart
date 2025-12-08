@@ -7,6 +7,7 @@ import { capitalizeFirstLetter } from "@/utils/capitalizeString";
 import { formatExpirationDate } from "@/utils/dateFormat";
 import { getLocationById } from "@/utils/locationUtils";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { differenceInCalendarDays, parseISO } from "date-fns";
 import { Image } from "expo-image";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import React, { useCallback, useState } from "react";
@@ -149,19 +150,12 @@ const FoodItemView = () => {
             return;
         }
 
-        const expiringDate = new Date(itemData.data_validade + "T00:00:00");
-        const currentDate = new Date();
-
-        expiringDate.setHours(0, 0, 0, 0);
-        currentDate.setHours(0, 0, 0, 0);
-
-        const oneDay = 1000 * 60 * 60 * 24;
-
-        const diffTime = expiringDate.getTime() - currentDate.getTime();
-
-        const diffDays = Math.round(diffTime / oneDay);
-
         const expiringThresholdDays = 7;
+
+        const diffDays = differenceInCalendarDays(
+            parseISO(itemData.data_validade),
+            new Date()
+        );
 
         if (diffDays < 0) {
             setStatusBadge("Vencido");
@@ -393,7 +387,7 @@ const styles = StyleSheet.create({
     image: {
         width: "100%",
         height: 250,
-        
+
         alignSelf: "center",
         marginBottom: 16,
         borderRadius: 8,
