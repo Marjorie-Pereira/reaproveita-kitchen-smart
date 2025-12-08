@@ -171,38 +171,46 @@ const ExploreRecipesScreen = () => {
     }
 
     async function getRecipesByAvailableItems(recipes: any[]) {
-        const availableItems: string[] = await getFoodItems();
+        const rawAvailableItems: string[] = await getFoodItems();
+        const availableItems = rawAvailableItems.map((i) =>
+            i.trim().toLowerCase()
+        );
 
-        if (!recipes) return;
-        const correspondingRecipes: recipe[] = recipes.filter((recipe) => {
-            let recipeIngredients: string[];
+        if (!recipes) return [];
+
+        const correspondingRecipes = recipes.filter((recipe) => {
+            let recipeIngredients: string[] = [];
 
             if (
-                recipe.ingredientes_base &&
+                Array.isArray(recipe.ingredientes_base) &&
                 recipe.ingredientes_base.length > 0
             ) {
-                recipeIngredients = recipe.ingredientes_base.map(
-                    (ingredient: string) => ingredient.toLowerCase()
-                );
+                recipeIngredients = recipe.ingredientes_base;
             } else if (typeof recipe.ingredientes === "string") {
-                const separator = recipe.ingredientes.includes(",")
-                    ? ", "
-                    : "| ";
-                recipeIngredients = recipe.ingredientes
-                    .toLowerCase()
-                    .split(separator);
+                recipeIngredients = recipe.ingredientes.split(/[,|;]+/);
             } else {
                 return false;
             }
 
-            return recipeIngredients.some((recipeIngredient) =>
-                availableItems.some((availableItem) => {
-                    return (
-                        availableItem.includes(recipeIngredient) ||
-                        recipeIngredient.includes(availableItem)
+            recipeIngredients = recipeIngredients
+                .map((i) => i.trim().toLowerCase())
+                .filter((i) => i.length > 0);
+
+            return recipeIngredients.some((recipeIngredient) => {
+                return availableItems.some((availableItem) => {
+                    const safeItem = availableItem.replace(
+                        /[.*+?^${}()|[\]\\]/g,
+                        "\\$&"
                     );
-                })
-            );
+
+                    const regex = new RegExp(`\\b${safeItem}\\b`, "i");
+
+                    return (
+                        recipeIngredient === availableItem ||
+                        regex.test(recipeIngredient)
+                    );
+                });
+            });
         });
 
         return correspondingRecipes;
