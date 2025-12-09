@@ -152,7 +152,7 @@ export const globalStyles = StyleSheet.create({
   modalView: {
     backgroundColor: COLORS.white,
     width: width,
-    maxHeight: "80%",
+    maxHeight: "95%",
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
     paddingTop: 30,

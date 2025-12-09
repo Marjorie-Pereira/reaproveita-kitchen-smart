@@ -164,8 +164,9 @@ const SearchItemsModal: React.FC<SearchItemsModalProps> = ({
             onBlur={onClose}
             onDismiss={onClose}
             allowSwipeDismissal={true}
-            style={modalStyles.modal}
+            style={[modalStyles.modal, ]}
             animationType="slide"
+            
         >
             <View style={[globalStyles.modalView, { paddingTop: 60 }]}>
                 {/* Modal Header */}
@@ -272,7 +273,7 @@ const SearchItemsModal: React.FC<SearchItemsModalProps> = ({
                 </ScrollView>
 
                 {/* Modal Footer */}
-                <View style={globalStyles.modalFooter}>
+                <View style={[globalStyles.modalFooter, {marginBottom : 10}]}>
                     <Button
                         onPress={onClose}
                         buttonStyle={[globalStyles.outlineButton, { flex: 1 }]}
@@ -290,6 +291,7 @@ const modalStyles = StyleSheet.create({
     modal: {
         justifyContent: "flex-end",
         margin: 0,
+        
     },
     headerContent: {
         flexDirection: "row",
@@ -301,10 +303,12 @@ const modalStyles = StyleSheet.create({
         marginLeft: 8,
         padding: 4,
         borderRadius: 8,
+       
     },
     content: {
         flexGrow: 1,
         padding: 20,
+       
     },
     locationTitle: {
         fontSize: 16,

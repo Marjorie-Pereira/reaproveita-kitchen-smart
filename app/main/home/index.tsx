@@ -57,8 +57,7 @@ export default function WelcomeScreen() {
     const [openedCount, setOpenedCount] = useState(0);
     const [expiringCount, setExpiringCount] = useState(0);
     const [expiredCount, setExpiredCount] = useState(0);
-    const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
-
+    const [isSearchModalOpen, setIsSearchModalOpen] = useState(false); 
     const [orderedItems, setOrderedItems] = useState<any[]>([]);
 
     async function getItemsCount() {

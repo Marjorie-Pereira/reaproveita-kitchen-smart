@@ -10,13 +10,13 @@ import { Image } from "expo-image";
 import React, { useEffect, useState } from "react";
 import {
     Alert,
-    ScrollView,
     StyleSheet,
     Text,
     TextInput,
     TouchableOpacity,
     View,
 } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import CameraModal from "./CameraModal";
 
 interface ItemFormProps {
@@ -32,7 +32,7 @@ export default function ItemForm(props: ItemFormProps) {
     const [name, setName] = useState("");
     const [brand, setBrand] = useState("");
     const [expirationDate, setExpirationDate] = useState<string>();
-    const [category, setCategory] = useState("Grãos");
+    const [category, setCategory] = useState("");
     const [imageUri, setImageUri] = useState<string | undefined>(undefined);
 
     // user input states
@@ -121,10 +121,13 @@ export default function ItemForm(props: ItemFormProps) {
 
     return (
         <>
-            <ScrollView
-                style={styles.container}
-                contentContainerStyle={styles.scrollContainer}
-                keyboardShouldPersistTaps="handled"
+            <KeyboardAwareScrollView
+                style={{ flex: 1 }}
+                resetScrollToCoords={{ x: 0, y: 0 }}
+                contentContainerStyle={styles.container}
+                scrollEnabled={true}
+                enableOnAndroid={true}
+                extraScrollHeight={180}
             >
                 <View style={styles.inputGroup}>
                     <Text style={styles.label}>Nome</Text>
@@ -167,7 +170,7 @@ export default function ItemForm(props: ItemFormProps) {
                     value={expirationDate}
                     onChange={(date) => {
                         const formatted = formatDate(date, "yyyy-MM-dd");
-                       
+
                         setExpirationDate(formatted);
                     }}
                 />
@@ -183,7 +186,7 @@ export default function ItemForm(props: ItemFormProps) {
                     />
                 </View>
 
-                <View style={styles.row}>
+                <View style={[styles.row, {marginTop: 10}]}>
                     {/* Coluna Preço */}
                     <View style={[styles.inputGroup, styles.column]}>
                         <Text style={styles.label}>Preço</Text>
@@ -209,6 +212,7 @@ export default function ItemForm(props: ItemFormProps) {
                                 onChangeText={(val) => setQuantity(Number(val))}
                                 placeholder="1"
                                 keyboardType="numeric"
+                                placeholderTextColor={COLORS.placeholder}
                             />
                         </View>
                     </View>
@@ -294,7 +298,7 @@ export default function ItemForm(props: ItemFormProps) {
                 <View style={styles.imageContainer}>
                     {imageUri && renderPicture(imageUri as string)}
                 </View>
-            </ScrollView>
+            </KeyboardAwareScrollView>
 
             <View style={styles.buttonContainer}>
                 <TouchableOpacity
@@ -337,9 +341,10 @@ export default function ItemForm(props: ItemFormProps) {
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
+        flexGrow: 1,
         backgroundColor: COLORS.background,
-        paddingTop: 70,
+        paddingHorizontal: 20,
+        paddingVertical: 70,
     },
     scrollContainer: {
         padding: 20,
@@ -408,7 +413,7 @@ const styles = StyleSheet.create({
     },
     buttonContainer: {
         padding: 20,
-        paddingBottom: 40,
+        paddingBottom: 60,
         backgroundColor: COLORS.background,
         borderTopWidth: 1,
         borderTopColor: "#e0e0e0",

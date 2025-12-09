@@ -71,7 +71,7 @@ export default function BarCodeScanner(props: { backToPath?: string }) {
           style={StyleSheet.absoluteFillObject}
         />
       </View>
-      {true && (
+      {scanned && (
         <Button
           onPress={() => setScanned(false)}
           buttonStyle={{

@@ -12,13 +12,13 @@ import React, { useCallback, useEffect, useState } from "react";
 import {
     Alert,
     Keyboard,
-    ScrollView,
     StyleSheet,
     Text,
     TextInput,
     TouchableOpacity,
     View,
 } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
 const COLORS = {
     primary: "#5a9c5c",
@@ -189,11 +189,13 @@ export default function EditFoodItem() {
 
     return (
         <>
-            <ScrollView
-                style={styles.container}
-                contentContainerStyle={styles.scrollContainer}
-                keyboardShouldPersistTaps="handled"
-                removeClippedSubviews={false}
+            <KeyboardAwareScrollView
+                style={{ flex: 1 }}
+                resetScrollToCoords={{ x: 0, y: 0 }}
+                contentContainerStyle={styles.container}
+                scrollEnabled={true}
+                enableOnAndroid={true}
+                extraScrollHeight={180}
             >
                 <View style={styles.inputGroup}>
                     <Text style={styles.label}>Nome</Text>
@@ -203,6 +205,7 @@ export default function EditFoodItem() {
                             value={name ?? ""}
                             onChangeText={setName}
                             placeholder="Ex: Tomate"
+                            placeholderTextColor={COLORS.placeholder}
                         />
                         {name && name.length > 0 && (
                             <TouchableOpacity onPress={() => setName("")}>
@@ -225,6 +228,7 @@ export default function EditFoodItem() {
                             value={brand ?? ""}
                             onChangeText={setBrand}
                             placeholder="Ex: Heinz"
+                            placeholderTextColor={COLORS.placeholder}
                         />
                     </View>
                 </View>
@@ -233,33 +237,23 @@ export default function EditFoodItem() {
                     label="Data de validade"
                     value={expirationDate}
                     onChange={(date) => {
-                       
-                        const formatted = formatDate(date, "yyyy-MM-dd")
-                       
-                        
+                        const formatted = formatDate(date, "yyyy-MM-dd");
+
                         setExpirationDate(formatted);
                     }}
                 />
 
-                <Text style={styles.label}>Categoria</Text>
-                <View style={[styles.pickerWrapper]}>
-                    <Picker
-                        selectedValue={category}
-                        onValueChange={(itemValue, itemIndex) =>
-                            setCategory(itemValue)
-                        }
-                        style={{ backgroundColor: "white", color: "black" }}
-                        dropdownIconColor={"#000"}
-                    >
-                        <Picker.Item label="Grãos" value="Grãos" />
-                        <Picker.Item label="Frutas" value="Frutas" />
-                        <Picker.Item label="Vegetais" value="Vegetais" />
-                        <Picker.Item label="Laticínios" value="Laticínios" />
-                        <Picker.Item label="Carnes" value="Carnes" />
-                        <Picker.Item label="Bebidas" value="Bebidas" />
-                        <Picker.Item label="Outros" value="Outros" />
-                    </Picker>
-                    {/* opção para digitar a categoria */}
+                <View style={styles.inputGroup}>
+                    <Text style={styles.label}>Categoria</Text>
+                    <View style={styles.inputWrapper}>
+                        <TextInput
+                            style={styles.textInput}
+                            value={category}
+                            onChangeText={setCategory}
+                            placeholder="Bebidas, Pães, Condimentos etc."
+                            placeholderTextColor={COLORS.placeholder}
+                        />
+                    </View>
                 </View>
 
                 <View style={styles.row}>
@@ -274,6 +268,7 @@ export default function EditFoodItem() {
                                 onChangeText={setPrice}
                                 placeholder="0,00"
                                 keyboardType="numeric"
+                                placeholderTextColor={COLORS.placeholder}
                             />
                         </View>
                     </View>
@@ -288,6 +283,7 @@ export default function EditFoodItem() {
                                 onChangeText={setQuantity}
                                 placeholder="1"
                                 keyboardType="numeric"
+                                placeholderTextColor={COLORS.placeholder}
                             />
                         </View>
                     </View>
@@ -373,7 +369,7 @@ export default function EditFoodItem() {
                 <View style={styles.imageContainer}>
                     {imageUri && renderPicture(imageUri as string)}
                 </View>
-            </ScrollView>
+            </KeyboardAwareScrollView>
 
             <View style={styles.buttonContainer}>
                 <TouchableOpacity
@@ -394,8 +390,9 @@ export default function EditFoodItem() {
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
+        flexGrow: 1,
         backgroundColor: COLORS.background,
+        padding: 20,
     },
     scrollContainer: {
         padding: 20,
