@@ -8,6 +8,7 @@ export type recipe = {
   link_imagem: string;
   tempo_preparo: string;
   categoria: recipeCategory;
+  restricoes: string
 };
 
 export type recipeCategory = 'Café da Manhã' | 'Almoço' | 'Janta';

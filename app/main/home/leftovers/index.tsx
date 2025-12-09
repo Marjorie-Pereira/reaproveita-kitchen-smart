@@ -74,7 +74,7 @@ const Leftovers = () => {
 
     return (
         <>
-            <View>
+            <View style={{flex: 1, marginBottom: 10}}>
                 <SearchBar
                     placeholder="Pesquisar itens..."
                     value={search}
@@ -129,7 +129,9 @@ const styles = StyleSheet.create({
         width: "100%",
         flexDirection: "row",
         flexWrap: 'wrap',
-        justifyContent: 'space-evenly',
+        gap: 10,
+        marginHorizontal: 10,
+       
        
     },
     mealCard: {

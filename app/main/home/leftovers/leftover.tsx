@@ -150,7 +150,7 @@ export default function MealViewScreen() {
                 </View> */}
                 <Button
                   onPress={() => {
-                    router.push("/main/home/leftovers/recipesLeftovers");
+                    router.push({pathname: "/main/home/leftovers/recipesLeftovers", params: {leftoverId: mealId}});
                   }}
                   buttonStyle={styles.actionButton}
                   variant="primary"
