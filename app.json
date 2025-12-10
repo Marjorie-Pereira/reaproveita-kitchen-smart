@@ -2,11 +2,17 @@
   "expo": {
     "name": "reaproveita-kitchen-smart-pds",
     "slug": "reaproveita-kitchen-smart-pds",
+    "icon": "./assets/images/logo.png",
     "version": "1.0.0",
     "orientation": "portrait",
     "scheme": "reaproveitakitchensmartpds",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "splash": {
+        "image": "./assets/images/logo.png",
+        "resizeMode": "contain",
+        "backgroundColor": "#ffffff"
+    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.anonymous.reaproveitakitchensmartpds",
@@ -20,6 +26,10 @@
       //   "android.permission.CAMERA",
       //   "android.permission.RECORD_AUDIO"
       // ],
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/logo.png",
+        "backgroundColor": "#FFFFFF"
+      },
       "package": "com.anonymous.reaproveitakitchensmartpds",
       "googleServicesFile": "./google-services.json"
     },

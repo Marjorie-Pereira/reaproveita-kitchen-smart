@@ -36,7 +36,7 @@ const ScannerModal: React.FC<ScannerModalProps> = ({
   }, [isVisible]);
 
   const handleBarcodeScanned = async ({ type, data }: any) => {
-    setScanned(true);
+    
     const headers = new Headers();
     headers.append("User-Agent", userAgent);
     const response = await fetch(baseUrl + data + `?fields=${queryFields}`, {
@@ -47,6 +47,7 @@ const ScannerModal: React.FC<ScannerModalProps> = ({
 
     if (result.status === 0) {
       alert(`Produto com código ${data} não encontrado.`);
+      setScanned(true);
     } else {
       onScan(result.product);
     }

@@ -15,13 +15,12 @@ import {
 } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import {
-    Alert,
     ScrollView,
     StyleSheet,
     Text,
     TextInput,
     TouchableOpacity,
-    View,
+    View
 } from "react-native";
 
 // --- Interfaces ---
@@ -153,9 +152,7 @@ function ShoppingList() {
       });
       if (error) {
         throw new Error(error.message);
-      } else {
-        Alert.alert("ok");
-      }
+      } 
 
       setItemName("");
       setItemQuantity(null);
@@ -181,9 +178,7 @@ function ShoppingList() {
       .insert(itemsToAdd);
     if (error) {
       throw new Error(error.message);
-    } else {
-      Alert.alert("ok");
-    }
+    } 
 
     setSelectedInventoryItems(new Set());
     setIsModalOpen(false);

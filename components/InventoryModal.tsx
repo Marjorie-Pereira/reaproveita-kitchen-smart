@@ -2,12 +2,12 @@ import { COLORS, globalStyles } from "@/constants/theme";
 import { Feather } from "@expo/vector-icons";
 import React from "react";
 import {
-  Modal,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    Modal,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 
 interface InventoryItem {
@@ -15,6 +15,7 @@ interface InventoryItem {
   nome: string;
   categoria: string;
   quantidade: number;
+  unidade_medida: number;
 }
 
 interface InventoryModalProps {
@@ -114,7 +115,7 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
                         <View style={{ flex: 1 }}>
                           <Text style={modalStyles.itemName}>{item.nome}</Text>
                           <Text style={modalStyles.itemStock}>
-                            Estoque: {item.quantidade}
+                            Estoque: {item.quantidade}{item.unidade_medida}
                           </Text>
                         </View>
                       </TouchableOpacity>
