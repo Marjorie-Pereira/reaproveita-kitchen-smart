@@ -103,7 +103,7 @@ const FoodItemView = () => {
 
         if (!itemId) {
             if (isActive.value) {
-                // Verifica se ainda está ativa
+                
                 setItemData(undefined);
                 setIsLoading(false);
             }
@@ -173,20 +173,16 @@ const FoodItemView = () => {
         }
     };
 
-    // --- useFocusEffect Corrigido ---
     useFocusEffect(
         useCallback(() => {
-            // 1. Cria a variável de controle usando uma referência mutável (objeto)
             const isActive = { value: true };
 
-            // 2. Chama a função, passando a referência
             fetchItemData(isActive);
 
-            // 3. Função de Cleanup: Roda no desfoque/desmontagem
             return () => {
-                isActive.value = false; // Desativa a permissão para setState
+                isActive.value = false; 
             };
-        }, [itemId]) // Garanta que o itemId esteja na dependência
+        }, [itemId]) 
     );
 
     return (
@@ -454,7 +450,7 @@ const styles = StyleSheet.create({
         marginRight: 10,
     },
     deleteButton: {
-        backgroundColor: "#E65353",
+        backgroundColor: COLORS.danger,
         marginLeft: 10,
     },
     buttonText: {

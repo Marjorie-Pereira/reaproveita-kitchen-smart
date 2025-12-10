@@ -2,9 +2,9 @@ import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 import {
-  Feather,
-  FontAwesome5,
-  MaterialCommunityIcons,
+    Feather,
+    FontAwesome5,
+    MaterialCommunityIcons,
 } from "@expo/vector-icons";
 
 const COLORS = {
@@ -24,10 +24,7 @@ const LocationButtonGroup = ({
   activeBtn?: string;
   screen?: string;
 }) => {
-  // useEffect(() => {
-  //   console.log("active buton", activeBtn);
-  // }, [activeBtn, onSelect]);
-
+  
   return (
     <View style={styles.shadowContainer}>
       <View style={[styles.buttonGroup, ,]}>

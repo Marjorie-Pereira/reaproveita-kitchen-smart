@@ -40,7 +40,7 @@ const IngredientItem = ({ name, checked, onPress }: any) => (
             <MaterialIcons
                 name={checked ? "check-box" : "check-box-outline-blank"}
                 size={24}
-                color="#7C4C8D" // Cor de exemplo
+                color="#7C4C8D" 
             />
         </View>
     </TouchableOpacity>
@@ -262,12 +262,9 @@ const RecipeView = () => {
 
 export default RecipeView;
 
-// --- Definição dos Estilos com StyleSheet.create ---
-const PRIMARY_COLOR = "#7C4C8D";
 const BACKGROUND_COLOR = "#FFFFFF";
 const TEXT_COLOR = "#333333";
 const LIGHT_GRAY = "#F0F0F0";
-const GREEN_BUTTON = "#5CB85C";
 const PADDING_HORIZONTAL = 20;
 
 const styles = StyleSheet.create({
@@ -282,7 +279,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: PADDING_HORIZONTAL,
     },
 
-    // Estilos do cabeçalho de receita
     recipeHeader: {
         flexDirection: "row",
         paddingHorizontal: PADDING_HORIZONTAL,
@@ -325,7 +321,6 @@ const styles = StyleSheet.create({
         textAlign: "center",
     },
 
-    // Estilos das seções de texto (Modo de preparo, Ingredientes)
     sectionTitle: {
         fontSize: 22,
         fontWeight: "bold",
@@ -339,7 +334,6 @@ const styles = StyleSheet.create({
         lineHeight: 24,
     },
 
-    // Estilos da lista de ingredientes
     ingredientsList: {
         marginTop: 10,
         paddingHorizontal: PADDING_HORIZONTAL,

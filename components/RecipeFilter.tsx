@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
   mealTag: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#f5dee7", // Cor de fundo das tags (Rosa Claro)
+    backgroundColor: "#f5dee7", 
     paddingVertical: 6,
     paddingHorizontal: 10,
     borderRadius: 20,
@@ -55,14 +55,14 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     marginRight: 8,
     marginBottom: 8,
-    backgroundColor: "#8a4d7d", // Cor de fundo da tag selecionada (Roxo)
+    backgroundColor: "#8a4d7d", 
   },
   mealTagText: {
-    color: "#8a4d7d", // Cor do texto das tags
+    color: "#8a4d7d", 
     fontWeight: "600",
   },
   mealTagTextSelected: {
-    color: "#fff", // Cor do texto da tag selecionada
+    color: "#fff", 
     marginLeft: 4,
     fontWeight: "600",
   },

@@ -54,7 +54,6 @@ const DatePickerInput = ({ label, value, onChange }: DatePickerInputProps) => {
         <View style={styles.inputGroup}>
             <Text style={styles.label}>{label}</Text>
 
-            {/* O "Input" clicável */}
             <TouchableOpacity
                 style={styles.pickerWrapper}
                 onPress={() => setShowPicker(true)}

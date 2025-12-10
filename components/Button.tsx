@@ -1,11 +1,11 @@
 import { COLORS } from "@/constants/theme";
 import {
-  Pressable,
-  StyleProp,
-  StyleSheet,
-  TextStyle,
-  View,
-  ViewStyle,
+    Pressable,
+    StyleProp,
+    StyleSheet,
+    TextStyle,
+    View,
+    ViewStyle,
 } from "react-native";
 import Loading from "./Loading";
 
@@ -73,16 +73,16 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    paddingVertical: 16, // size="lg" equivalent
-    borderRadius: 12, // large rounded corners
+    paddingVertical: 16, 
+    borderRadius: 12, 
     width: "100%",
     minHeight: 50,
   },
   buttonPrimary: {
-    backgroundColor: COLORS.primary, // Indigo-600
+    backgroundColor: COLORS.primary, 
   },
   buttonDestructive: {
-    backgroundColor: COLORS.danger, // Red-600
+    backgroundColor: COLORS.danger, 
   },
   buttonSecondary: {
     backgroundColor: COLORS.seconday,

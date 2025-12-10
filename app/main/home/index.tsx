@@ -78,7 +78,7 @@ export default function WelcomeScreen() {
             const expiredItems = getExpiredItems(data || []);
             setExpiredCount(expiredItems.length);
 
-            // Leftovers logic to be implemented
+            
         }
     }
 
@@ -119,8 +119,7 @@ export default function WelcomeScreen() {
             fetchItemsByExpirationDate();
 
             return () => {
-                // Do something when the screen is unfocused/unmount
-                // Useful for cleanup functions
+                
             };
         }, [])
     );

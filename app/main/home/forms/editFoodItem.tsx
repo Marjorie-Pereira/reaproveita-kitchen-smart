@@ -61,7 +61,6 @@ export default function EditFoodItem() {
 
             if (error) throw new Error(error.message);
 
-            // Verifica se o dado foi encontrado
             if (!data) {
                 console.warn(`Item com ID ${params.itemId} não encontrado.`);
                 if (isActive.value) {
@@ -72,14 +71,12 @@ export default function EditFoodItem() {
                 return;
             }
 
-            // ⚠️ MOVEMOS A CHAMADA PARA DENTRO DA PROTEÇÃO 'isActive'
             if (isActive.value) {
                 const locationName = await getLocationById(data.id_ambiente);
                 setLocation(locationName);
                 setItemData(data as foodItem);
             }
         } catch (e) {
-            // Relança a exceção para ser capturada pelo loadData
             throw e;
         }
     }
@@ -113,7 +110,7 @@ export default function EditFoodItem() {
 
             if (error) {
                 console.error(error);
-                Alert.alert("Erro na Edição", error.message); // Avisar o usuário é importante
+                Alert.alert("Erro na Edição", error.message);
                 return;
             }
             Alert.alert("Alimento Editado!");
@@ -160,7 +157,6 @@ export default function EditFoodItem() {
         useCallback(() => {
             const isActive = { value: true };
 
-            // Use try/catch para evitar crashes não capturados
             const loadData = async () => {
                 try {
                     await fetchItemData(isActive);
@@ -171,7 +167,6 @@ export default function EditFoodItem() {
 
             loadData();
 
-            // Limpeza essencial: Desativar a permissão para setState
             return () => {
                 isActive.value = false;
                 setName(undefined);

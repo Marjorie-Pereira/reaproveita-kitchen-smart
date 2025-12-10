@@ -1,5 +1,6 @@
 import FloatingButton from "@/components/FloatingButton";
 import { MealCard } from "@/components/MealCard";
+import { COLORS } from "@/constants/theme";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
 import { mealType } from "@/types/mealTypeEnum";
@@ -124,7 +125,6 @@ const PlanWeeklyMeals = () => {
 
     useFocusEffect(
         useCallback(() => {
-            // Do something when the screen is focused
             setMeals();
 
             return () => {
@@ -230,7 +230,7 @@ const PlanWeeklyMeals = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#F5F5F5", // Cor de fundo principal
+        backgroundColor: "#F5F5F5", 
         paddingHorizontal: 20,
         paddingTop: 10,
     },
@@ -241,7 +241,6 @@ const styles = StyleSheet.create({
         color: "#333",
     },
 
-    // Estilos dos Dias da Semana
     daysContainer: {
         flexDirection: "row",
         justifyContent: "space-between",
@@ -253,20 +252,19 @@ const styles = StyleSheet.create({
     },
     selectedDayButton: {
         borderBottomWidth: 3,
-        borderBottomColor: "#9B59B6", // Cor magenta da imagem
+        borderBottomColor: COLORS.seconday,
     },
     dayText: {
         fontSize: 16,
         color: "#666",
     },
     selectedDayText: {
-        color: "#9B59B6",
+        color: COLORS.seconday,
         fontWeight: "bold",
     },
 
-    // Estilos do Planejador de Refeição
     scrollContent: {
-        paddingBottom: 20, // Espaçamento extra no final
+        paddingBottom: 20, 
     },
     mealTypeContainer: {
         marginBottom: 25,
@@ -278,11 +276,10 @@ const styles = StyleSheet.create({
     mealTypeText: {
         fontSize: 18,
         fontWeight: "bold",
-        color: "#9B59B6", // Cor magenta da imagem
+        color: COLORS.seconday, 
         marginBottom: 10,
     },
 
-    // Estilos do Card de Refeição
 });
 
 export default PlanWeeklyMeals;

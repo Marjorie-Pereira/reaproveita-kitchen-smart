@@ -18,12 +18,12 @@ const mealTypeColors = {
     backgroundColor: "#FFEDD5",
     color: "#92400E",
     borderColor: "#FDE68A",
-  }, // Amber equivalent
+  }, 
   lunch: {
     backgroundColor: "#DBEAFE",
     color: "#1E40AF",
     borderColor: "#BFDBFE",
-  }, // Blue equivalent
+  }, 
   dinner: {
     backgroundColor: "#F3E8FF",
     color: "#5B21B6",
@@ -53,12 +53,12 @@ const styles = StyleSheet.create({
   badgeBase: {
     paddingHorizontal: 10,
     paddingVertical: 4,
-    borderRadius: 9999, // full rounded
+    borderRadius: 9999, 
     borderWidth: 1,
   },
   badgeText: {
-    fontSize: 12, // text-xs
-    fontWeight: "500", // medium
+    fontSize: 12, 
+    fontWeight: "500", 
   },
 });
 

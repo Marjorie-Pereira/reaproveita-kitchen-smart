@@ -120,8 +120,8 @@ export const MealCard: React.FC<Meal> = ({
 
 const styles = StyleSheet.create({
     recipeCardContainer: {
-        // Ajustado para o novo layout de View + wrap
-        width: 160, // Pouco menos de 1/3 para deixar margem
+        
+        width: 160, 
         backgroundColor: "#e5e6e5ff",
         borderRadius: 8,
         alignItems: "flex-start",

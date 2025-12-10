@@ -62,8 +62,7 @@ export const RecipeCard: React.FC<Recipe> = ({
 
 const styles = StyleSheet.create({
     recipeCardContainer: {
-        // Ajustado para o novo layout de View + wrap
-        width: "48%", // Pouco menos de 1/3 para deixar margem
+        width: "48%", 
         marginBottom: 10,
         backgroundColor: "#e5e6e5ff",
         borderRadius: 8,

@@ -23,7 +23,6 @@ import {
     View
 } from "react-native";
 
-// --- Interfaces ---
 interface ShoppingItem {
   id?: string;
   name: string;
@@ -66,7 +65,6 @@ const Input = ({
   </View>
 );
 
-// --- Componente Principal ---
 
 function ShoppingList() {
   const params = useLocalSearchParams();
@@ -133,7 +131,6 @@ function ShoppingList() {
     }, [])
   );
 
-  // --- Funções da Lista de Compras ---
 
   const addManualItem = async () => {
     const listId = await getShoppingListId();
@@ -165,9 +162,8 @@ function ShoppingList() {
     const itemsToAdd = Array.from(selectedInventoryItems).map((id) => {
       const inventoryItem = inventoryItems.find((item) => item?.id === id);
       return {
-        // Gera um ID composto para evitar colisão com novos itens manuais
         item: inventoryItem?.nome || "",
-        quantidade: 1, // Quantidade inicial padrão 1
+        quantidade: 1, 
         comprado: false,
         id_lista: listId,
       };
@@ -215,7 +211,6 @@ function ShoppingList() {
     fetchShoppingListItems();
   };
 
-  // --- Agrupamento do Inventário (para o Modal) ---
 
   const groupedInventory = inventoryItems.reduce((acc, item) => {
     if (!acc[item.categoria]) {
@@ -368,7 +363,7 @@ export default ShoppingList;
 const styles = StyleSheet.create({
   scrollContent: {
     padding: 16,
-    paddingBottom: 40, // Espaço extra no final
+    paddingBottom: 40,
   },
   manualCard: {
     padding: 16,
@@ -405,8 +400,8 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   checkboxTouchArea: {
-    padding: 4, // Aumenta a área de toque
-    margin: -4, // Compensa o padding para manter o alinhamento visual
+    padding: 4, 
+    margin: -4, 
     marginRight: 8,
   },
   checkbox: {
@@ -441,7 +436,6 @@ const styles = StyleSheet.create({
     color: COLORS.slate300,
   },
   removeButton: {
-    // Estilo para hover (simulado, RN não tem hover)
     padding: 8,
     backgroundColor: "transparent",
   },

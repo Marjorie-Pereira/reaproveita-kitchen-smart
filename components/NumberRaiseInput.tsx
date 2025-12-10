@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import {
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 
 interface NumberRaiseInputProps {
@@ -21,10 +21,8 @@ const NumberRaiseInput = ({
   max = Infinity,
   onChange,
 }: NumberRaiseInputProps) => {
-  // Estado para armazenar o valor atual do input
   const [value, setValue] = useState<string | number>(initialValue);
 
-  // Função para lidar com o aumento do valor
   const handleIncrement = () => {
     const newValue = Math.min((value as number) + step, max);
     setValue(newValue);
@@ -33,7 +31,6 @@ const NumberRaiseInput = ({
     }
   };
 
-  // Função para lidar com a diminuição do valor
   const handleDecrement = () => {
     const newValue = Math.max((value as number) - step, min);
     setValue(newValue);
@@ -42,11 +39,9 @@ const NumberRaiseInput = ({
     }
   };
 
-  // Função para lidar com a mudança direta no TextInput
   const handleTextChange = (text: string) => {
     const number = parseInt(text, 10);
 
-    // Verifica se é um número válido e limita dentro do min/max
     if (!isNaN(number)) {
       const clampedValue = Math.min(Math.max(number, min), max);
       setValue(clampedValue);
@@ -54,17 +49,15 @@ const NumberRaiseInput = ({
         onChange(clampedValue);
       }
     } else if (text === "") {
-      // Permite apagar o texto temporariamente, mas mantém o estado sem notificar onChange ainda
+     
       setValue(text);
     }
   };
 
-  // Garante que o valor exibido é uma string
   const displayValue = typeof value === "number" ? value.toString() : value;
 
   useEffect(() => {
-    // Garante que o estado interno do input reflete a prop externa.
-    // É importante apenas se initialValue realmente mudar.
+   
     if (initialValue !== value) {
       setValue(initialValue);
     }
@@ -117,8 +110,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 8,
-    overflow: "hidden", // Para garantir que os cantos do container sejam arredondados
-    width: 150, // Largura total do componente
+    overflow: "hidden",
+    width: 150,
   },
   button: {
     paddingHorizontal: 15,
@@ -138,7 +131,7 @@ const styles = StyleSheet.create({
     color: "#333",
   },
   input: {
-    flex: 1, // Faz com que o input ocupe o espaço restante
+    flex: 1,
     padding: 0,
     fontSize: 16,
     height: 40,

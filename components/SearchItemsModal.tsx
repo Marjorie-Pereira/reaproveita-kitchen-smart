@@ -17,7 +17,6 @@ import Button from "./Button";
 import Loading from "./Loading";
 import SearchBar from "./SearchBar";
 
-// 2. PROCESSAMENTO (AGRUPAMENTO) DOS DADOS
 type RawFoodItem = {
     id: string;
     nome: string;
@@ -110,9 +109,7 @@ const SearchItemsModal: React.FC<SearchItemsModalProps> = ({
 
             console.log(groupedInventoryEntries);
 
-            // Armazena a fonte de dados completa
             setInitialItems(groupedInventoryEntries);
-            // Atualiza a lista exibida (items)
             setItems(groupedInventoryEntries);
         } catch (error) {
             console.error("Erro ao buscar inventário:", error);

@@ -168,8 +168,8 @@ const ExploreRecipesScreen = () => {
     const normalizeIngredient = (texto: string) => {
         return texto
             .toLowerCase()
-            .normalize("NFD") // Separa os acentos das letras
-            .replace(/[\u0300-\u036f]/g, ""); // Remove os acentos
+            .normalize("NFD") 
+            .replace(/[\u0300-\u036f]/g, ""); 
     };
 
     async function getFoodRestrictions() {
@@ -258,11 +258,11 @@ const ExploreRecipesScreen = () => {
         recipes: recipe[],
         leftoverIngredients?: string[]
     ) {
-        // 1. Mapeamos para calcular o que tem e o que falta
+        
         const recipesWithStatus = recipes.map((rec) => {
             const recipeIngredients = splitRecipeIngredients(rec.ingredientes);
 
-            // Filtra o que FALTA
+            
             const missingIngredients = recipeIngredients.filter(
                 (ingredienteDaReceita) => {
                     const tenhoEste = leftoverIngredients?.some((minhaSobra) =>
@@ -274,29 +274,25 @@ const ExploreRecipesScreen = () => {
                 }
             );
 
-            // Calculamos quantos ingredientes deram MATCH
             const matchedCount =
                 recipeIngredients.length - missingIngredients.length;
 
             return {
                 ...rec,
                 missingIngredients,
-                matchedCount, // Quantos eu tenho
+                matchedCount, 
                 matchPercentage: matchedCount / recipeIngredients.length,
             };
         });
 
-        // 2. FILTRAGEM CORRIGIDA
-        // Queremos receitas onde encontramos PELO MENOS 1 ingrediente (matchedCount > 0)
+        
         const finalSuggestions = recipesWithStatus.filter(
             (r) => r.matchedCount > 0
         );
 
-        // 3. ORDENAÇÃO (Opcional, mas recomendado)
-        // Coloca primeiro as receitas onde você tem mais ingredientes (maior %)
+       
         finalSuggestions.sort((a, b) => b.matchPercentage - a.matchPercentage);
 
-        // 4. Limpeza para retornar ao tipo original (remove os campos auxiliares)
         return finalSuggestions.map((rec) => {
             const {
                 matchPercentage,

@@ -328,88 +328,86 @@ export default function MealViewScreen() {
     );
 }
 
-// --- Stylesheet (Equivalent to Tailwind Classes) ---
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
         paddingHorizontal: 16,
         paddingTop: 8,
-        maxWidth: 400, // max-w-md
-        alignSelf: "center", // mx-auto
-        width: "100%",
+        maxWidth: 400, 
+        alignSelf: "center",        width: "100%",
     },
     card: {
         backgroundColor: "#FFFFFF",
-        borderRadius: 16, // rounded-2xl
+        borderRadius: 16, 
         shadowColor: "#000",
         shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 0.1,
         shadowRadius: 1,
-        elevation: 2, // shadow-sm
+        elevation: 2, 
         borderWidth: 1,
-        borderColor: "#E5E7EB", // border-gray-200
+        borderColor: "#E5E7EB", 
         overflow: "hidden",
     },
     cardSection: {
-        padding: 24, // p-6
+        padding: 24,
         borderBottomWidth: 1,
-        borderColor: "#F3F4F6", // border-gray-100
+        borderColor: "#F3F4F6",
     },
     cardSectionOptions: {
-        padding: 24, // p-6
+        padding: 24, 
         paddingVertical: 16,
-        gap: 16, // space-y-4
+        gap: 16,
     },
     cardSectionActions: {
-        padding: 24, // p-6
-        paddingTop: 8, // pt-2
-        gap: 12, // space-y-3
+        padding: 24, 
+        paddingTop: 8, 
+        gap: 12, 
     },
     h2: {
         fontSize: 18,
         fontWeight: "600",
-        marginBottom: 12, // mb-3
-        color: "#1F2937", // gray-800
+        marginBottom: 12, 
+        color: "#1F2937", 
     },
     detailsRow: {
         flexDirection: "row",
         alignItems: "center",
-        gap: 12, // gap-3
+        gap: 12, 
         flexWrap: "wrap",
     },
     calendarContainer: {
         flexDirection: "row",
         alignItems: "center",
-        gap: 6, // gap-1.5
-        color: "#4B5563", // text-gray-600
+        gap: 6, 
+        color: "#4B5563", 
     },
     calendarText: {
-        fontSize: 14, // text-sm
+        fontSize: 14, 
         color: "#4B5563",
     },
 
     timeInputContainer: {
-        marginLeft: 32, // ml-7 equivalent (approx 28px)
-        gap: 8, // space-y-2
+        marginLeft: 32, 
+        gap: 8, 
     },
     timeLabelContainer: {
         flexDirection: "row",
         alignItems: "center",
-        gap: 6, // gap-1.5
+        gap: 6, 
     },
     timeLabelText: {
-        fontSize: 14, // text-sm
-        color: "#4B5563", // text-gray-600
+        fontSize: 14, 
+        color: "#4B5563", 
     },
     timeInput: {
         height: 40,
         borderWidth: 1,
-        borderColor: "#D1D5DB", // gray-300
+        borderColor: "#D1D5DB", 
         borderRadius: 8,
         paddingHorizontal: 12,
         fontSize: 16,
-        width: 150, // max-w-[150px]
+        width: 150, 
         backgroundColor: "#FFFFFF",
     },
 
@@ -417,7 +415,7 @@ const styles = StyleSheet.create({
         color: "#FFFFFF",
         fontSize: 16,
         fontWeight: "600",
-        marginLeft: 8, // Space between icon and text
+        marginLeft: 8, 
     },
     actionButton: {},
 });
